@@ -1,0 +1,16 @@
+option('man-pages',
+    type: 'feature',
+    value: 'auto',
+    description: 'generate and install man pages (default=false)'
+)
+option('nls',
+    type: 'boolean',
+    value: false,
+    description: 'enable localization (default=false)'
+)
+
+option('examples',
+    type: 'boolean',
+    value: true,
+    description: 'build examples (default=false)'
+)

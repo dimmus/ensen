@@ -1,0 +1,15 @@
+FEATURES:
+---------
+[-] [math]   add colored noise option (lib/math/random/random_noise.c) to signal generator.
+[-] [math]   add FFT option 
+[-] [ui]     add SDL engine
+[-] [doc]    add code and usage documentation
+[-] [tests]  add tests
+[-] [signal] add peaksearch algorithm
+[-] [signal] add smooth algorithm
+
+
+FIXES:
+------
+[-] [clean] remove random_mt19937
+

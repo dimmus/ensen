@@ -1,0 +1,15 @@
+==============
+Ensen 0.0.1
+==============
+
+Additions:
+   * plot: add support for gnuplot engine.
+   * math: add random number generation utils.
+   * signal: add gaussian form of signal.
+   * signal: add signal generator with multiple determined peaks and noise.
+
+Improvements:
+   * none
+
+Fixes:
+   * none
