@@ -1,10 +1,5 @@
-#define __USE_XOPEN_EXTENDED 1
-#define __USE_MISC 1
-#undef __USE_XOPEN2K8
 #include <unistd.h> // usleep()
 #include <stdlib.h> // clearscr()
-
-#include <stdlib.h>
 #include <stdio.h>
 
 #ifdef HAVE_CONFIG_H
@@ -14,8 +9,6 @@
 #ifdef ENABLE_NLS
 # include <libintl.h>
 #endif
-
-#include <Eina.h>
 
 #define UI_GNUPLOT
 
@@ -33,25 +26,25 @@
   #include "ui_nuklear.h"
 #endif
 
+#include <Eina.h>
+
 #include "ensen_signal.h"
 #include "ensen_math.h"
+#include "ensen_config.h"
+#include "ensen_config_dictionary.h"
 
 #include "signal_generator.h"
 #include "signal_fit.h"
 #include "signal_peaksearch.h"
 
-#include "ensen_config.h"
-#include "ensen_config_dictionary.h"
-
 int test_signal_peaksearch(void);
-int test_signal_gaussian(void);
+int test_signal_gaussian(const char * conf_name);
 int test_signal_random(void);
 int test_math_random_range(void);
 int test_math_random_mt19937(void);
 int test_fit(void);
 static void clearscreen(void);
 static void create_default_config_file(void);
-static int  parse_config_file(const char * ini_name);
 
 int 
 test_signal_peaksearch(void)
@@ -90,13 +83,13 @@ test_signal_peaksearch(void)
 }
 
 int 
-test_signal_gaussian(void)
+test_signal_gaussian(const char * conf_name)
 {
   // Setup config
   dictionary  *   ini ;
-  ini = config_load("config.ini");
+  ini = config_load(conf_name);
   if (ini==NULL) {
-      fprintf(stderr, "cannot parse file: %s\n", "config.ini");
+      fprintf(stderr, "cannot parse file: %s\n", conf_name);
       return -1 ;
   }
   // config_dump(ini, stderr);
@@ -191,17 +184,18 @@ test_signal_gaussian(void)
     // Run the search on ps and put results in peaks
     index_t count = search_peaks(&ps, &peaks_arr);
 
-    // Printout:
+    // Print results
     printf("Overall st.dev: %f. Found %d peaks\n", ps.stdev, count);
     index_t k;
     for (k=0; k<count; k++) {
       printf("peak %d: point %d, value %f\n", k, peaks_arr[k], ps.data_v[peaks_arr[k]]);
     }
     
-    usleep(1000000/gen_frequency); // simulate mesurements frequency  
+    // Simulate mesurements frequency  
+    usleep(1000000/gen_frequency); 
   }
 
-  // Do not close window untill press any key
+  // Do not close window untill we press any key
   printf("press ENTER to continue\n"); while (getchar()!='\n'){}
 
   // Cleanup:
@@ -372,74 +366,25 @@ create_default_config_file(void)
     fclose(ini);
 }
 
-static int 
-parse_config_file(const char * ini_name)
-{
-    dictionary  *   ini ;
-
-    /* Some temporary variables to hold query results */
-    int             b ;
-    int             i ;
-    double          d ;
-    const char  *   s ;
-
-    ini = config_load(ini_name);
-    if (ini==NULL) {
-        fprintf(stderr, "cannot parse file: %s\n", ini_name);
-        return -1 ;
-    }
-    config_dump(ini, stderr);
-
-    /* Get pizza attributes */
-    printf("Pizza:\n");
-
-    b = config_getboolean(ini, "pizza:ham", -1);
-    printf("Ham:       [%d]\n", b);
-    b = config_getboolean(ini, "pizza:mushrooms", -1);
-    printf("Mushrooms: [%d]\n", b);
-    b = config_getboolean(ini, "pizza:capres", -1);
-    printf("Capres:    [%d]\n", b);
-    b = config_getboolean(ini, "pizza:cheese", -1);
-    printf("Cheese:    [%d]\n", b);
-
-    /* Get wine attributes */
-    printf("Peaks:\n");
-    s = config_getstring(ini, "wine:grape", NULL);
-    printf("Grape:     [%s]\n", s ? s : "UNDEF");
-
-    i = config_getint(ini, "points:number", -1);
-    printf("peaks.number:      [%d]\n", i);
-
-    s = config_getstring(ini, "wine:country", NULL);
-    printf("Country:   [%s]\n", s ? s : "UNDEF");
-
-    d = config_getdouble(ini, "peaks:[0].position", -1.0);
-    printf("peaks[0].position:   [%g]\n", d);
-
-    config_freedict(ini);
-    return 0 ;
-}
-
 int
 main(int argc EINA_UNUSED, const char * argv[] EINA_UNUSED)
 {
   int status;
 
-  // if (argc<2) {
-  //     create_default_config_file();
-  //     // status = parse_config_file("config.ini");
-  // } else {
-  //     // status = parse_config_file(argv[1]);
-  // }
-
   clearscreen();
+
+  if (argc<2) {
+      create_default_config_file();
+      status = test_signal_gaussian("config.ini"); 
+  } else {
+      status = test_signal_gaussian(argv[1]); 
+  }
+
   // status = test_signal_peaksearch();
-  status = test_signal_gaussian(); 
   // status = test_signal_random(); 
   // status = test_math_random_range();
   // status = test_math_random_mt19937();
   // status = test_fit();
 
-  
   return status;
 }
