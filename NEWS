@@ -3,6 +3,9 @@ Ensen 0.0.1
 ==============
 
 Additions:
+   * ui: add support of config file with default generation
+   * signal: add support of signal generation and ploting with defined frequency
+   * signal: add smooth algorithm
    * plot: add support for gnuplot engine.
    * math: add random number generation utils.
    * signal: add gaussian form of signal.

@@ -1,5 +1,6 @@
 ensen_lib_src = []
 
+subdir('config')
 subdir('math')
 subdir('signal')
 subdir('ui')

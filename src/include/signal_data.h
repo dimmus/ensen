@@ -17,16 +17,16 @@ struct _point
 
 typedef struct _peak Peak;
 struct _peak
-{
-    float amplitude;
-    double position;
-    float width;
+{   
+    data_t amplitude;
+    data_t position;
+    data_t width;
 };
 
 typedef struct _noise Noise;
 struct _noise
 {
-    float amplitude;
+    data_t amplitude;
 };
 
 #endif

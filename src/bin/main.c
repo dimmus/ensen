@@ -40,15 +40,20 @@
 #include "signal_fit.h"
 #include "signal_peaksearch.h"
 
-void test_signal_peaksearch(void);
-void test_signal_gaussian(void);
-void test_signal_random(void);
-void test_math_random_range(void);
-void test_math_random_mt19937(void);
-void test_fit(void);
-void clearscreen(void);
+#include "ensen_config.h"
+#include "ensen_config_dictionary.h"
 
-void 
+int test_signal_peaksearch(void);
+int test_signal_gaussian(void);
+int test_signal_random(void);
+int test_math_random_range(void);
+int test_math_random_mt19937(void);
+int test_fit(void);
+static void clearscreen(void);
+static void create_default_config_file(void);
+static int  parse_config_file(const char * ini_name);
+
+int 
 test_signal_peaksearch(void)
 {
   data_t d[] = {
@@ -80,55 +85,64 @@ test_signal_peaksearch(void)
   // Cleanup:
   // free(ps.data_v); // Commented due to error: munmap_chunk(): invalid pointer
   free(peaks);
+
+  return 0;
 }
 
-void 
+int 
 test_signal_gaussian(void)
 {
+  // Setup config
+  dictionary  *   ini ;
+  ini = config_load("config.ini");
+  if (ini==NULL) {
+      fprintf(stderr, "cannot parse file: %s\n", "config.ini");
+      return -1 ;
+  }
+  // config_dump(ini, stderr);
+
   // Setup signal parameters
-  index_t n_points = 1000;
+  index_t n_points = (index_t)config_getint(ini, "points:number", -1);
   Point (*points)[] = malloc(sizeof(double) * 2 * n_points);
  
-  index_t n_peaks = 4;
+  index_t n_peaks = (index_t)config_getint(ini, "peaks:number", -1);;
   Peak peaks[n_peaks];
 
-  peaks[0].amplitude = 1.0;
-  peaks[0].position = 200.0;
-  peaks[0].width = 100.0;
+  peaks[0].amplitude = (data_t)config_getdouble(ini, "peaks:[0].amplitude", -1.0);
+  peaks[0].position = (data_t)config_getdouble(ini, "peaks:[0].position", -1.0);
+  peaks[0].width = (data_t)config_getdouble(ini, "peaks:[0].width", -1.0);
   
-  peaks[1].amplitude = 0.8;
-  peaks[1].position = 400.0;
-  peaks[1].width = 100.0;
+  peaks[1].amplitude = (data_t)config_getdouble(ini, "peaks:[1].amplitude", -1.0);
+  peaks[1].position = (data_t)config_getdouble(ini, "peaks:[1].position", -1.0);
+  peaks[1].width = (data_t)config_getdouble(ini, "peaks:[1].width", -1.0);
   
-  peaks[2].amplitude = 0.6;
-  peaks[2].position = 600.0;
-  peaks[2].width = 100.0;
+  peaks[2].amplitude = (data_t)config_getdouble(ini, "peaks:[2].amplitude", -1.0);
+  peaks[2].position = (data_t)config_getdouble(ini, "peaks:[2].position", -1.0);
+  peaks[2].width = (data_t)config_getdouble(ini, "peaks:[2].width", -1.0);
 
-  peaks[3].amplitude = 0.4;
-  peaks[3].position = 800.0;
-  peaks[3].width = 100.0;
+  peaks[3].amplitude = (data_t)config_getdouble(ini, "peaks:[3].amplitude", -1.0);
+  peaks[3].position = (data_t)config_getdouble(ini, "peaks:[3].position", -1.0);
+  peaks[3].width = (data_t)config_getdouble(ini, "peaks:[3].width", -1.0);
 
   Noise noise;
-  noise.amplitude = 0.2;
+  noise.amplitude = config_getdouble(ini, "noise:amplitude", -1.0);
 
   // Peak search
   // Result array, initialized to minimum length (will expand automatically)
   index_t *peaks_arr = (index_t*) malloc(sizeof(index_t));
 
-  data_t d[n_points];
-
   PeakSearch ps;
-  ps.sigmas = 0.15; // 0.15
-  ps.win_size = 40; // 40
+  ps.sigmas = (data_t)config_getdouble(ini, "search:sigma", -1.0); // 0.15
+  ps.win_size = (index_t)config_getdouble(ini, "search:window", -1.0); // 40
   ps.data_s = n_points; //sizeof(d) / sizeof(data_t);
   ps.data_v = (data_t*) malloc(ps.data_s * sizeof(data_t));
 
   // Setup plot parameters
-  index_t gen_max = 10;
-  index_t gen_frequency = 1; // Hz
+  index_t gen_max = (index_t)config_getint(ini, "plot:generations", -1.0);
+  index_t gen_frequency = (index_t)config_getint(ini, "plot:frequency", -1.0);; // Hz
 
-  double plot_lim_y1 = 0.0;
-  double plot_lim_y2 = 1.6;
+  double plot_lim_y1 = config_getdouble(ini, "plot:y.min", -1.0);
+  double plot_lim_y2 = config_getdouble(ini, "plot:y.max", -1.0);
   
   gnuplot_ctrl *win = gnuplot_init();
   gnuplot_cmd(win, "set term qt size 1000, 400");
@@ -173,7 +187,6 @@ test_signal_gaussian(void)
     {
       ps.data_v[n] = (*points)[n].y;
     }
-    // ps.data_v = d;
 
     // Run the search on ps and put results in peaks
     index_t count = search_peaks(&ps, &peaks_arr);
@@ -188,21 +201,26 @@ test_signal_gaussian(void)
     usleep(1000000/gen_frequency); // simulate mesurements frequency  
   }
 
+  // Do not close window untill press any key
   printf("press ENTER to continue\n"); while (getchar()!='\n'){}
+
+  // Cleanup:
   gnuplot_close(win);
   free(points);
-  // Cleanup:
   free(peaks_arr);
+  config_freedict(ini);
+
+  return 0;
 }
 
-void
+static void
 clearscreen(void)
 {
   // system("cls||clear"); // win and linux
   printf("\e[1;1H\e[2J");
 }
 
-void 
+int 
 test_signal_random(void)
 {
   // init
@@ -258,9 +276,11 @@ test_signal_random(void)
   // free
   gnuplot_close(win);
   free(s);
+
+  return 0;
 }
 
-void 
+int 
 test_math_random_range(void)
 {
   random_seed();
@@ -272,9 +292,11 @@ test_math_random_range(void)
     printf("%f ", random_zero_one());
     // printf("%f ", random_pm_one()); 
   }
+
+  return 0;
 }
 
-void 
+int
 test_math_random_mt19937(void)
 { 
   unsigned long init[4]={0x123, 0x234, 0x345, 0x456}, length=4;
@@ -288,9 +310,11 @@ test_math_random_mt19937(void)
     // printf("%10.8f ", random_zero_one(2));
     if (i%7==4) printf("\n");
   }
+
+  return 0;
 }
 
-void
+int
 test_fit(void)
 {
   index_t n_points = 11;
@@ -298,18 +322,124 @@ test_fit(void)
   printf("%f \n", min(x,n_points));
   printf("%d \n", val2int(x,n_points,6));
   // TODO: unfinished
+
+  return 0; 
+}
+
+static void 
+create_default_config_file(void)
+{
+    FILE *ini ;
+
+    if ((ini=fopen("config.ini", "w"))==NULL) {
+        fprintf(stderr, "config: cannot create config.ini\n");
+        return ;
+    }
+
+    fprintf(ini,
+    "\n"
+    "[Points]\n"
+    "number = 1000;\n"
+    "\n"
+    "[Peaks]\n"
+    "number = 4;\n"
+    "[0].amplitude = 1.0;\n"
+    "[0].position = 200.0;\n"
+    "[0].width = 100.0;\n"   
+    "[1].amplitude = 0.8;\n"
+    "[1].position = 400.0;\n"
+    "[1].width = 100.0;\n"
+    "[2].amplitude = 0.6;\n"
+    "[2].position = 600.0;\n"
+    "[2].width = 100.0;\n"
+    "[3].amplitude = 0.4;\n"
+    "[3].position = 800.0;\n"
+    "[3].width = 100.0;\n"
+    "\n"
+    "[Noise]\n"
+    "amplitude = 0.2;\n"
+    "\n"
+    "[Search]\n"
+    "sigma = 0.15;\n"
+    "window = 40;\n"
+    "\n"
+    "[Plot]\n"
+    "generations = 1;\n"
+    "frequency = 1;\n"
+    "y.min = 0.0;\n"
+    "y.max = 1.6;\n"
+    "\n");
+    fclose(ini);
+}
+
+static int 
+parse_config_file(const char * ini_name)
+{
+    dictionary  *   ini ;
+
+    /* Some temporary variables to hold query results */
+    int             b ;
+    int             i ;
+    double          d ;
+    const char  *   s ;
+
+    ini = config_load(ini_name);
+    if (ini==NULL) {
+        fprintf(stderr, "cannot parse file: %s\n", ini_name);
+        return -1 ;
+    }
+    config_dump(ini, stderr);
+
+    /* Get pizza attributes */
+    printf("Pizza:\n");
+
+    b = config_getboolean(ini, "pizza:ham", -1);
+    printf("Ham:       [%d]\n", b);
+    b = config_getboolean(ini, "pizza:mushrooms", -1);
+    printf("Mushrooms: [%d]\n", b);
+    b = config_getboolean(ini, "pizza:capres", -1);
+    printf("Capres:    [%d]\n", b);
+    b = config_getboolean(ini, "pizza:cheese", -1);
+    printf("Cheese:    [%d]\n", b);
+
+    /* Get wine attributes */
+    printf("Peaks:\n");
+    s = config_getstring(ini, "wine:grape", NULL);
+    printf("Grape:     [%s]\n", s ? s : "UNDEF");
+
+    i = config_getint(ini, "points:number", -1);
+    printf("peaks.number:      [%d]\n", i);
+
+    s = config_getstring(ini, "wine:country", NULL);
+    printf("Country:   [%s]\n", s ? s : "UNDEF");
+
+    d = config_getdouble(ini, "peaks:[0].position", -1.0);
+    printf("peaks[0].position:   [%g]\n", d);
+
+    config_freedict(ini);
+    return 0 ;
 }
 
 int
 main(int argc EINA_UNUSED, const char * argv[] EINA_UNUSED)
 {
-  clearscreen();
-  // test_signal_peaksearch();
-  test_signal_gaussian(); 
-  // test_signal_random(); 
-  // test_math_random_range();
-  // test_math_random_mt19937();
-  // test_fit();
+  int status;
 
-  return 0;
+  // if (argc<2) {
+  //     create_default_config_file();
+  //     // status = parse_config_file("config.ini");
+  // } else {
+  //     // status = parse_config_file(argv[1]);
+  // }
+
+  clearscreen();
+  // status = test_signal_peaksearch();
+  status = test_signal_gaussian(); 
+  // status = test_signal_random(); 
+  // status = test_math_random_range();
+  // status = test_math_random_mt19937();
+  // status = test_fit();
+
+  
+  return status;
 }

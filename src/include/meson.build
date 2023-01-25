@@ -13,7 +13,9 @@ ensen_header_src = files([
    'signal_generator.h',
    'signal_peaksearch.h',
    'ensen_signal.h',
-   'ensen_math.h', 
+   'ensen_math.h',
+   'ensen_config_dictionary.h',
+   'ensen_config.h', 
 ])
 
 install_headers(ensen_header_src,
