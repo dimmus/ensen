@@ -17,18 +17,18 @@
 
 #include <Eina.h>
 
-#define ui_GNUPLOT
+#define UI_GNUPLOT
 
-#ifdef ui_SDL
+#ifdef UI_SDL
   #include "ui_sdl_llist.h"
   #include "ui_sdl_plot.h"
 #endif
 
-#ifdef ui_GNUPLOT
+#ifdef UI_GNUPLOT
   #include "ui_gnuplot.h"
 #endif
 
-#ifdef ui_NUKLEAR
+#ifdef UI_NUKLEAR
   #define NK_IMPLEMENTATION
   #include "ui_nuklear.h"
 #endif

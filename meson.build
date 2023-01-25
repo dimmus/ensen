@@ -84,10 +84,10 @@ endif
 config_dir = [include_directories('.')]
 config_h = configuration_data()
 config_h.set_quoted('PACKAGE_NAME', meson.project_name())
-# config_h.set('ui_SDL')
-# config_h.set('ui_GNUPLOT')
-# config_h.set('ui_NUKLEAR')
-# config_h.set('ui_EFL')
+# config_h.set('UI_SDL')
+# config_h.set('UI_GNUPLOT')
+# config_h.set('UI_NUKLEAR')
+# config_h.set('UI_EFL')
 
 subdir('src')
 
