@@ -10,13 +10,6 @@
 # include <libintl.h>
 #endif
 
-#define UI_GNUPLOT
-
-#ifdef UI_SDL
-  #include "ui_sdl_llist.h"
-  #include "ui_sdl_plot.h"
-#endif
-
 #ifdef UI_GNUPLOT
   #include "ui_gnuplot.h"
 #endif
@@ -26,7 +19,12 @@
   #include "ui_nuklear.h"
 #endif
 
-#include <Eina.h>
+#ifdef UI_SDL
+  #include "ui_sdl_llist.h"
+  #include "ui_sdl_plot.h"
+#endif
+
+#include "Ensen.h"
 
 #include "ensen_signal.h"
 #include "ensen_math.h"
@@ -86,12 +84,14 @@ int
 test_signal_gaussian(const char * conf_name)
 {
   // Setup config
-  dictionary  *   ini ;
+  dictionary *ini;
   ini = config_load(conf_name);
-  if (ini==NULL) {
+  if (ini == NULL) 
+  {
       fprintf(stderr, "cannot parse file: %s\n", conf_name);
       return -1 ;
   }
+  // Show parsed config in terminal
   // config_dump(ini, stderr);
 
   // Setup signal parameters
@@ -367,7 +367,7 @@ create_default_config_file(void)
 }
 
 int
-main(int argc EINA_UNUSED, const char * argv[] EINA_UNUSED)
+main(int argc __UNUSED__, const char * argv[] __UNUSED__)
 {
   int status;
 
