@@ -6,6 +6,7 @@
 #include <math.h>
 #include <sys/time.h>
 
+#include "Ensen.h"
 #include "math_random_noise.h"
 
 // Define some constant
@@ -102,7 +103,7 @@ float* autoCorr(int depth, float alpha){
   return A;
 }  
 
-float* initPink(int depth, float alpha){
+float* initPink(int depth, float alpha __UNUSED__){
   int n;
   float* PN = malloc((depth-1)*sizeof(float));
   for(n=0;n<(depth-1);n++){PN[n] = genWhiteNoise();}
@@ -136,11 +137,11 @@ float genPinkNoise(float* P, float* A, int depth){
 // Same thing as pink noise, only a violet noise vector is used as a
 // seed vector. Note that the 'pinking' of violet noise produces blue
 // noise (i.e. noise fractioning) 
-float* initBlue(int depth, float alpha){
+float* initBlue(int depth, float alpha __UNUSED__){
   int n;
-  float* BN = malloc((depth-1)*sizeof(float));
-  for(n=0;n<(depth-1);n++){BN[n] = genVioletNoise();}
-  return BN;
+  float* bnoise = malloc((depth-1)*sizeof(float));
+  for(n=0;n<(depth-1);n++){bnoise[n] = genVioletNoise();}
+  return bnoise;
 }
 
 float genBlueNoise(float* B, float* A, int depth){
