@@ -1,5 +1,5 @@
-#ifndef PEAKSEARCH_H
-#define PEAKSEARCH_H
+#ifndef SIGNAL_PEAKSEARCH_H
+#define SIGNAL_PEAKSEARCH_H
 
 #include <stdio.h>
 #include <stdlib.h>

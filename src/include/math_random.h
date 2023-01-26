@@ -1,3 +1,6 @@
+#ifndef MATH_RANDOM_H
+#define MATH_RANDOM_H
+
 void random_seed(void);
 
 int random_range(int lower, int upper);
@@ -73,4 +76,4 @@ double random_pm_one_mt19937(void);
     double random_mt19937ar_cok_res53(void);
 #endif
 
-
+#endif

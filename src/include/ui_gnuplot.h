@@ -1,6 +1,3 @@
-#include "signal_data.h"
-
-/*-------------------------------------------------------------------------*/
 /**
   @file     gnuplot_i.h
   @author   N. Devillard
@@ -14,31 +11,16 @@
   display requests to gnuplot through simple C calls.
 
 */
-/*--------------------------------------------------------------------------*/
 
-/*
-    $Id: gnuplot_i.h,v 1.11 2003/01/27 08:58:04 ndevilla Exp $
-    $Author: ndevilla $
-    $Date: 2003/01/27 08:58:04 $
-    $Revision: 1.11 $
- */
+#ifndef UI_GNUPLOT_H
+#define UI_GNUPLOT_H
 
-#ifndef _GNUPLOT_PIPES_H_
-#define _GNUPLOT_PIPES_H_
-
-/*---------------------------------------------------------------------------
-                                Includes
- ---------------------------------------------------------------------------*/
+#include "signal_data.h"
 #include <stdio.h>
 
 /** Maximal number of simultaneous temporary files */
 #define GP_MAX_TMP_FILES    64
 
-/*---------------------------------------------------------------------------
-                                New Types
- ---------------------------------------------------------------------------*/
-
-/*-------------------------------------------------------------------------*/
 /**
   @typedef  gnuplot_ctrl
   @brief    gnuplot session handle (opaque type).
@@ -51,8 +33,6 @@
   This structure is meant to remain opaque, you normally do not need
   to know what is contained in there.
  */
-/*-------------------------------------------------------------------------*/
-
 typedef struct _GNUPLOT_CTRL_ {
     /** Pipe to gnuplot process */
     FILE    * gnucmd ;
@@ -68,12 +48,6 @@ typedef struct _GNUPLOT_CTRL_ {
     int       ntmp ;
 } gnuplot_ctrl ;
 
-/*---------------------------------------------------------------------------
-                        Function ANSI C prototypes
- ---------------------------------------------------------------------------*/
-
-
-/*-------------------------------------------------------------------------*/
 /**
   @brief    Opens up a gnuplot session, ready to receive commands.
   @return   Newly allocated gnuplot control structure.
@@ -84,10 +58,8 @@ typedef struct _GNUPLOT_CTRL_ {
 
   The session must be closed using gnuplot_close().
  */
-/*--------------------------------------------------------------------------*/
 gnuplot_ctrl * gnuplot_init(void);
 
-/*-------------------------------------------------------------------------*/
 /**
   @brief    Closes a gnuplot session previously opened by gnuplot_init()
   @param    handle Gnuplot session control handle.
@@ -98,10 +70,8 @@ gnuplot_ctrl * gnuplot_init(void);
   temporary files are not cleaned and child process might survive.
 
  */
-/*--------------------------------------------------------------------------*/
 void gnuplot_close(gnuplot_ctrl * handle);
 
-/*-------------------------------------------------------------------------*/
 /**
   @brief    Sends a command to an active gnuplot session.
   @param    handle Gnuplot session control handle
@@ -124,10 +94,8 @@ void gnuplot_close(gnuplot_ctrl * handle);
   it is not possible for this interface to query an error status
   back from gnuplot.
  */
-/*--------------------------------------------------------------------------*/
 void gnuplot_cmd(gnuplot_ctrl *  handle, char const *  cmd, ...);
 
-/*-------------------------------------------------------------------------*/
 /**
   @brief    Change the plotting style of a gnuplot session.
   @param    h Gnuplot session control handle
@@ -147,10 +115,8 @@ void gnuplot_cmd(gnuplot_ctrl *  handle, char const *  cmd, ...);
   - boxes
   - boxeserrorbars
  */
-/*--------------------------------------------------------------------------*/
 void gnuplot_setstyle(gnuplot_ctrl * h, char * plot_style);
 
-/*-------------------------------------------------------------------------*/
 /**
   @brief    Sets the x label of a gnuplot session.
   @param    h Gnuplot session control handle.
@@ -159,11 +125,9 @@ void gnuplot_setstyle(gnuplot_ctrl * h, char * plot_style);
 
   Sets the x label for a gnuplot session.
  */
-/*--------------------------------------------------------------------------*/
 void gnuplot_set_xlabel(gnuplot_ctrl * h, char * label);
 
 
-/*-------------------------------------------------------------------------*/
 /**
   @brief    Sets the y label of a gnuplot session.
   @param    h Gnuplot session control handle.
@@ -172,10 +136,8 @@ void gnuplot_set_xlabel(gnuplot_ctrl * h, char * label);
 
   Sets the y label for a gnuplot session.
  */
-/*--------------------------------------------------------------------------*/
 void gnuplot_set_ylabel(gnuplot_ctrl * h, char * label);
 
-/*-------------------------------------------------------------------------*/
 /**
   @brief    Resets a gnuplot session (next plot will erase previous ones).
   @param    h Gnuplot session control handle.
@@ -184,10 +146,8 @@ void gnuplot_set_ylabel(gnuplot_ctrl * h, char * label);
   Resets a gnuplot session, i.e. the next plot will erase all previous
   ones.
  */
-/*--------------------------------------------------------------------------*/
 void gnuplot_resetplot(gnuplot_ctrl * h);
 
-/*-------------------------------------------------------------------------*/
 /**
   @brief    Plots a 2d graph from a list of doubles.
   @param    handle  Gnuplot session control handle.
@@ -216,10 +176,8 @@ void gnuplot_resetplot(gnuplot_ctrl * h);
     gnuplot_close(h) ;
   @endcode
  */
-/*--------------------------------------------------------------------------*/
 void gnuplot_plot_x(gnuplot_ctrl * handle, double * d, int n, char * title);
 
-/*-------------------------------------------------------------------------*/
 /**
   @brief    Plot a 2d graph from a list of points.
   @param    handle      Gnuplot session control handle.
@@ -249,7 +207,6 @@ void gnuplot_plot_x(gnuplot_ctrl * handle, double * d, int n, char * title);
     gnuplot_close(h) ;
   @endcode
  */
-/*--------------------------------------------------------------------------*/
 void gnuplot_plot_xy(
     gnuplot_ctrl    *   handle,
     double          *   x,
@@ -266,7 +223,6 @@ void gnuplot_plot_points(
 );
 
 
-/*-------------------------------------------------------------------------*/
 /**
   @brief    Open a new session, plot a signal, close the session.
   @param    title   Plot title
@@ -285,7 +241,6 @@ void gnuplot_plot_points(
   It is Ok to provide an empty title, empty style, or empty labels for
   X and Y. Defaults are provided in this case.
  */
-/*--------------------------------------------------------------------------*/
 void gnuplot_plot_once(
     char    *   title,
     char    *   style,
@@ -296,7 +251,6 @@ void gnuplot_plot_once(
     int         n
 );
 
-/*-------------------------------------------------------------------------*/
 /**
   @brief    Plot a slope on a gnuplot session.
   @param    handle      Gnuplot session control handle.
@@ -320,7 +274,6 @@ void gnuplot_plot_once(
     gnuplot_close(h) ;
   @endcode
  */
-/*--------------------------------------------------------------------------*/
 void gnuplot_plot_slope(
     gnuplot_ctrl    *   handle,
     double              a,
@@ -328,7 +281,6 @@ void gnuplot_plot_slope(
     char            *   title
 ) ;
 
-/*-------------------------------------------------------------------------*/
 /**
   @brief    Plot a curve of given equation y=f(x).
   @param    h           Gnuplot session control handle.
@@ -351,7 +303,6 @@ void gnuplot_plot_slope(
         gnuplot_close(h) ;
   @endcode
  */
-/*--------------------------------------------------------------------------*/
 void gnuplot_plot_equation(gnuplot_ctrl * h, char * equation, char * title) ;
 
 /**

@@ -1,3 +1,6 @@
+#ifndef SIGNAL_GENERATOR_H
+#define SIGNAL_GENERATOR_H
+
 #include "signal_data.h"
 
 /**
@@ -38,3 +41,5 @@
     @endcode
 **/
 void signal_generate(Point (*points)[], index_t n_peaks, Peak peaks[], Noise noise, index_t n_points);
+
+#endif

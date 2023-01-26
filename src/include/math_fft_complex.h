@@ -1,5 +1,5 @@
-#ifndef math_complex_h_
-#define math_complex_h_
+#ifndef MATH_FFT_COMPLEX_H
+#define MATH_FFT_COMPLEX_H
 
 #ifdef __cplusplus
 extern "C" {

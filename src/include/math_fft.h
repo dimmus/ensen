@@ -1,5 +1,5 @@
-#ifndef math_fft_h
-#define math_fft_h_
+#ifndef MATH_FFT_H
+#define MATH_FFT_H
 
 #ifdef __cplusplus
 extern "C" {

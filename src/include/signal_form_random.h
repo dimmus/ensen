@@ -1,3 +1,6 @@
+#ifndef SIGNAL_FORM_RANDOM_H
+#define SIGNAL_FORM_RANDOM_H
+
 #include "signal_data.h"
 // typedef float Signal[];
 // typedef Signal Signals[];
@@ -15,3 +18,5 @@ struct _random_signal_parameters
 };
 
 void random_signal_generate(Random_Signal_Parameters rsp, double (*signal)[]);
+
+#endif

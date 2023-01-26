@@ -1,4 +1,3 @@
-
 #ifndef ENSEN_CONFIG_H
 #define ENSEN_CONFIG_H
 

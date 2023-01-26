@@ -2,8 +2,8 @@
 	Build custom linked list, push new element, clear and print items
 	@author Bertrand Martel
 */
-#ifndef SDL_LLIST
-#define SDL_LLIST
+#ifndef UI_SDL_LLIST_H
+#define UI_SDL_LLIST_H
 
 #include "SDL2/SDL.h"
 

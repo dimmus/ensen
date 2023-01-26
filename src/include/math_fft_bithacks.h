@@ -3,8 +3,8 @@
  * https://graphics.stanford.edu/~seander/bithacks.html
  */
 
-#ifndef math_bithacks_h_
-#define math_bithacks_h_
+#ifndef MATH_FFT_BITHACKS_H
+#define MATH_FFT_BITHACKS_H
 
 #ifdef __cplusplus
 extern "C" {

@@ -2,8 +2,8 @@
 	Create a new SDL window, plot points in a created graph featuring a cartesian coordinate system
 	@author Bertrand Martel, 2015
 */
-#ifndef SDL_PLOT
-#define SDL_PLOT
+#ifndef UI_SDL_PLOT_H
+#define UI_SDL_PLOT_H
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_ttf.h"

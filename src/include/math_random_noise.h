@@ -1,3 +1,6 @@
+#ifndef MATH_RANDOM_NOISE_H
+#define MATH_RANDOM_NOISE_H
+
 // For random number generation
 void init_rnd(void);
 float rnd(void);
@@ -24,3 +27,5 @@ float genBlueNoise(float* B, float* A, int depth);
 float* autoCorr(int depth, float alpha);
 float* initPink(int depth, float alpha);
 float* initBlue(int depth, float alpha);
+
+#endif

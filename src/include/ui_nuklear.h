@@ -219,8 +219,8 @@
   #define NK_SINGLE_FILE
 #endif
 
-#ifndef NK_NUKLEAR_H_
-#define NK_NUKLEAR_H_
+#ifndef UI_NUKLEAR_H
+#define UI_NUKLEAR_H
 
 #ifdef __cplusplus
 extern "C" {
