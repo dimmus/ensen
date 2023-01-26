@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h> 
 
 #include "Ensen.h" // for __UNUSED__
 #include "ui_gnuplot.h"
