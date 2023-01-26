@@ -4,7 +4,7 @@ project('ensen', 'c',
     		default_options: [
           'c_std=c99',
           'warning_level=2',
-          'buildtype=debugoptimized',
+          'buildtype=debug',
         ],
 )
 
@@ -85,7 +85,7 @@ config_dir = [include_directories('.')]
 config_h = configuration_data()
 config_h.set_quoted('PACKAGE_NAME', meson.project_name())
 # config_h.set('UI_SDL')
-# config_h.set('UI_GNUPLOT')
+config_h.set('UI_GNUPLOT', 1)
 # config_h.set('UI_NUKLEAR')
 # config_h.set('UI_EFL')
 
