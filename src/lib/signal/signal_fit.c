@@ -166,7 +166,8 @@ val2int(double x[], index_t n_points, double val)
     
     for (i = 0; i < n_points; i++)
     {
-        diff[i] = abs(x[i] - val);
+        // diff[i] = abs(x[i] - val);
+        diff[i] = x[i] - val;
     }
     
     double min_val = min(diff, n_points);

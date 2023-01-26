@@ -5,5 +5,3 @@ ensen_lib_src += files([
    'signal_form_random.c',
    'signal_generator.c',
 ])
-
-subdir('peaksearch')
