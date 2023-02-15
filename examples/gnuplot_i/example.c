@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h> 
 
-#include "Ensen.h" // for __UNUSED__
+#include "ensen_private.h" // for __UNUSED__
 #include "ui_gnuplot.h"
 
 #define SLEEP_LGTH  2

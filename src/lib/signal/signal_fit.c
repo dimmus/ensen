@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <ensen_private.h>
+
 #include <signal_fit.h>
 #include <signal_data.h>
 
@@ -110,19 +112,19 @@ signal_fit(Point (*p)[], index_t n_points, index_t n_poly)
       B[i][n_poly+1]=Y[i];
   }
   double A[n_poly+1];
-//   printf("The polynomial fit is given by the equation:\n");
-//   signal_fit_printMatrix(n_poly+1,n_poly+2,B);
+  printf("The polynomial fit is given by the equation:\n");
+  signal_fit_printMatrix(n_poly+1,n_poly+2,B);
   signal_fit_gaussEliminationLS(n_poly+1,n_poly+2,B,A);
-//   for(i = 0; i <= n_poly; i++){
-//       printf("%lfx^%d+",A[i],i);
-//   }
+  for(i = 0; i <= n_poly; i++){
+      printf("%lfx^%d+",A[i],i);
+  }
 
   for (i = 0; i < n_points; i++)
   {
-    (*p)[i].x = 0;
+    (*p)[i].y = 0;
     for(j = 0; i <= n_poly; i++)
     {
-      (*p)[i].x += A[j]*pow(y[i], j);
+      (*p)[i].y += A[j]*pow(y[i], j);
     }
   }
 }
@@ -133,52 +135,86 @@ signal_fit(Point (*p)[], index_t n_points, index_t n_poly)
     @param n_points Total number of points
     @param smoothwidth Width of the smooth window (number of points)
 **/
+// void
+// fsmooth(Point (*p)[], index_t n_points, float smoothwidth)
+// {
+//     index_t w = round(smoothwidth);
+    
+//     data_t SumPoints = 0.0;
+//     for (index_t i = 0; i < w; i++)
+//     {
+//         SumPoints += (*p)[i].y;
+//     }
+    
+//     data_t s[n_points];
+//     index_t halfw = round(w/2);
+//     for (index_t k = 0; k <= (n_points-w); k++)
+//     {
+//         s[k + halfw - 1] = SumPoints;
+//         SumPoints -= (*p)[k].y;
+//         SumPoints += (*p)[k + w].y;
+//     }
+
+//     for (index_t n = n_points - w + 1; n <= n_points; n++)
+//     {
+//         s[n_points - w + halfw] += (*p)[n].y;
+//     }
+
+//     for (index_t i = 0; i < n_points; i++)
+//     {
+//         (*p)[i].y = s[i]/w;
+//     }
+// }
+
 void
-fsmooth(Point (*p)[], index_t n_points, float smoothwidth)
+smooth(data_t *y, index_t n_points, data_t smoothwidth)
 {
     index_t w = round(smoothwidth);
-    double SumPoints = 0.0;
-    for (index_t i = 0; i < w; i++) SumPoints += (*p)[i].y;
-    double s[n_points];
+    
+    data_t SumPoints = 0.0;
+    for (index_t i = 0; i < w; i++)
+    {
+        /* hack to avoid appearing of 'nan' in data */
+        if(y[i] >= 0 || y[i] < 0) SumPoints += y[i];
+    }
+    
+    data_t s[n_points];
     index_t halfw = round(w/2);
     for (index_t k = 0; k <= (n_points-w); k++)
     {
         s[k + halfw - 1] = SumPoints;
-        SumPoints = SumPoints - (*p)[k].y;
-        SumPoints = SumPoints + (*p)[k + w].y;
+        if(y[k] >= 0 || y[k] < 0) SumPoints -= y[k]; 
+        if(y[k + w] >= 0 || y[k + w] < 0) SumPoints += y[k + w];
     }
+
     for (index_t n = n_points - w + 1; n <= n_points; n++)
     {
-        s[n_points - w + halfw] += (*p)[n].y;
+        if(y[n] >= 0 || y[n] < 0) s[n_points - w + halfw] += y[n];
     }
+
     for (index_t i = 0; i < n_points; i++)
     {
-        (*p)[i].y = s[i]/w;
+        y[i] = s[i]/w;
     }
 }
 
-
 index_t
-val2int(double x[], index_t n_points, double val)
+val2ind(data_t *x, index_t n_points, data_t val)
 {
-    double diff[n_points];
+    data_t diff[n_points];
     index_t i, index = 0;
     
     for (i = 0; i < n_points; i++)
     {
-        // diff[i] = abs(x[i] - val);
         diff[i] = x[i] - val;
+        if (diff[i] < 0) diff[i] = diff[i] * (-1);
     }
     
-    double min_val = min(diff, n_points);
+    data_t min_val = min(diff, n_points);
     
     for (i = 0; i < n_points; i++)
     {
-        if (diff[i]-min_val == 0)
-        {
-            index = i;
-        }
-        
+        if (diff[i]-min_val == 0) index = i;
     }
     
     return index;
@@ -188,13 +224,184 @@ val2int(double x[], index_t n_points, double val)
 /// @param x Array
 /// @param n_points Number of points in array (array size)
 /// @return Minimal value in array
-double
-min(double x[], index_t n_points)
+data_t
+min(data_t *x, index_t n_points)
 {
-    double min = x[0];
+    data_t min = x[0];
     for (index_t i = 0; i < n_points; i++)
     {
         if (min > x[i]) min = x[i];
     }
     return min;
+}
+
+/// @brief Find maximum value in array
+/// @param x Array
+/// @param n_points Number of points in array (array size)
+/// @return Maximum value in array
+data_t
+max(data_t *x, index_t n_points)
+{
+    data_t max = x[0];
+    for (index_t i = 0; i < n_points; i++)
+    {
+        if (max < x[i]) max = x[i];
+    }
+    return max;
+}
+
+/// @brief Find sum of all values in array
+/// @param x Array
+/// @param n_points Number of points in array (array size)
+/// @return Find sum of all values in array
+data_t
+sum(data_t *x, index_t n_points)
+{
+    data_t sum = x[0];
+    for (index_t i = 0; i < n_points; i++)
+    {
+        sum += x[i];
+    }
+    return sum;
+}
+
+
+/**
+    @brief Isolate desired dataset segment (window) for curvefiting
+    @param p Pointer to the array of points (x and y)
+    @param n_points Total number of points
+    @param smoothwidth Width of the smooth window (number of points)
+**/
+void
+data_window_get(Point (*p)[], index_t n_points, data_t center, data_t window_size, Point (*segment)[])
+{
+    data_t xoffset = 0.0;
+    index_t n1 = 0, n2 = 0, n = 0, i = 0;
+    data_t xx[n_points], yy[n_points];
+
+    for (n = 0; n < n_points; n++)
+    {
+        xx[n] = (*p)[n].x;
+        yy[n] = (*p)[n].y;
+    }
+    
+    if (center == 0 || window_size == 0)
+    {
+        window_size = max(xx, n_points) - min(xx, n_points);
+        center = window_size/2;
+    }
+
+    n1 = val2ind(xx, n_points, center - (window_size / 2));
+    n2 = val2ind(xx, n_points, center + (window_size / 2));
+
+    if (window_size == 0)
+    {
+        n1 = 1; n2 = n_points;
+    }
+
+    index_t s = n1;
+    for (i = 0; i < (n2 - n1); i++)
+    {
+        (*segment)[i].x = xx[s] - xoffset;
+        (*segment)[i].y = yy[s];
+        s = s + 1;
+    }
+}
+
+/// @brief First derivative of vector using 2-point central difference.
+/// @param size Size of input and output data array
+/// @param in Input data array
+/// @param out Output data array
+void
+deriv(index_t size, data_t * in, data_t * out)
+{
+    out[1] = in[2] - in[1];
+    out[size] = in[size] - in[size - 1];
+    
+    for (index_t i = 2; i < size - 1; i++)
+    {
+        out[i] = (in[i + 1] - in[i - 1])/2;
+    }
+}
+
+void
+deriv_points(index_t size, Points * in, data_t * out)
+{
+    out[1] = (*in).y[2] - (*in).y[1];
+    out[size] = (*in).y[size] - (*in).y[size - 1];
+    
+    for (index_t i = 2; i < size - 1; i++)
+    {
+        out[i] = ((*in).y[i + 1] - (*in).y[i - 1])/2;
+    }
+}
+
+index_t
+findpeak(index_t size, data_t * input)
+{
+    data_t d[size];
+    deriv(size, input, d);
+    index_t peak_pos;
+
+    for (index_t i = 0; i < size-1; i++)
+    {
+        if ((d[i] >= 0) & (d[i + 1] < 0)) // Detects zero-crossing of derivative
+        {
+            peak_pos = i + 1;
+        }
+    }
+    return peak_pos;
+}
+
+data_t
+findpeaks(data_t * y, Peaks * p, Signal_Parameters * conf)
+{
+    double start_time = get_run_time();
+    data_t dy[(*conf).n_points];
+
+    deriv((*conf).n_points, y, dy);
+    // smooth(dy, size, 4);
+    
+    index_t num_of_peaks = 0;
+    data_t diff = 0.f;
+    (*p).total_number = 0;
+    // printf("=====================\n");
+    for (index_t i = 0; i < ((*conf).n_points - 1); i++)
+    {
+        if ((dy[i] >= 0) & (dy[i + 1] < 0) & (dy[i] <= 1)) // Detects zero-crossing of derivative
+        {
+            // printf("_Detected zero-crossing at [%d] with values [%f - %f]\n", i, dy[i], dy[i + 1]);
+            if (y[i] > (*conf).search.threshold_amp) // Try to find peak above certain value of amplitude
+            {
+                // printf("___Detected peak at [%d] with amp [%f] (threshold: [%f]) \n", i, y[i], amp_threshold);
+                // printf("___slope at [%d] with value [%f] (threshold: [%f])\n", i, dy[i] - dy[i + 1], slope_threshold);                    
+                if ((dy[i] - dy[i + 1]) > (*conf).search.threshold_slope) // Try to find real peak (not fluctuations)
+                {
+                    // printf("______Detected slope at [%d] with value [%f] (threshold: [%f])\n", i, dy[i] - dy[i + 1], slope_threshold);
+                    if (num_of_peaks >= (*conf).search.peaks_array_number) // out of peaks array size
+                    {
+                        printf("Warning: Found too many peaks. Out of array size. \n");
+                        double end_time = get_run_time();
+                        return end_time - start_time;
+                    }
+                    
+                    (*p).peak[num_of_peaks].position = i + 1;
+                    ++num_of_peaks;
+                    (*p).total_number = num_of_peaks;
+                    
+                    // avoid peak duplication
+                    // if we find peak close to the existing one - save only the previous (set number of peaks minus 1)
+                    if (num_of_peaks != 1) diff = (data_t)((*p).peak[num_of_peaks-1].position-(*p).peak[num_of_peaks-2].position)/(*conf).n_points;
+                    if ((num_of_peaks != 1) & (diff < 0.05)) // diff threshold
+                    {
+                        (*p).peak[num_of_peaks-1].position = (*p).peak[num_of_peaks-2].position;
+                        num_of_peaks = num_of_peaks - 1;
+                        (*p).total_number = num_of_peaks;
+                    }
+                }
+            }
+        }
+    }
+    double end_time = get_run_time();
+    return end_time - start_time;
 }

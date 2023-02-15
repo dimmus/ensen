@@ -24,8 +24,8 @@
  * Main peakfinder program
  */
 
-#ifndef PF_COMMON_H
-#define PF_COMMON_H
+#ifndef SIGNAL_PEAKSEARCH_COMMON_H
+#define SIGNAL_PEAKSEARCH_COMMON_H
 
 /**
  * The maximum number of channels in the data set
@@ -231,6 +231,15 @@ int pf_loaddata(char* fn, struct pf_data* d);
  * @return The average over the window
  */
 double pf_chanwindowavg(double* data, int ds, int ci, int ac);
+
+/**
+ * Calculate the domain in channels if specified in calibrated units
+ * @param[in] d The data set
+ * @param[in,out] p The plot parameters
+ * @param[in] cal The calibration fit
+ * @return Boolean success indicator
+ */
+int finddomain(struct pf_data* d, struct pf_plot_params* p, struct pf_cal_fit* cal);
 
 /**
  * Plot data

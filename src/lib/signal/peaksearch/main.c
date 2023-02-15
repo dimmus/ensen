@@ -32,8 +32,8 @@ extern void using_history();
 /* no history */
 #endif /* HAVE_READLINE_HISTORY */
 
-#include "commands.h"
-#include "common.h"
+#include "signal_peaksearch_commands.h"
+#include "signal_peaksearch_common.h"
 
 /**
  * The generated parsing function

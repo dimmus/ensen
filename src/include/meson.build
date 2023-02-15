@@ -15,7 +15,9 @@ ensen_header_src = files([
    'ensen_signal.h',
    'ensen_math.h',
    'ensen_config_dictionary.h',
-   'ensen_config.h', 
+   'ensen_config.h',
+   'ensen_private.h', 
+   'fftw_utils.h'
 ])
 
 install_headers(ensen_header_src,

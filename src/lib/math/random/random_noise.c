@@ -6,7 +6,7 @@
 #include <math.h>
 #include <sys/time.h>
 
-#include "Ensen.h"
+#include "ensen_private.h"
 #include "math_random_noise.h"
 
 // Define some constant

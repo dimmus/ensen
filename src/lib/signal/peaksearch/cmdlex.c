@@ -485,7 +485,7 @@ char *yytext;
 #include <stdio.h>
 #include <ctype.h>
 
-#include "commands.h"
+#include "signal_peaksearch_commands.h"
 #include "cmdparse.h"
 
 /**
@@ -638,6 +638,8 @@ YY_MALLOC_DECL
 #ifndef YY_FATAL_ERROR
 #define YY_FATAL_ERROR(msg) yy_fatal_error( msg )
 #endif
+
+int yylex(void);
 
 /* Default declaration of generated scanner - a define so the user can
  * easily add parameters.

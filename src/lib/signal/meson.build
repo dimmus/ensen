@@ -6,4 +6,6 @@ ensen_lib_src += files([
    'signal_generator.c',
 ])
 
-subdir('peaksearch')
+if get_option('ui-backend') == 'plplot'
+   subdir('peaksearch')
+endif

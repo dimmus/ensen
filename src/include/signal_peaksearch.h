@@ -50,8 +50,7 @@ statistics(PeakSearch       * ps,
 // The indexes of found peaks are returned in peaks_v.
 // ps.stdev will be loaded with the overall standard deviation.
 index_t
-search_peaks(PeakSearch  * ps,
-             index_t    ** peaks_v);
+search_data_peaks(PeakSearch *ps, index_t **peaks_v, data_t *d, index_t n_points);
 
 #ifdef __cplusplus
 }

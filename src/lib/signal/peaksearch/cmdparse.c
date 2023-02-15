@@ -151,8 +151,8 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#include "commands.h"
-#include "common.h"
+#include "signal_peaksearch_commands.h"
+#include "signal_peaksearch_common.h"
 
 /**
  * yylex function
@@ -918,7 +918,7 @@ yydestruct (yytype, yyvaluep)
         break;
     }
 }
-
+
 
 /* Prevent warnings from -Wmissing-prototypes.  */
 
@@ -935,7 +935,6 @@ int yyparse (void);
 int yyparse ();
 #endif
 #endif /* ! YYPARSE_PARAM */
-
 
 
 /* The lookahead symbol.  */

@@ -11,6 +11,13 @@ option('nls',
 
 option('examples',
     type: 'boolean',
-    value: true,
+    value: false,
     description: 'build examples (default=false)'
+)
+
+option('ui-backend',
+  type : 'combo',
+  choices : ['gnuplot', 'efl', 'sdl', 'nuklear', 'plplot', 'python'],
+  value : 'gnuplot',
+  description : 'Graphical output backend'
 )

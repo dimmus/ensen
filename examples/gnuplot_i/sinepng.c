@@ -3,7 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "Ensen.h" // for __UNUSED__
+#include "ensen_private.h" // for __UNUSED__
 #include "ui_gnuplot.h"
 
 int main(int argc __UNUSED__, char * argv[] __UNUSED__)

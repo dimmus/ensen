@@ -25,7 +25,7 @@
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
-# define YYTOKENTYPE
+#define YYTOKENTYPE
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
@@ -59,6 +59,7 @@
      NUM = 285
    };
 #endif
+
 #define QUIT 258
 #define PLOT 259
 #define PRINT 260
@@ -87,9 +88,6 @@
 #define CHANNEL 283
 #define STRING 284
 #define NUM 285
-
-
-
 
 #if ! defined (YYSTYPE) && ! defined (YYSTYPE_IS_DECLARED)
 #line 118 "cmdparse.y"

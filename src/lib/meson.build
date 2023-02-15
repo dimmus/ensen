@@ -7,7 +7,7 @@ subdir('ui')
 
 libensen = library('ensen', ensen_lib_src,
   c_args : [ ensen_cargs,
-             '-DHAVE_CONFIG_H',
+             '-DHAVE_CONFIG_H'
            ],
   dependencies : ensen_deps,
   include_directories : [config_dir, '../include'],

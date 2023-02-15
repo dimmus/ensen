@@ -1,22 +1,3 @@
-/*
-        peakfinder
-        Copyright (C) 2005 Hal Finkel
-
-        This program is free software; you can redistribute it and/or modify
-        it under the terms of the GNU General Public License as published by
-        the Free Software Foundation; either version 2 of the License, or
-        (at your option) any later version.
-
-        This program is distributed in the hope that it will be useful,
-        but WITHOUT ANY WARRANTY; without even the implied warranty of
-        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-        GNU General Public License for more details.
-
-        You should have received a copy of the GNU General Public License
-        along with this program; if not, write to the Free Software
-        Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
-
 /**
  * @file peakfit.c
  * @author Hal Finkel
@@ -37,29 +18,13 @@
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_multifit_nlin.h>
 
-#include "common.h"
+#include "ensen_private.h"
+#include "signal_peaksearch_common.h"
 
-/**
- * The maximum number of iterations for fitting peaks and background
- */
-#define MAXITER 100000
-
-/**
- * Mininum number of background points per side
- *
- * Total from both sides needs to be at least the number of fit parameters
- */
-#define MINBGPTS 3
-
-/**
- * The number of peak widths to look for background if possible 
- */
-#define BGWIDTH 2
-
-/**
- * Search step for peak bounds
- */
-#define SEARCHSTEP 0.1
+#define MAXITER 100000 /** The maximum number of iterations for fitting peaks and background */
+#define MINBGPTS 3 /** Mininum number of background points per side. Total from both sides needs to be at least the number of fit parameters */
+#define BGWIDTH 2 /** The number of peak widths to look for background if possible  */
+#define SEARCHSTEP 0.01 /** Search step for peak bounds */
 
 /**
  * Data on the background for fitting
@@ -101,7 +66,7 @@ static double polyb(double a, double b, double c, double d, double x) {
  * @param[in] x The value at which to evalutate the function
  * @return The value of the function
  */
-static double polyb_da(double a, double b, double c, double d, double x) {
+static double polyb_da(double a __UNUSED__, double b __UNUSED__, double c __UNUSED__, double d __UNUSED__, double x) {
 	return x*x*x;
 }
 
@@ -114,7 +79,7 @@ static double polyb_da(double a, double b, double c, double d, double x) {
  * @param[in] x The value at which to evalutate the function
  * @return The value of the function
  */
-static double polyb_db(double a, double b, double c, double d, double x) {
+static double polyb_db(double a __UNUSED__, double b __UNUSED__, double c __UNUSED__, double d __UNUSED__, double x) {
 	return x*x;
 }
 
@@ -127,7 +92,7 @@ static double polyb_db(double a, double b, double c, double d, double x) {
  * @param[in] x The value at which to evalutate the function
  * @return The value of the function
  */
-static double polyb_dc(double a, double b, double c, double d, double x) {
+static double polyb_dc(double a __UNUSED__, double b __UNUSED__, double c __UNUSED__, double d __UNUSED__, double x) {
 	return x;
 }
 
@@ -140,7 +105,7 @@ static double polyb_dc(double a, double b, double c, double d, double x) {
  * @param[in] x The value at which to evalutate the function
  * @return The value of the function
  */
-static double polyb_dd(double a, double b, double c, double d, double x) {
+static double polyb_dd(double a __UNUSED__, double b __UNUSED__, double c __UNUSED__, double d __UNUSED__, double x __UNUSED__) {
 	return 1;
 }
 
@@ -151,7 +116,7 @@ static double polyb_dd(double a, double b, double c, double d, double x) {
  * @param[in] m The parameter m
  * @return The FWHM of the function
  */
-static double pearson7_fwhm(double a, double k, double m) {
+static double pearson7_fwhm(double a __UNUSED__, double k, double m) {
 	return 2.0*sqrt((m/(k*k))*(pow(2.0, 1.0/m) - 1.0));
 }
 
@@ -162,7 +127,7 @@ static double pearson7_fwhm(double a, double k, double m) {
  * @param[in] w The desired FWHM
  * @return The k parameter of the function
  */
-static double pearson7_k_from_fwhm(double a, double m, double w) {
+static double pearson7_k_from_fwhm(double a __UNUSED__, double m, double w) {
 	return 2.0*sqrt((m/(0.25*w*w))*(pow(2.0, 1.0/m) - 1.0));
 }
 
@@ -175,7 +140,7 @@ static double pearson7_k_from_fwhm(double a, double m, double w) {
  * @param[in] x The value at which to evalutate the function
  * @return The value of the function
  */
-static double pearson7(double a, double k, double x0, double m, double x) {
+static double pearson7(double a __UNUSED__, double k, double x0, double m, double x) {
 	double x1;
 
 	x1 = x - x0;
@@ -191,7 +156,7 @@ static double pearson7(double a, double k, double x0, double m, double x) {
  * @param[in] x The value at which to evalutate the function
  * @return The value of the function
  */
-static double pearson7_da(double a, double k, double x0, double m, double x) {
+static double pearson7_da(double a __UNUSED__, double k, double x0, double m, double x) {
 	double x1;
 
 	x1 = x - x0;
@@ -461,7 +426,7 @@ static int pearson7_fdf(const gsl_vector * x, void *params, gsl_vector * f, gsl_
  * @param[out] ic The fit linear term
  * @param[out] id The fit constant term
  */
-static void prepbgfit(struct pf_data* d, int peak, struct bg_poly_data* pd, double* ic, double* id) {
+static void prepbgfit(struct pf_data* d, int peak __UNUSED__, struct bg_poly_data* pd, double* ic, double* id) {
 	int i;
 	double c0, c1, cov00, cov01, cov11, sumsq;
 	double chn[NCHAN], chd[NCHAN];
@@ -585,7 +550,7 @@ static void prepbgpts(struct pf_data* d, int peak, struct bg_poly_data* pd, doub
  * @param[in] The index of the peak to fit
  */
 static void fitbg(struct pf_data* d, int peak) {
-	int i, status, iter;
+	int i, status, iter = 0;
 	double chi, ic, id;
 	double bglbound, bgrbound;
 	struct bg_poly_data pd;
@@ -648,7 +613,7 @@ static void fitbg(struct pf_data* d, int peak) {
 		d->peaks[peak].bg.conv = 1;
 	}
 
-	gsl_multifit_covar(s->J, 0.0, covar);
+	// gsl_multifit_covar(s->J, 0.0, covar);
 
 	d->peaks[peak].bg.a = gsl_vector_get(s->x, 0);
 	d->peaks[peak].bg.b = gsl_vector_get(s->x, 1);
@@ -677,7 +642,7 @@ static void fitbg(struct pf_data* d, int peak) {
  * @param[in] peak The peak to fit
  */
 static void fitpeak(struct pf_data* d, int peak) {
-	int i, pw, status, iter;
+	int i, pw, status, iter = 0;
 	double chi, ia, ik, im, ix0;
 	struct peak_pearson7_data pd;
 
@@ -745,7 +710,7 @@ static void fitpeak(struct pf_data* d, int peak) {
 		d->peaks[peak].fit.conv = 1;
 	}
 
-	gsl_multifit_covar(s->J, 0.0, covar);
+	// gsl_multifit_covar(s->J, 0.0, covar);
 
 	d->peaks[peak].fit.a = gsl_vector_get(s->x, 0);
 	d->peaks[peak].fit.k = gsl_vector_get(s->x, 1);

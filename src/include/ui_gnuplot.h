@@ -215,13 +215,28 @@ void gnuplot_plot_xy(
     char            *   title
 ) ;
 
+// void gnuplot_plot_points(
+//     gnuplot_ctrl     *handle,
+//     Point           (*pnt)[],
+//     int               n,
+//     char             *title
+// );
+
 void gnuplot_plot_points(
     gnuplot_ctrl     *handle,
-    Point           (*pnt)[],
+    Points           *points,
     int               n,
     char             *title
 );
 
+void
+gnuplot_plot_double(
+    gnuplot_ctrl     *handle,
+    Points           *data_points,
+    double           *data,
+    int               n,
+    char             *title
+);
 
 /**
   @brief    Open a new session, plot a signal, close the session.

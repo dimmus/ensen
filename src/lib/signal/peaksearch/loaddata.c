@@ -37,7 +37,7 @@
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_multifit_nlin.h>
 
-#include "common.h"
+#include "signal_peaksearch_common.h"
 
 /**
  * Minimum width of a peak
@@ -316,6 +316,8 @@ int pf_loaddata(char* fn, struct pf_data* d) {
 
 	pf_fitpeaks(d);
 	pf_prunepeaks(d);
+
+	printf("number of peaks: %d \n", d->npeaks); 
 
 	return 1;
 }

@@ -41,7 +41,7 @@ statistics(PeakSearch       * ps,
   stat->sd = sqrt(acc / (c - 1));
 }
 
-index_t
+static index_t
 search_peaks(PeakSearch  * ps,
              index_t    ** peaks_v)
 {
@@ -80,3 +80,26 @@ search_peaks(PeakSearch  * ps,
   return count;
 }
 
+// Wrapper for search_peaks (solve data format difference)
+index_t
+search_data_peaks(PeakSearch *ps, index_t **peaks_v, data_t *d, index_t n_points)
+{
+  index_t count = 0;
+  index_t n;
+
+  for (n = 0; n < n_points; n++)
+  {
+    (*ps).data_v[n] = d[n];
+  }
+
+  count = search_peaks(ps, peaks_v);
+
+  // Print results
+  printf("Overall st.dev: %f. Found %d peaks\n", (*ps).stdev, count);
+  index_t k;
+  for (k=0; k<count; k++) {
+    printf("peak %d: point %hn, value %f\n", k, peaks_v[k], (*ps).data_v[(*peaks_v)[k]]);
+  }  
+
+  return count;
+}

@@ -386,9 +386,15 @@ void gnuplot_plot_xy(
     return ;
 }
 
+// void gnuplot_plot_points(
+//     gnuplot_ctrl     *handle,
+//     Point           (*pnt)[],
+//     int               n,
+//     char             *title
+// )
 void gnuplot_plot_points(
     gnuplot_ctrl     *handle,
-    Point           (*pnt)[],
+    Points           *points,
     int               n,
     char             *title
 )
@@ -410,14 +416,14 @@ void gnuplot_plot_points(
 
     /* Write data to this file  */
     for (i=0 ; i<n; i++) {
-        fprintf(tmpfd, "%.18e %.18e\n", (*pnt)[i].x, (*pnt)[i].y) ;
+        // fprintf(tmpfd, "%.18e %.18e\n", (*pnt)[i].x, (*pnt)[i].y) ;
+        fprintf(tmpfd, "%f  %f\n", (*points).x[i], (*points).y[i]) ;
     }
     fclose(tmpfd) ;
 
     gnuplot_plot_atmpfile(handle,tmpfname,title);
     return ;
 }
-
 
 /*-------------------------------------------------------------------------*/
 /**

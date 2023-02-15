@@ -1,22 +1,3 @@
-/*
-        peakfinder
-        Copyright (C) 2005 Hal Finkel
-
-        This program is free software; you can redistribute it and/or modify
-        it under the terms of the GNU General Public License as published by
-        the Free Software Foundation; either version 2 of the License, or
-        (at your option) any later version.
-
-        This program is distributed in the hope that it will be useful,
-        but WITHOUT ANY WARRANTY; without even the implied warranty of
-        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-        GNU General Public License for more details.
-
-        You should have received a copy of the GNU General Public License
-        along with this program; if not, write to the Free Software
-        Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
-
 /**
  * @file calibrate.c
  * @author Hal Finkel
@@ -37,7 +18,8 @@
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_multifit_nlin.h>
 
-#include "common.h"
+#include "ensen_private.h"
+#include "signal_peaksearch_common.h"
 
 /**
  * The maximum number of fitting iterations
@@ -98,17 +80,18 @@ static int cal_f(const gsl_vector* x, void *params, gsl_vector * f) {
  * @param[out] J The result of evaluating the Jacobian of the function at the data points
  * @return GSL status code
  */
-static int cal_df(const gsl_vector * x, void *params, gsl_matrix * J) {
+static int cal_df(const gsl_vector * x __UNUSED__, void *params, gsl_matrix * J) {
 	int i, n;
-	double a, b, c;
 	struct cal_fit_info* data;
 
 	data = (struct cal_fit_info* ) params;
 	n = data->npts;
-
-	a = gsl_vector_get(x, 0);
-	b = gsl_vector_get(x, 1);
-	c = gsl_vector_get(x, 2);
+	
+	/* NOT USED
+	double a = gsl_vector_get(x, 0);
+	double b = gsl_vector_get(x, 1);
+	double c = gsl_vector_get(x, 2);
+	*/
 
 	for (i = 0; i < n; ++i) {
 		double t, v_da, v_db, v_dc;
@@ -429,7 +412,7 @@ static void fitcal(struct cal_fit_info* info, struct pf_cal_fit* fit) {
 		fit->conv = 1;
 	}
 
-	gsl_multifit_covar(s->J, 0.0, covar);
+	// gsl_multifit_covar(s->J, 0.0, covar);
 
 	fit->a = gsl_vector_get(s->x, 0);
 	fit->b = gsl_vector_get(s->x, 1);
@@ -455,7 +438,7 @@ static void fitcal(struct cal_fit_info* info, struct pf_cal_fit* fit) {
  * @param[in] p The calibration data
  * @param[in] info Information on matched peaks and calibration points
  */
-static void printmatch(struct pf_data* d, struct pf_cal_pts* p, struct cal_fit_info* info) {
+static void printmatch(struct pf_data* d __UNUSED__, struct pf_cal_pts* p, struct cal_fit_info* info) {
 	int i;
 
 	for (i = 0; i < info->npts; ++i) {

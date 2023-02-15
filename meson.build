@@ -32,7 +32,7 @@ foreach cf: ensen_cflags_try
 endforeach
 add_global_arguments(ensen_cflags, language: 'c')
 
-deps_os = declare_dependency(link_args : ['-lm', '-lSDL2_ttf'] )
+deps_os = declare_dependency(link_args : ['-lm -lfftw3'] )
 
 ##### dir locations
 dir_prefix = get_option('prefix')
@@ -48,9 +48,34 @@ dir_locale = join_paths(dir_prefix, get_option('localedir'))
 efl_req = '>= 1.26.3'
 ensen_deps = [
   dependency('eina', version : efl_req),
-  dependency('SDL2'),
-  dependency('SDL2_ttf'),
+  dependency('gsl'),
+  dependency('fftw3')
 ]
+
+# configuration
+config_dir = [include_directories('.')]
+config_h = configuration_data()
+config_h.set_quoted('PACKAGE_NAME', meson.project_name())
+
+if get_option('ui-backend') == 'gnuplot'
+  config_h.set('UI_GNUPLOT', '1')
+  find_program('gnuplot', native: true)
+elif get_option('ui-backend') == 'sdl'
+  config_h.set('UI_SDL', '1')
+  ensen_deps += [dependency('SDL2'), dependency('SDL2_ttf')]
+elif get_option('ui-backend') == 'python'
+  config_h.set('UI_PYTHON', '1')
+  ensen_deps += [dependency('python3')]
+elif get_option('ui-backend') == 'plplot'
+  config_h.set('UI_PLPLOT', '1')
+  ensen_deps += [dependency('plplot')]
+elif get_option('ui-backend') == 'nuklear'
+  config_h.set('UI_NUKLEAR', '1')
+  ensen_deps += [dependency('nuklear')]
+elif get_option('ui-backend') == 'efl'
+  config_h.set('UI_EFL', '1')
+  ensen_deps += [dependency('efl', version : efl_req)]
+endif
 
 pkgconfig = import('pkgconfig')
 
@@ -79,15 +104,6 @@ scdoc = dependency('scdoc', native: true, required: get_option('man-pages'), ver
 if scdoc.found()
 	build_doc = true
 endif
-
-# configuration
-config_dir = [include_directories('.')]
-config_h = configuration_data()
-config_h.set_quoted('PACKAGE_NAME', meson.project_name())
-# config_h.set('UI_SDL')
-config_h.set('UI_GNUPLOT', 1)
-# config_h.set('UI_NUKLEAR')
-# config_h.set('UI_EFL')
 
 subdir('src')
 

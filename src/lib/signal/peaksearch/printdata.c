@@ -23,8 +23,9 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#include "commands.h"
-#include "common.h"
+#include "ensen_private.h"
+#include "signal_peaksearch_commands.h"
+#include "signal_peaksearch_common.h"
 
 int pf_printdata(struct pf_data* d, char* fn, int norm) {
 	int i;
@@ -174,7 +175,7 @@ int pf_printpeak(struct pf_data* d, struct pf_cal_fit* cal, int peak, char* fn) 
 	return 1;
 }
 
-int pf_printcal(struct pf_data* d, struct pf_cal_fit* f, char* fn) {
+int pf_printcal(struct pf_data* d __UNUSED__, struct pf_cal_fit* f, char* fn) {
 	FILE* of;
 
 	if (!f->valid) {

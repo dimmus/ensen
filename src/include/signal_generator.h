@@ -40,6 +40,7 @@
     signal_generate(points, n_peaks, peaks, noise, n_points);
     @endcode
 **/
-void signal_generate(Point (*points)[], index_t n_peaks, Peak peaks[], Noise noise, index_t n_points);
+// void signal_generate(Point (*points)[], index_t n_peaks, Peak peaks[], Noise noise, index_t n_points);
+void signal_generate(Points *points, index_t n_peaks, Peak peaks[], Noise noise, index_t n_points);
 
 #endif

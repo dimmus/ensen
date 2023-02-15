@@ -24,10 +24,10 @@
  * Command lexing and parsing
  */
 
-#include "common.h"
+#include "signal_peaksearch_common.h"
 
-#ifndef PF_COMMANDS_H
-#define PF_COMMANDS_H
+#ifndef SIGNAL_PEAKSEARCH_COMMANDS_H
+#define SIGNAL_PEAKSEARCH_COMMANDS_H
 
 /**
  * A command type
@@ -61,73 +61,73 @@ struct pf_plot_range {
  * Get the parsed command
  * @return The parsed command
  */
-enum pf_command pf_get_parsed_command();
+enum pf_command pf_get_parsed_command(void);
 
 /**
  * Get the parsed sort flag
  * @return The parsed sort flag
  */
-enum pf_peak_sort pf_get_parsed_sort();
+enum pf_peak_sort pf_get_parsed_sort(void);
 
 /**
  * Get the parsed plot range
  * @return The parsed plot range
  */
-struct pf_plot_range* pf_get_parsed_plot_range();
+struct pf_plot_range* pf_get_parsed_plot_range(void);
 
 /**
  * Get the parsed file name
  * @return The parsed file name
  */
-char* pf_get_parsed_file();
+char* pf_get_parsed_file(void);
 
 /**
  * Get the parsed driver name
  * @return The parsed driver name
  */
-char* pf_get_parsed_driver();
+char* pf_get_parsed_driver(void);
 
 /**
  * Get the parsed rescale flag
  * @return The parsed rescale flag
  */
-int pf_get_parsed_rescale();
+int pf_get_parsed_rescale(void);
 
 /**
  * Get the parsed calibration flag
  * @return The parsed calibration flag
  */
-int pf_get_parsed_cal();
+int pf_get_parsed_cal(void);
 
 /**
  * Get the parsed normailzation flag
  * @return The parsed normailzation flag
  */
-int pf_get_parsed_norm();
+int pf_get_parsed_norm(void);
 
 /**
  * Get the parsed mark flag
  * @return The parsed mark flag
  */
-int pf_get_parsed_marked();
+int pf_get_parsed_marked(void);
 
 /**
  * Get the parsed annotate flag
  * @return The parsed annotate flag
  */
-int pf_get_parsed_annot();
+int pf_get_parsed_annot(void);
 
 /**
  * Get the parsed peak number
  * @return The parsed peak number
  */
-int pf_get_parsed_peak();
+int pf_get_parsed_peak(void);
 
 /**
  * The the parsed rotation amount
  * @return The parsed rotation amount
  */
-double pf_get_parsed_rotation();
+double pf_get_parsed_rotation(void);
 
 struct pf_plot_params;
 
@@ -140,17 +140,17 @@ void pf_get_parsed_plot_params(struct pf_plot_params* p);
 /**
  * Initialize the parse context data
  */
-void pf_init_parse_data();
+void pf_init_parse_data(void);
 
 /**
  * Free any data associated with the last parse
  */
-void pf_free_parse_data();
+void pf_free_parse_data(void);
 
 /**
  * Execute the next command
  */
-void pf_execute_command();
+void pf_execute_command(void);
 
 /**
  * Set the buffer to parse
