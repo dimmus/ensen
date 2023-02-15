@@ -157,26 +157,26 @@ void gnuplot_resetplot(gnuplot_ctrl * h);
   @return   void
 
   Plots out a 2d graph from a list of doubles. The x-coordinate is the
-  index of the double in the list, the y coordinate is the double in
+  index of the data_t in the list, the y coordinate is the data_t in
   the list.
 
   Example:
 
   @code
     gnuplot_ctrl    *h ;
-    double          d[50] ;
+    data_t          d[50] ;
     int             i ;
 
     h = gnuplot_init() ;
     for (i=0 ; i<50 ; i++) {
-        d[i] = (double)(i*i) ;
+        d[i] = (data_t)(i*i) ;
     }
     gnuplot_plot_x(h, d, 50, "parabola") ;
     sleep(2) ;
     gnuplot_close(h) ;
   @endcode
  */
-void gnuplot_plot_x(gnuplot_ctrl * handle, double * d, int n, char * title);
+void gnuplot_plot_x(gnuplot_ctrl * handle, data_t * d, int n, char * title);
 
 /**
   @brief    Plot a 2d graph from a list of points.
@@ -193,13 +193,13 @@ void gnuplot_plot_x(gnuplot_ctrl * handle, double * d, int n, char * title);
 
   @code
     gnuplot_ctrl    *h ;
-    double          x[50] ;
-    double          y[50] ;
+    data_t          x[50] ;
+    data_t          y[50] ;
     int             i ;
 
     h = gnuplot_init() ;
     for (i=0 ; i<50 ; i++) {
-        x[i] = (double)(i)/10.0 ;
+        x[i] = (data_t)(i)/10.0 ;
         y[i] = x[i] * x[i] ;
     }
     gnuplot_plot_xy(h, x, y, 50, "parabola") ;
@@ -209,8 +209,8 @@ void gnuplot_plot_x(gnuplot_ctrl * handle, double * d, int n, char * title);
  */
 void gnuplot_plot_xy(
     gnuplot_ctrl    *   handle,
-    double          *   x,
-    double          *   y,
+    data_t          *   x,
+    data_t          *   y,
     int                 n,
     char            *   title
 ) ;
@@ -233,7 +233,7 @@ void
 gnuplot_plot_double(
     gnuplot_ctrl     *handle,
     Points           *data_points,
-    double           *data,
+    data_t           *data,
     int               n,
     char             *title
 );
@@ -261,8 +261,8 @@ void gnuplot_plot_once(
     char    *   style,
     char    *   label_x,
     char    *   label_y,
-    double  *   x,
-    double  *   y,
+    data_t  *   x,
+    data_t  *   y,
     int         n
 );
 
@@ -281,7 +281,7 @@ void gnuplot_plot_once(
 
   @code
     gnuplot_ctrl    *   h ;
-    double              a, b ;
+    data_t              a, b ;
 
     h = gnuplot_init() ;
     gnuplot_plot_slope(h, 1.0, 0.0, "unity slope") ;
@@ -291,8 +291,8 @@ void gnuplot_plot_once(
  */
 void gnuplot_plot_slope(
     gnuplot_ctrl    *   handle,
-    double              a,
-    double              b,
+    data_t              a,
+    data_t              b,
     char            *   title
 ) ;
 
@@ -337,7 +337,7 @@ void gnuplot_plot_equation(gnuplot_ctrl * h, char * equation, char * title) ;
  */
 int gnuplot_write_x_csv(
     char const * fileName,
-    double const * d,
+    data_t const * d,
     int n,
     char const * title);
 
@@ -358,8 +358,8 @@ int gnuplot_write_x_csv(
  */
 int gnuplot_write_xy_csv(
     char const *        fileName,
-    double const    *   x,
-    double const    *   y,
+    data_t const    *   x,
+    data_t const    *   y,
     int                 n,
     char const      *   title);
 
@@ -384,7 +384,7 @@ int gnuplot_write_xy_csv(
  */
 int gnuplot_write_multi_csv(
     char const *        fileName,
-    double const    **  xListPtr,
+    data_t const    **  xListPtr,
     int                 n,
     int                 numColumns,
     char const      *   title);

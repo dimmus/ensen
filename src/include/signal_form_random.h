@@ -17,6 +17,6 @@ struct _random_signal_parameters
     float noise_percentage;      /* (OPTIONAL) he amount of noise to superimpose on the signal, in percentage of the desired standard deviation. DEFAULT = 0.0. This enables Gaussian (white) noise to be added to the random signal*/
 };
 
-void random_signal_generate(Random_Signal_Parameters rsp, double (*signal)[]);
+void random_signal_generate(Random_Signal_Parameters rsp, data_t (*signal)[]);
 
 #endif

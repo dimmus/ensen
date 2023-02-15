@@ -4,7 +4,7 @@ project('ensen', 'c',
     		default_options: [
           'c_std=c99',
           'warning_level=2',
-          'buildtype=debug',
+          'buildtype=release',
         ],
 )
 
@@ -32,7 +32,7 @@ foreach cf: ensen_cflags_try
 endforeach
 add_global_arguments(ensen_cflags, language: 'c')
 
-deps_os = declare_dependency(link_args : ['-lm -lfftw3'] )
+deps_os = declare_dependency(link_args : ['-lm'] )
 
 ##### dir locations
 dir_prefix = get_option('prefix')
@@ -82,8 +82,6 @@ pkgconfig = import('pkgconfig')
 ensen_cargs = [
   '-D_POSIX_C_SOURCE=200809L',
   '-D_XOPEN_SOURCE=500',
-  '-D_XOPEN_SOURCE_EXTENDED', # usleep()
-  '-D_USE_MISC', # usleep()
 ]
 
 ##### translation

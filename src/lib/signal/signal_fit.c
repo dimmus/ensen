@@ -341,7 +341,7 @@ findpeak(index_t size, data_t * input)
 {
     data_t d[size];
     deriv(size, input, d);
-    index_t peak_pos;
+    index_t peak_pos = 0;
 
     for (index_t i = 0; i < size-1; i++)
     {

@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 // Types for data and indexes:
-typedef double     data_t;
+typedef float     data_t;
 typedef u_int16_t index_t;
 
 // Types for signal elements
@@ -26,7 +26,7 @@ typedef struct _peak Peak;
 struct _peak
 {   
     data_t amplitude;
-    index_t position;
+    data_t position;
     data_t width;
 };
 

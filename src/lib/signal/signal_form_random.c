@@ -7,7 +7,7 @@
 #include "math_random.h"
 
 void
-random_signal_generate(Random_Signal_Parameters rsp, double (*signal)[])
+random_signal_generate(Random_Signal_Parameters rsp, data_t (*signal)[])
 {
     // Setup bases.
     struct _basis

@@ -41,21 +41,9 @@ random_zero_one(void)
 }
 
 double 
-random_zero_one_mt19937(void)
-{
-    return random_mt19937ar_cok_real1();
-}
-
-double 
 random_pm_one(void)
 {
     // return ((double)rand()/RAND_MAX)*2 - 1;
     return (double)mrand48()/RAND_MAX;
-}
-
-double 
-random_pm_one_mt19937(void)
-{
-    return random_mt19937ar_cok_real1()*2 - 1;
 }
 

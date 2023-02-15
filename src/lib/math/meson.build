@@ -1,2 +1,1 @@
-subdir('fft')
 subdir('random')
