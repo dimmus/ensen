@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 // Types for data and indexes:
-typedef float     data_t;
+typedef double     data_t;
 typedef u_int16_t index_t;
 
 // Types for signal elements

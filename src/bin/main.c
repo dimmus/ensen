@@ -31,17 +31,12 @@ extern int usleep (__useconds_t __useconds); // from <unistd.h>
   #include "ui_sdl_plot.h"
 #endif
 
-#include "Ensen.h"
-
 #include "ensen_private.h"
 
 #include "ensen_signal.h"
 #include "ensen_math.h"
 #include "ensen_config.h"
 #include "ensen_config_dictionary.h"
-
-#include "signal_generator.h"
-#include "signal_fit.h"
 
 #include <gsl/gsl_statistics.h>
 #include <gsl/gsl_fit.h>
@@ -387,13 +382,14 @@ test_signal(const char * conf_name)
     for (i = 0; i < conf.search.peaks_real_number; i++) pos_ideal[i] = conf.peak[i].position;
     if ((apply_temp) & (fmod(i_gen + 1, conf.temp.tick) == 0))
     {
-      printf("\nGENERATOR: Temperature changed! New positions [ ");
+      printf("\n" GREEN("GENERATOR:") " Temperature changed! New positions [ ");
       for (i = 0; i < conf.n_peaks; i++)
       {
         conf.peak[i].position = conf.peak[i].position + (delta_temp * 0.02);
-        printf("%f ", conf.peak[i].position);
+        printf(CYAN("%f"), conf.peak[i].position);
+        if (i != conf.n_peaks - 1) printf(", ");
       }
-      printf("]\n");
+      printf(" ]\n");
     }
 
     /* Save peaks data from previous generation to calculate temperature change */
@@ -424,7 +420,7 @@ test_signal(const char * conf_name)
     time = findpeaks(data.y, &peaks, &conf);
     if (peaks.total_number == conf.search.peaks_real_number)
     {
-      printf("PSEARCHER: Found %d peak(s) in %f sec at ", peaks.total_number, time);
+      printf(MAGENTA("PSEARCHER:")" Found %d peak(s) in %f sec at ", peaks.total_number, time);
       for (i = 0; i < peaks.total_number; i++)
       {
         if (i == 0) printf("[ ");      
@@ -451,7 +447,7 @@ test_signal(const char * conf_name)
     }
     else
     {
-      printf("PSEARCHER: Wrong number of peaks. Found %d, should be %d. Drop!\n", peaks.total_number, conf.search.peaks_real_number);
+      printf(MAGENTA("PSEARCHER:")" Wrong number of peaks. Found %d, should be %d. "RED("Drop!")"\n", peaks.total_number, conf.search.peaks_real_number);
       ++n_drops;
     }
 
@@ -518,12 +514,14 @@ test_signal(const char * conf_name)
   }
 
   printf("\n");
-  printf("GENERATOR: Rise of T(step): %f\n", delta_temp); 
-  printf("PSEARCHER: Number of drops: %d\n", n_drops);
+  printf(BLUE("STATISTUS:")" Rise of T[step]: %f\n", delta_temp); 
+  printf(BLUE("STATISTUS:")" Number of drops: %d\n", n_drops);
+  printf(BLUE("STATISTUS:")" Max temperature: %f\n", data_temp1.y[conf.generation_max]);
 
   /* Do not close window untill we press any key */
   if (conf.plot.show_signal || conf.plot.show_smooth || conf.plot.show_derivative || conf.plot.show_temperature)
   {
+    printf("\n");
     printf("Press ENTER to continue\n"); while (getchar()!='\n'){}
   }
 
