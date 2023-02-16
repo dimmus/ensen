@@ -3,6 +3,8 @@ Ensen 0.0.1
 ==============
 
 Additions:
+   * signal: add simple peaksearch algorithm (based on derivative)
+   * math: add fftw
    * ui: add support of config file with default generation
    * signal: add support of signal generation and ploting with defined frequency
    * signal: add smooth algorithm
@@ -12,7 +14,7 @@ Additions:
    * signal: add signal generator with multiple determined peaks and noise.
 
 Improvements:
-   * none
+   * add colored output to terminal
 
 Fixes:
-   * none
+   * code clean up

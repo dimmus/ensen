@@ -1,5 +1,5 @@
-#ifndef FFTW_UTILS_H
-#define FFTW_UTILS_H
+#ifndef ENSEN_MATH_FFTW_UTILS_H
+#define ENSEN_MATH_FFTW_UTILS_H
 
 #include <stdio.h>
 #include <stdlib.h>

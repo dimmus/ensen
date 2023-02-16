@@ -12,10 +12,9 @@
 
 */
 
-#ifndef UI_GNUPLOT_H
-#define UI_GNUPLOT_H
+#ifndef ENSEN_UI_GNUPLOT_H
+#define ENSEN_UI_GNUPLOT_H
 
-#include "signal_data.h"
 #include <stdio.h>
 
 /** Maximal number of simultaneous temporary files */

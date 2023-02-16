@@ -1,7 +1,5 @@
-#ifndef SIGNAL_FIT_H
-#define SIGNAL_FIT_H
-
-#include <signal_data.h>
+#ifndef ENSEN_SIGNAL_FIT_H
+#define ENSEN_SIGNAL_FIT_H
 
 void signal_fit_gaussEliminationLS(int m, int n, double a[m][n], double x[n-1]);
 void signal_fit_printMatrix(int m, int n, double matrix[m][n]);

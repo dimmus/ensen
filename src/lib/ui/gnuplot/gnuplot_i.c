@@ -1,5 +1,5 @@
-#include "ui_gnuplot.h"
-#include "signal_data.h"
+#include "ensen_private.h"
+#include "ensen_ui_gnuplot.h"
 
 #include <stdio.h>
 

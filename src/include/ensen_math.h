@@ -6,8 +6,8 @@
 
 #include <fftw3.h>
 
-#include "math_random.h"
-#include "math_fftw_utils.h"
+#include "ensen_math_random.h"
+#include "ensen_math_fftw_utils.h"
 
 #define REAL(z,i) ((z)[2*(i)]) // gsl_fft
 #define IMAG(z,i) ((z)[2*(i)+1])  // gsl_fft

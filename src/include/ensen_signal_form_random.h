@@ -1,7 +1,6 @@
-#ifndef SIGNAL_FORM_RANDOM_H
-#define SIGNAL_FORM_RANDOM_H
+#ifndef ENSEN_SIGNAL_FORM_RANDOM_H
+#define ENSEN_SIGNAL_FORM_RANDOM_H
 
-#include "signal_data.h"
 // typedef float Signal[];
 // typedef Signal Signals[];
 

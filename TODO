@@ -1,13 +1,16 @@
 FEATURES:
 ---------
-[-] [signal] add peaksearch algorithm
-[-] [math]   add colored noise option (lib/math/random/random_noise.c) to signal generator.
-[-] [math]   add FFT option 
-[-] [ui]     add SDL engine
-[-] [doc]    add code and usage documentation
-[-] [tests]  add tests
+[code]   add ninja install
+[math]   add colored noise option (lib/math/random/random_noise.c) to signal generator.
+
+IMPROVEMENTS
+------------
+[clean]  fix too large size of ensen binary (1.3M)
+[doc]    add code and usage documentation
+[tests]  add tests
+[ui]     add SDL engine
 
 FIXES:
 ------
-[-] [clean] remove random_mt19937
+
 

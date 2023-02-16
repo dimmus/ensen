@@ -1,10 +1,10 @@
-// #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
-#include "signal_form_random.h"
-#include "math_random.h"
+#include "ensen_private.h"
+#include "ensen_signal_form_random.h"
+#include "ensen_math_random.h"
 
 void
 random_signal_generate(Random_Signal_Parameters rsp, data_t (*signal)[])

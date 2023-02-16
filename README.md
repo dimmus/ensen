@@ -4,7 +4,8 @@ Ensen stands for ENlightened SENsoring.
 
 ## Requirements
 
-  efl (>= 1.23.0)
+  gsl
+  fftw
 
 ## Compiling
 

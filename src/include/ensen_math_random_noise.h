@@ -1,5 +1,5 @@
-#ifndef MATH_RANDOM_NOISE_H
-#define MATH_RANDOM_NOISE_H
+#ifndef ENSEN_MATH_RANDOM_NOISE_H
+#define ENSEN_MATH_RANDOM_NOISE_H
 
 // For random number generation
 void init_rnd(void);

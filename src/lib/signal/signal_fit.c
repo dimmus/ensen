@@ -2,9 +2,8 @@
 #include <math.h>
 
 #include <ensen_private.h>
-
-#include <signal_fit.h>
-#include <signal_data.h>
+#include <ensen_benchmark.h>
+#include <ensen_signal_fit.h>
 
 /**
     Function that performs Gauss-Elimination and returns the Upper triangular matrix and solution of equations:

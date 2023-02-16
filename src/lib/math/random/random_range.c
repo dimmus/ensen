@@ -3,7 +3,7 @@
 // #include <time.h> // for random seed with srand48()
 #include <sys/time.h>
 
-#include "math_random.h"
+#include "ensen_math_random.h"
 
 // Seed random generator using current time
 void
@@ -34,16 +34,16 @@ random_range_uniform(int lower, int upper) {
     return myRand_scaled;
 }
 
-double 
+data_t 
 random_zero_one(void)
 {
-    return drand48();
+    return (data_t)drand48();
 }
 
-double 
+data_t 
 random_pm_one(void)
 {
     // return ((double)rand()/RAND_MAX)*2 - 1;
-    return (double)mrand48()/RAND_MAX;
+    return (data_t)mrand48()/RAND_MAX;
 }
 

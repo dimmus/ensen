@@ -11,6 +11,7 @@
 #endif
 
 #include "ensen_private.h"
+#include "ensen_benchmark.h"
 
 #include "ensen_signal.h"
 #include "ensen_math.h"

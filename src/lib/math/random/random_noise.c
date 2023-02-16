@@ -7,7 +7,7 @@
 #include <sys/time.h>
 
 #include "ensen_private.h"
-#include "math_random_noise.h"
+#include "ensen_math_random_noise.h"
 
 // Define some constant
 #define RPI 1.7724538509055159

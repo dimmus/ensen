@@ -1,7 +1,11 @@
-#ifndef SIGNAL_GENERATOR_H
-#define SIGNAL_GENERATOR_H
+#ifndef ENSEN_SIGNAL_GENERATOR_H
+#define ENSEN_SIGNAL_GENERATOR_H
 
-#include "signal_data.h"
+#ifndef ENSEN_PRIVATE_H
+    #include "ensen_private.h"
+#endif
+#include "ensen_signal_form_gaussian.h"
+#include "ensen_math_random.h"
 
 /**
     @brief Generate signal with multiple strictly defined peaks

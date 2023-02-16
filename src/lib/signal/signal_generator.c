@@ -1,7 +1,4 @@
-#include "signal_data.h"
-#include "signal_generator.h"
-#include "signal_form_gaussian.h"
-#include "math_random.h"
+#include "ensen_signal_generator.h"
 
 // void
 // signal_generate(Point (*points)[],

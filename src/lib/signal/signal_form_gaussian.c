@@ -5,10 +5,10 @@
 #include <complex.h>
 
 #include <fftw3.h>
-#include "math_fftw_utils.h"
+#include "ensen_math_fftw_utils.h"
 
-#include "signal_data.h" 
-#include "signal_form_gaussian.h" 
+#include "ensen_private.h" 
+#include "ensen_signal_form_gaussian.h" 
 
 data_t gaussian_old(void) 
 {

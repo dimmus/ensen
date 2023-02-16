@@ -1,4 +1,4 @@
-#ifndef ENSEN_PRIVATE__H
+#ifndef ENSEN_PRIVATE_H
 #define ENSEN_PRIVATE_H
 
 #ifdef __GNUC__
@@ -10,7 +10,9 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 
+/* Color */
 #define RED(string)     "\x1b[31m" string "\x1b[0m"
 #define GREEN(string)   "\x1b[32m" string "\x1b[0m"
 #define YELLOW(string)  "\x1b[33m" string "\x1b[0m"
@@ -18,18 +20,94 @@
 #define MAGENTA(string) "\x1b[35m" string "\x1b[0m"
 #define CYAN(string)    "\x1b[36m" string "\x1b[0m"
 
+/* Time */
 #include <unistd.h> // usleep()
-#include <time.h> // get_time()
 extern int usleep (__useconds_t __useconds); // from <unistd.h>
 
-double get_run_time(void);
+/* Data */
+typedef double     data_t;
+typedef u_int16_t index_t;
 
-double 
-get_run_time(void)
+typedef struct _point Point;
+struct _point
 {
-    struct timespec tv;
-    clock_gettime(CLOCK_MONOTONIC, &tv);
-    return tv.tv_sec + tv.tv_nsec / 1000000000.0;
-}
+    data_t x;
+    data_t y;
+};
+
+typedef struct 
+{
+    data_t *x;
+    data_t *y;
+    data_t *lambda;
+} Points;
+
+typedef struct _peak Peak;
+struct _peak
+{   
+    data_t amplitude;
+    data_t position;
+    data_t width;
+};
+
+typedef struct _peaks Peaks;
+struct _peaks
+{   
+    Peak * peak;
+    index_t total_number;
+};
+
+typedef struct _noise Noise;
+struct _noise
+{
+    data_t amplitude;
+};
+
+typedef struct _plot Plot;
+struct _plot
+{
+    data_t  x_min;
+    data_t  x_max;
+    data_t  y_min;
+    data_t  y_max;
+    index_t show_signal;
+    index_t show_smooth;
+    index_t show_derivative;
+    index_t show_markers;
+    index_t show_temperature;
+};
+
+typedef struct _peak_search Peak_Search;
+struct _peak_search
+{
+    data_t  threshold_slope;
+    data_t  threshold_amp;
+    index_t drop_tail;
+    index_t peaks_real_number;
+    index_t peaks_array_number;
+};
+
+typedef struct _temp Temperature;
+struct _temp
+{
+    data_t  room;
+    data_t  max;
+    index_t tick;
+};
+
+typedef struct _signal_parameters Signal_Parameters;
+struct _signal_parameters
+{
+    index_t n_points;
+    index_t n_peaks;
+    Peak   *peak;
+    Noise   noise;
+    data_t  smooth_width;
+    index_t generation_max;
+    index_t generation_frequency;
+    Temperature temp;
+    Plot plot;
+    Peak_Search search;
+};
 
 #endif

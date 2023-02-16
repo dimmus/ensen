@@ -36,7 +36,7 @@ foreach cf: ensen_cflags_try
 endforeach
 add_global_arguments(ensen_dev_cflags, language: 'c')
 
-# deps_os = declare_dependency(link_args : [] )
+# deps_os = declare_dependency(link_args : ['-lm'] )
 
 ##### dir locations
 dir_prefix = get_option('prefix')
@@ -51,7 +51,7 @@ dir_locale = join_paths(dir_prefix, get_option('localedir'))
 ###### dependencies
 efl_req = '>= 1.26.3'
 ensen_deps = [
-  dependency('eina', version : efl_req),
+  # dependency('eina', version : efl_req),
   dependency('gsl'),
   dependency('fftw3')
 ]
