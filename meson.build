@@ -4,7 +4,7 @@ project('ensen', 'c',
     		default_options: [
           'c_std=c99',
           'warning_level=2',
-          'buildtype=release',
+          'buildtype=plain',
         ],
 )
 
@@ -17,22 +17,26 @@ v_mic = v_array[2]
 cc = meson.get_compiler('c')
 host_os = host_machine.system()
 
-ensen_cflags = []
+ensen_dev_cflags = []
 ensen_cflags_try = [
   '-Wshadow',
   '-Wstrict-prototypes',
-  '-Werror=missing-prototypes',
-  '-Werror=pointer-arith',
-  '-Wno-missing-field-initializers']
+  '-Wmissing-prototypes',
+  '-Wfloat-compare',
+  '-Wpointer-arith',
+  '-Wunused-parameter',
+  '-Wsign-compare',
+  '-Wno-missing-field-initializers',
+]
 
 foreach cf: ensen_cflags_try
   if cc.has_argument(cf) == true
-    ensen_cflags += cf
+    ensen_dev_cflags += cf
   endif
 endforeach
-add_global_arguments(ensen_cflags, language: 'c')
+add_global_arguments(ensen_dev_cflags, language: 'c')
 
-deps_os = declare_dependency(link_args : ['-lm'] )
+# deps_os = declare_dependency(link_args : [] )
 
 ##### dir locations
 dir_prefix = get_option('prefix')
@@ -76,6 +80,11 @@ elif get_option('ui-backend') == 'efl'
   config_h.set('UI_EFL', '1')
   ensen_deps += [dependency('efl', version : efl_req)]
 endif
+
+cpu_sse3 = true
+config_h.set10('BUILD_MMX', true)
+config_h.set10('BUILD_SSE3', true)
+native_arch_opt_c_args = [ '-msse3' ]
 
 pkgconfig = import('pkgconfig')
 

@@ -5,7 +5,7 @@
 #include <complex.h>
 
 #include <fftw3.h>
-#include "fftw_utils.h"
+#include "math_fftw_utils.h"
 
 #include "signal_data.h" 
 #include "signal_form_gaussian.h" 

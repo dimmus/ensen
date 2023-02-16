@@ -18,7 +18,9 @@
 #define MAGENTA(string) "\x1b[35m" string "\x1b[0m"
 #define CYAN(string)    "\x1b[36m" string "\x1b[0m"
 
+#include <unistd.h> // usleep()
 #include <time.h> // get_time()
+extern int usleep (__useconds_t __useconds); // from <unistd.h>
 
 double get_run_time(void);
 

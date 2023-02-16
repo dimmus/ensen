@@ -1,13 +1,6 @@
-#include <unistd.h> // usleep()
 #include <stdlib.h> // clearscr()
 #include <stdio.h>
 #include <stdbool.h>
-#include <math.h>
-#include <complex.h>
-
-#include <fftw3.h>
-
-extern int usleep (__useconds_t __useconds); // from <unistd.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -17,41 +10,14 @@ extern int usleep (__useconds_t __useconds); // from <unistd.h>
 # include <libintl.h>
 #endif
 
-#ifdef UI_GNUPLOT
-  #include "ui_gnuplot.h"
-#endif
-
-#ifdef UI_NUKLEAR
-  #define NK_IMPLEMENTATION
-  #include "ui_nuklear.h"
-#endif
-
-#ifdef UI_SDL
-  #include "ui_sdl_llist.h"
-  #include "ui_sdl_plot.h"
-#endif
-
 #include "ensen_private.h"
 
 #include "ensen_signal.h"
 #include "ensen_math.h"
 #include "ensen_config.h"
 #include "ensen_config_dictionary.h"
+#include "ensen_ui.h"
 
-#include <gsl/gsl_statistics.h>
-#include <gsl/gsl_fit.h>
-
-#include <gsl/gsl_vector.h>
-#include <gsl/gsl_blas.h>
-#include <gsl/gsl_multifit_nlin.h>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_fft.h>
-#include <gsl/gsl_fft_complex.h>
-
-#include "fftw_utils.h"
-
-#define REAL(z,i) ((z)[2*(i)])
-#define IMAG(z,i) ((z)[2*(i)+1])
 #define PLOT(data, from, to, title)       \
   for (index_t ii = from; ii <= to; ii++) \
   {                                       \
@@ -60,12 +26,6 @@ extern int usleep (__useconds_t __useconds); // from <unistd.h>
   }                                       \
   gnuplot_plot_points(win, &data_points, to, title); \
 
-// static void clearscreen(void);
-// static int parameters_set(Signal_Parameters * param, dictionary *ini);
-// static void create_default_config_file(void);
-// static void clear_data(data_t * x, index_t size);
-// static void convert_to_lambda(data_t * lambda, data_t lambda_begin, data_t lambda_end, index_t size);
-// static void calibrate(Points *data, Peaks * peaks_ref, Signal_Parameters * conf, index_t show);
 int test_signal(const char * conf_name);
 
 double exp_gaussian(const index_t size, double * in, double * out, double pos, double wid, double timeconstant);
@@ -81,11 +41,13 @@ double exp_gaussian(const index_t size, double * in, double * out, double pos, d
 double exp_broaden(const index_t size, double * input, double * output, const double t);
 
 // tmp (was for testing) - DELETE
+/*
 int test_signal_peaksearch(void);
 double test_gsl_fft(void);
 int test_gsl_fft_small(void);
 int test_signal_random(void);
 int peakfit_WIP(void);
+*/
 
 static void
 clearscreen(void)
@@ -684,11 +646,10 @@ main(int argc __UNUSED__, const char ** argv __UNUSED__)
 }
 
 /* Tests and WIP below*/
-
+/* 
 int 
 test_signal_peaksearch(void)
 {
-  /*
   data_t d[] = {
     1,1,2,1,2,30,32,8,2,1,
     1,1,2,1,2, 2, 1,3,1,1,
@@ -718,7 +679,7 @@ test_signal_peaksearch(void)
   // Cleanup:
   // free(ps.data_v); // Commented due to error: munmap_chunk(): invalid pointer
   free(peaks);
-  */
+
   return 0;
 }
 
@@ -931,3 +892,4 @@ peakfit_WIP(void)
 
   return 0; 
 }
+ */
