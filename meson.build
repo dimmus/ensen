@@ -3,8 +3,9 @@ project('ensen', 'c',
         meson_version : '>= 0.53.0',
     		default_options: [
           'c_std=c99',
-          'warning_level=2',
-          'buildtype=debug',
+          'warning_level=1',
+          'buildtype=minsize',
+          'optimization=3'
         ],
 )
 
@@ -19,6 +20,7 @@ host_os = host_machine.system()
 
 ensen_dev_cflags = []
 ensen_cflags_try = [
+  # '-fvisibility=hidden',
   '-Wshadow',
   '-Wstrict-prototypes',
   '-Wmissing-prototypes',
@@ -84,7 +86,9 @@ endif
 cpu_sse3 = true
 config_h.set10('BUILD_MMX', true)
 config_h.set10('BUILD_SSE3', true)
-native_arch_opt_c_args = [ '-msse3' ]
+native_arch_opt_c_args = [ 
+                            '-msse3' 
+                         ]
 
 pkgconfig = import('pkgconfig')
 
