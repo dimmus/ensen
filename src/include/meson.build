@@ -8,10 +8,12 @@ ensen_header_src = files([
    'ensen_private.h', 
    'ensen_math_fftw_utils.h'
    'ensen_math_random.h',
+   'ensen_math_random_noise.h',
    'ensen_signal_form_random.h',
    'ensen_signal_form_gaussian.h',
    'ensen_signal_generator.h',
    'ensen_ui_gnuplot.h',
+   'ensen.h'
 ])
 
 install_headers(ensen_header_src,

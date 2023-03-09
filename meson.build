@@ -4,7 +4,7 @@ project('ensen', 'c',
     		default_options: [
           'c_std=c99',
           'warning_level=2',
-          'buildtype=plain',
+          'buildtype=debug',
         ],
 )
 
