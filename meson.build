@@ -5,7 +5,8 @@ project('ensen', 'c',
           'c_std=c99',
           'warning_level=1',
           'buildtype=minsize',
-          'optimization=3'
+          'optimization=3',
+          'debug=false'
         ],
 )
 
