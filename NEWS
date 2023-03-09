@@ -12,6 +12,7 @@ Additions:
    * math: add random number generation utils.
    * signal: add gaussian form of signal.
    * signal: add signal generator with multiple determined peaks and noise.
+   * signal: add colored noise option to signal generator
 
 Improvements:
    * add colored output to terminal
