@@ -24,6 +24,9 @@
 #include <unistd.h> // usleep()
 extern int usleep (__useconds_t __useconds); // from <unistd.h>
 
+/* Show LOG */
+// #define LOG_TIME
+
 /* Data */
 typedef double     data_t;
 typedef u_int16_t index_t;
@@ -37,9 +40,9 @@ struct _point
 
 typedef struct 
 {
-    data_t *x;
-    data_t *y;
-    data_t *lambda;
+    data_t * x;
+    data_t * y;
+    data_t * lambda;
 } Points;
 
 typedef struct _peak Peak;
@@ -48,19 +51,21 @@ struct _peak
     data_t amplitude;
     data_t position;
     data_t width;
+    data_t timeshift;
 };
 
 typedef struct _peaks Peaks;
 struct _peaks
 {   
-    Peak * peak;
-    index_t total_number;
+    Peak   * peak;
+    index_t  total_number;
 };
 
 typedef struct _noise Noise;
 struct _noise
 {
     data_t amplitude;
+    index_t color;
 };
 
 typedef struct _plot Plot;
@@ -85,6 +90,7 @@ struct _peak_search
     index_t drop_tail;
     index_t peaks_real_number;
     index_t peaks_array_number;
+    index_t peak_search_number;
 };
 
 typedef struct _temp Temperature;
@@ -93,21 +99,32 @@ struct _temp
     data_t  room;
     data_t  max;
     index_t tick;
+    data_t  coefficient;
+    index_t apply;
 };
 
 typedef struct _signal_parameters Signal_Parameters;
 struct _signal_parameters
 {
-    index_t n_points;
-    index_t n_peaks;
-    Peak   *peak;
-    Noise   noise;
-    data_t  smooth_width;
-    index_t generation_max;
-    index_t generation_frequency;
-    Temperature temp;
-    Plot plot;
-    Peak_Search search;
+    index_t      n_points;
+    index_t      n_peaks;
+    Peak       * peak;
+    Noise        noise;
+    index_t      smooth_width;
+    index_t      generation_max;
+    index_t      generation_frequency;
+    Temperature  temp;
+    Plot         plot;
+    Peak_Search  search;
+};
+
+typedef struct _signal_statistics Signal_Statistics;
+struct _signal_statistics
+{
+    data_t generation_time;
+    data_t peak_search_time;
+    index_t n_drops;
+    data_t delta_temp;
 };
 
 #endif

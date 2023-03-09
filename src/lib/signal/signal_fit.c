@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <math.h>
 
-#include <ensen_private.h>
-#include <ensen_benchmark.h>
-#include <ensen_signal_fit.h>
+#include "ensen_private.h"
+#include "ensen_benchmark.h"
+#include "ensen_signal_fit.h"
 
 /**
     Function that performs Gauss-Elimination and returns the Upper triangular matrix and solution of equations:
@@ -166,9 +166,9 @@ signal_fit(Point (*p)[], index_t n_points, index_t n_poly)
 // }
 
 void
-smooth(data_t *y, index_t n_points, data_t smoothwidth)
+smooth(data_t *y, index_t n_points, index_t smoothwidth)
 {
-    index_t w = round(smoothwidth);
+    index_t w = smoothwidth;
     
     data_t SumPoints = 0.0;
     for (index_t i = 0; i < w; i++)
@@ -234,6 +234,23 @@ min(data_t *x, index_t n_points)
     return min;
 }
 
+/// @brief Find minimal value in array (unsigned or absolute)
+/// @param x Array
+/// @param n_points Number of points in array (array size)
+/// @return Minimal absulute value in array
+data_t
+min_abs(data_t *x, index_t n_points)
+{
+    data_t min = x[1];
+    if (min < 0) { min = min * (-1); }    
+    for (index_t i = 1; i < n_points; i++)
+    {
+        if (x[i] < 0) x[i] = x[i] * (-1);
+        if (min > x[i]) min = x[i];
+    }
+    return min;
+}
+
 /// @brief Find maximum value in array
 /// @param x Array
 /// @param n_points Number of points in array (array size)
@@ -244,6 +261,22 @@ max(data_t *x, index_t n_points)
     data_t max = x[0];
     for (index_t i = 0; i < n_points; i++)
     {
+        if (max < x[i]) max = x[i];
+    }
+    return max;
+}
+
+/// @brief Find maximum value in array (unsigned or absolute)
+/// @param x Array
+/// @param n_points Number of points in array (array size)
+/// @return Maximum absolute value in array
+data_t
+max_abs(data_t *x, index_t n_points)
+{
+    data_t max = x[0];
+    for (index_t i = 0; i < n_points; i++)
+    {
+        if (x[i] < 0) x[i] = x[i] * (-1);
         if (max < x[i]) max = x[i];
     }
     return max;
@@ -384,12 +417,15 @@ findpeaks(data_t * y, Peaks * p, Signal_Parameters * conf)
                         return end_time - start_time;
                     }
                     
-                    (*p).peak[num_of_peaks].position = i + 1;
+                    (*p).peak[num_of_peaks].position = i;
                     ++num_of_peaks;
                     (*p).total_number = num_of_peaks;
                     
-                    // avoid peak duplication
-                    // if we find peak close to the existing one - save only the previous (set number of peaks minus 1)
+                    /* 
+                     * avoid peak duplication
+                     * if we find peak close to the existing one - 
+                     * save only the previous (set number of peaks minus 1) 
+                    */
                     if (num_of_peaks != 1) diff = (data_t)((*p).peak[num_of_peaks-1].position-(*p).peak[num_of_peaks-2].position)/(*conf).n_points;
                     if ((num_of_peaks != 1) & (diff < 0.05)) // diff threshold
                     {

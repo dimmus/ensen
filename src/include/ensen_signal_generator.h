@@ -4,8 +4,10 @@
 #ifndef ENSEN_PRIVATE_H
     #include "ensen_private.h"
 #endif
+
 #include "ensen_signal_form_gaussian.h"
 #include "ensen_math_random.h"
+#include "ensen_math_random_noise.h"
 
 /**
     @brief Generate signal with multiple strictly defined peaks
@@ -45,6 +47,6 @@
     @endcode
 **/
 // void signal_generate(Point (*points)[], index_t n_peaks, Peak peaks[], Noise noise, index_t n_points);
-void signal_generate(Points *points, index_t n_peaks, Peak peaks[], Noise noise, index_t n_points);
+data_t signal_generate(Points *points, index_t n_peaks, Peak peaks[], Noise noise, index_t n_points);
 
 #endif

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-// #include <time.h> // for random seed with srand48()
+#include <time.h> // for random seed with srand48()
 #include <sys/time.h>
 
 #include "ensen_math_random.h"
@@ -11,11 +11,12 @@ random_seed(void)
 {
     // VAR 1: using time.h
 	// srand48(time(NULL));
+    srand(time(NULL) ^ (getpid() << 16));
 
     // VAR 2: using sys/time.h
-    struct timeval tv;
-    gettimeofday(&tv,NULL);
-    srand(tv.tv_usec);
+    // struct timeval tv;
+    // gettimeofday(&tv,NULL);
+    // srand(tv.tv_usec);
 }
 
 // Generates random numbers in range [lower, upper].
@@ -43,7 +44,7 @@ random_zero_one(void)
 data_t 
 random_pm_one(void)
 {
-    // return ((double)rand()/RAND_MAX)*2 - 1;
-    return (data_t)mrand48()/RAND_MAX;
+    return ((double)rand()/RAND_MAX)*2 - 1;
+    // return (data_t)mrand48()/RAND_MAX;
 }
 
