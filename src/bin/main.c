@@ -10,45 +10,7 @@
 # include <libintl.h>
 #endif
 
-#include "ensen_private.h"
-#include "ensen_benchmark.h"
-
-#include "ensen_signal.h"
-#include "ensen_math.h"
-#include "ensen_config.h"
-#include "ensen_config_dictionary.h"
-#include "ensen_ui.h"
-
-#define PLOT(data, from, to, title)       \
-  for (index_t ii = from; ii <= to; ii++) \
-  {                                       \
-    data_points.x[ii] = ii;               \
-    data_points.y[ii] = data;             \
-  }                                       \
-  gnuplot_plot_points(win, &data_points, to, title); \
-
-int test_signal(const char * conf_name);
-
-double exp_gaussian(const index_t size, double * in, double * out, double pos, double wid, double timeconstant);
-
-/// @brief Zero pads input and convolutes result by an exponential decay
-/// of time constant "t" by multiplying Fourier transforms and inverse
-/// transforming the result.
-/// @param size Size of input
-/// @param input Input data array 
-/// @param output Output data array
-/// @param t Time constant
-/// @return Time of exacution (in sec.)
-double exp_broaden(const index_t size, double * input, double * output, const double t);
-
-// tmp (was for testing) - DELETE
-/*
-int test_signal_peaksearch(void);
-double test_gsl_fft(void);
-int test_gsl_fft_small(void);
-int test_signal_random(void);
-int peakfit_WIP(void);
-*/
+#include "ensen.h"
 
 static void
 clearscreen(void)
@@ -58,7 +20,7 @@ clearscreen(void)
 }
 
 static int
-parameters_set(Signal_Parameters * param, dictionary *ini)
+config_parameters_set(Signal_Parameters * param, dictionary *ini)
 {
   // config_dump(ini, stderr);
   
@@ -67,6 +29,7 @@ parameters_set(Signal_Parameters * param, dictionary *ini)
   (*param).n_peaks = (index_t)config_getint(ini, "peaks:number", -1);
 
   (*param).peak = malloc(sizeof(Peak) * 4);
+  (*param).peak->timeshift = (index_t)config_getint(ini, "peaks:timeshift", -1);
 
   (*param).peak[0].amplitude = (data_t)config_getdouble(ini, "peaks:[0].amplitude", -1.0);
   (*param).peak[0].position = (data_t)config_getdouble(ini, "peaks:[0].position", -1.0);
@@ -86,24 +49,28 @@ parameters_set(Signal_Parameters * param, dictionary *ini)
 
   /* Noise setup */
   (*param).noise.amplitude = (data_t)config_getdouble(ini, "noise:amplitude", -1.0);
+  (*param).noise.color = (index_t)config_getint(ini, "noise:color", -1);
 
   /* Smooth setup */
-  (*param).smooth_width = (int)config_getint(ini, "smooth:width", -1);
+  (*param).smooth_width = (index_t)config_getint(ini, "smooth:width", -1);
 
   /* Generation setup */
   (*param).generation_max = (index_t)config_getint(ini, "generation:number", -1.0);
   (*param).generation_frequency = (index_t)config_getint(ini, "generation:frequency", -1.0); // Hz
 
   /* Temperature setup */
+  (*param).temp.apply = (index_t)config_getint(ini, "temperature:apply", -1.0);
   (*param).temp.tick = (index_t)config_getint(ini, "temperature:tick", -1.0);
   (*param).temp.room = (data_t)config_getdouble(ini, "temperature:room", -1.0);
   (*param).temp.max = (data_t)config_getdouble(ini, "temperature:max", -1.0);
+  (*param).temp.coefficient = (data_t)config_getdouble(ini, "temperature:coefficient", -1.0);
 
   /* Search setup */
   (*param).search.threshold_slope = (data_t)config_getdouble(ini, "search:threshold_slope", -1.0);
   (*param).search.threshold_amp = (data_t)config_getdouble(ini, "search:threshold_amp", -1.0);
   (*param).search.peaks_real_number = (index_t)config_getint(ini, "search:peaks.num.real", -1.0);
   (*param).search.peaks_array_number = (index_t)config_getint(ini, "search:peaks.num.arr", -1.0);
+  (*param).search.peak_search_number = (index_t)config_getint(ini, "search:peaks.num", -1.0);
 
   /* Plot setup */
   (*param).plot.x_min = (data_t)config_getdouble(ini, "plot:x.min", -1.0);
@@ -120,7 +87,7 @@ parameters_set(Signal_Parameters * param, dictionary *ini)
 }
 
 static void 
-create_default_config_file(void)
+config_parameters_set_default(void)
 {
     FILE *ini ;
 
@@ -131,62 +98,75 @@ create_default_config_file(void)
 
     fprintf(ini,
     "[Points]\n"
-    "number          = 1000;\n"
+    "number          = 15000;        // total number of points\n"
     "\n"
     "[Peaks]\n"
-    "number          = 4;\n"
-    "[0].amplitude   = 1.0;\n"
-    "[0].position    = 1520.0;\n"
-    "[0].width       = 10.0;\n"
+    "number          = 4;            // number of peaks to generate\n"
+    "timeshift       = 500;          // parameter for exp_gaussian function\n"
+    "[0].amplitude   = 1.0;          // amplitude of peak 1 (a.u.)\n" 
+    "[0].position    = 1511.0;       // position of peak 1 (nm)\n"
+    "[0].width       = 1.0;          // FWHM of peak 1 (nm)\n"
     "\n"
-    "[1].amplitude   = 0.8;\n"
-    "[1].position    = 1540.0;\n"
-    "[1].width       = 10.0;\n"
+    "[1].amplitude   = 0.8;          // amplitude of peak 2 (a.u.)\n"  
+    "[1].position    = 1523.0;       // position of peak 2 (nm)\n"
+    "[1].width       = 1.0;          // FWHM of peak 2 (nm)\n"
     "\n"
-    "[2].amplitude   = 0.6;\n"
-    "[2].position    = 1560.0;\n"
-    "[2].width       = 10.0;\n"
+    "[2].amplitude   = 0.6;          // amplitude of peak 3 (a.u.)\n"
+    "[2].position    = 1536.0;       // position of peak 3 (nm)\n"
+    "[2].width       = 1.0;          // FWHM of peak 3 (nm)\n"
     "\n"
-    "[3].amplitude   = 0.4;\n"
-    "[3].position    = 1580.0;\n"
-    "[3].width       = 10.0;\n"
+    "[3].amplitude   = 0.4;          // amplitude of peak 4 (a.u.)\n"
+    "[3].position    = 1551.0;       // position of peak 4 (nm)\n"
+    "[3].width       = 1.0;          // FWHM of peak 4 (nm)\n"
     "\n"
     "[Noise]\n"
-    "amplitude       = 0.2;\n"
+    "amplitude       = 0.1;          // noise amplitude (a.u.)\n"
+    "color           = 3;            // 0-random; 1-white; 2-brown; 3-violet; 4-pink (unfinished); 5-blue (unfinished)\n"
     "\n"
     "[Smooth]\n"
-    "width           = 50;\n"
+    "width           = 160;          // smooth width (points)\n"
     "\n"
     "[Search]\n"
-    "threshold_slope = 0.0001;\n"
-    "threshold_amp   = 0.32;\n"
+    "threshold_slope = 0.000001;     // first derivative slope threshold\n"
+    "threshold_amp   = 0.35;         // signal's peak amplitude threshold\n"
+    "peaks.num.real  = 4;            // number of perak to search for\n"
+    "peaks.num.arr   = 10;           // maximal array size for peak searching\n"
+    "peaks.num       = 4;            // peak of interest (sensor) number to show on graph\n"
     "\n"
     "[Generation]\n"
-    "number          = 10;\n"
-    "frequency       = 5;\n"
+    "number          = 10;          // number of signal generations (mesurements in experiment)\n"
+    "frequency       = 5;            // frequency of mesurements\n"
+    "\n"
+    "[Temperature]\n"
+    "apply           = 0;            // calculate temperature drift\n"
+    "tick            = 20;           // number of mesurement to change temperature\n"
+    "room            = 20;           // room temperature\n"
+    "max             = 1350;         // maxumum temperature in experiment\n"
+    "coefficient     = 0.02;         // coefficient [nm/C]\n"
     "\n"
     "[Plot]\n"
-    "x.min           = 0.0;\n"
-    "x.max           = 1000;\n"
-    "y.min           = 0.0;\n"
-    "y.max           = 1.6;\n"
-    "show.signal     = 1;\n"
-    "show.smooth     = 1;\n"
-    "show.derivative = 0;\n"
-    "show.markers    = 1;\n"
+    "x.min           = 1500;         // x window limit (left)\n"
+    "x.max           = 1600;         // x window limit (right)\n"
+    "y.min           = 0.0;          // y window limit (bottom)\n"
+    "y.max           = 1.4;          // y window limit (top)\n"
+    "show.signal     = 1;            // show plot of real generated signal\n"
+    "show.smooth     = 0;            // show plot of smoothed generated signal\n"
+    "show.derivative = 0;            // show plot of fisrt derivative of generated signal\n"
+    "show.markers    = 0;            // show plot of markers in peak positions\n"
+    "show.temp       = 0;            // show plot of temperature change on sensors\n"
     "\n"
     );
     fclose(ini);
 }
 
 static void
-clear_data(data_t * x, index_t size)
+data_clear(data_t * x, index_t size)
 {
   for (index_t i = 0; i < size; i++) x[i] = 0.0;
 }
 
 static void
-convert_to_lambda(data_t * lambda, data_t lambda_begin, data_t lambda_end, index_t size)
+data_convert_to_lambda(data_t * lambda, data_t lambda_begin, data_t lambda_end, index_t size)
 {
   // data_t lambda[size]; 
   index_t i; 
@@ -194,6 +174,31 @@ convert_to_lambda(data_t * lambda, data_t lambda_begin, data_t lambda_end, index
   {
     lambda[i] = lambda_begin + ( i * ((lambda_end - lambda_begin)/size)); 
   }
+}
+
+static void
+data_arrays_set(Signal_Parameters conf, Points *data, Points *data_temp, 
+                Points *data_temp0, Points *data_temp1, Points *data_temp2, Points *data_temp3, Points *data_temp4)
+{
+  (*data_temp).x = (*data_temp).y = NULL;
+  (*data).x = (data_t *)malloc(sizeof(data_t) * conf.n_points);
+  (*data).y = (data_t *)malloc(sizeof(data_t) * conf.n_points);
+  data_convert_to_lambda((*data).x, conf.plot.x_min, conf.plot.x_max, conf.n_points);
+
+  (*data_temp).x = (data_t *)malloc(sizeof(data_t) * conf.generation_max);
+  (*data_temp).y = (data_t *)malloc(sizeof(data_t) * conf.generation_max);
+
+  
+  (*data_temp0).x = (*data_temp1).x = (*data_temp2).x = (*data_temp3).x = (*data_temp4).x = NULL;
+  (*data_temp0).y = (*data_temp1).y = (*data_temp2).y = (*data_temp3).y = (*data_temp4).y = NULL;
+
+  (*data_temp0).y = (data_t *)malloc(sizeof(data_t) * conf.generation_max);
+  (*data_temp1).y = (data_t *)malloc(sizeof(data_t) * conf.generation_max);
+  (*data_temp2).y = (data_t *)malloc(sizeof(data_t) * conf.generation_max);
+  (*data_temp3).y = (data_t *)malloc(sizeof(data_t) * conf.generation_max);
+  (*data_temp4).y = (data_t *)malloc(sizeof(data_t) * conf.generation_max);
+
+  (*data_temp0).y[0] = (*data_temp1).y[0] = (*data_temp2).y[0] =(* data_temp3).y[0] = (*data_temp4).y[0] = conf.temp.room;
 }
 
 /* static void
@@ -222,37 +227,37 @@ calibrate(Points * data, Peaks * peaks_ref, Signal_Parameters * conf, index_t sh
 }
  */
 static void
-graphics_set(gnuplot_ctrl *win[], Signal_Parameters * conf)
+graphics_set(gnuplot_ctrl *win[], Signal_Parameters conf)
 {
-  if ((*conf).plot.show_signal || (*conf).plot.show_smooth )
+  if (conf.plot.show_signal || conf.plot.show_smooth )
   {
     win[0] = gnuplot_init();
     gnuplot_cmd(win[0], "set term qt size 2000, 400");
     gnuplot_cmd(win[0], "set grid");
-    gnuplot_cmd(win[0], "set xrange [%g:%g]", (*conf).plot.x_min, (*conf).plot.x_max);
-    gnuplot_cmd(win[0], "set yrange [%g:%g]", (*conf).plot.y_min, (*conf).plot.y_max);
-    gnuplot_cmd(win[0], "set label \"Frequency: %d Hz\" at 40,1.4", (*conf).generation_frequency);
+    gnuplot_cmd(win[0], "set xrange [%g:%g]", conf.plot.x_min, conf.plot.x_max);
+    gnuplot_cmd(win[0], "set yrange [%g:%g]", conf.plot.y_min, conf.plot.y_max);
+    gnuplot_cmd(win[0], "set label \"Frequency: %d Hz\" at 40,1.4", conf.generation_frequency);
     gnuplot_setstyle(win[0], "lines") ;
     gnuplot_set_xlabel(win[0], "Wavelength, nm");
     gnuplot_set_ylabel(win[0], "Amplitude, a.u.");
   }
 
-  if ((*conf).plot.show_derivative)
+  if (conf.plot.show_derivative)
   {
     win[1] = gnuplot_init();
     gnuplot_cmd(win[1], "set term qt size 1000, 400");
     gnuplot_cmd(win[1], "set grid");
-    gnuplot_cmd(win[1], "set xrange [%g:%g]", (*conf).plot.x_min, (*conf).plot.x_max);
+    gnuplot_cmd(win[1], "set xrange [%g:%g]", conf.plot.x_min, conf.plot.x_max);
     gnuplot_cmd(win[1], "set yrange [%g:%g]", -0.015, 0.015);
   }
 
-  if ((*conf).plot.show_temperature)
+  if (conf.plot.show_temperature)
   {
     win[2] = gnuplot_init();
     gnuplot_cmd(win[2], "set term qt size 1000, 400");
     gnuplot_cmd(win[2], "set grid");
-    gnuplot_cmd(win[2], "set xrange [%d:%d]", 0, (*conf).generation_max);
-    gnuplot_cmd(win[2], "set yrange [%g:%g]", 0.0, (*conf).temp.max);
+    gnuplot_cmd(win[2], "set xrange [%d:%d]", 0, conf.generation_max);
+    gnuplot_cmd(win[2], "set yrange [%g:%g]", 0.0, conf.temp.max);
     gnuplot_setstyle(win[2], "lines") ;
     gnuplot_set_xlabel(win[2], "Generation, tick");
     gnuplot_set_ylabel(win[2], "Temperature, C");
@@ -261,234 +266,77 @@ graphics_set(gnuplot_ctrl *win[], Signal_Parameters * conf)
   return;
 }
 
-int 
-test_signal(const char * conf_name)
+static void
+graphics_reset(gnuplot_ctrl *win[], Signal_Parameters conf)
 {
-  /* Parameters setup (config) */
-  dictionary *ini = config_load(conf_name);
-  if (ini == NULL)
-  {
-      fprintf(stderr, "cannot parse file: %s\n", conf_name);
-      return -1;
-  }
+  if ((conf.plot.show_signal || conf.plot.show_smooth) 
+                                 & (win[0] != NULL)) gnuplot_resetplot(win[0]);
+  if (conf.plot.show_derivative  & (win[1] != NULL)) gnuplot_resetplot(win[1]);
+  if (conf.plot.show_temperature & (win[2] != NULL)) gnuplot_resetplot(win[2]);
+}
 
-  Signal_Parameters conf;
-  parameters_set(&conf, ini);
-
-  /* Array for generated data */
-  Points data, data_temp; // data_ref
-  data_temp.x = data_temp.y = NULL;
-  data.x = (data_t *)malloc(sizeof(data_t) * conf.n_points);
-  data.y = (data_t *)malloc(sizeof(data_t) * conf.n_points);
-  convert_to_lambda(data.x, conf.plot.x_min, conf.plot.x_max, conf.n_points);
-
-  // data_ref.x = data.x;
-  // data_ref.y = (data_t *)malloc(sizeof(data_t) * conf.n_points);
-  
-  if (conf.plot.show_temperature)
-  {
-    data_temp.x = (data_t *)malloc(sizeof(data_t) * conf.generation_max);
-    data_temp.y = (data_t *)malloc(sizeof(data_t) * conf.generation_max);
-  }
-
-  Points data_temp1, data_temp2, data_temp3, data_temp4;
-  data_temp1.x = data_temp2.x = data_temp3.x = data_temp4.x = NULL;
-  data_temp1.y = data_temp2.y = data_temp3.y = data_temp4.y = NULL;
-  if (conf.plot.show_temperature)
-  {
-    data_temp1.y = (data_t *)malloc(sizeof(data_t) * conf.generation_max);
-    data_temp2.y = (data_t *)malloc(sizeof(data_t) * conf.generation_max);
-    data_temp3.y = (data_t *)malloc(sizeof(data_t) * conf.generation_max);
-    data_temp4.y = (data_t *)malloc(sizeof(data_t) * conf.generation_max);
-  }
-
-  /* Setup graphics */
-  gnuplot_ctrl *win[3];
-  win[0] = win[1] = win[2] = NULL;
-  graphics_set(win, &conf);
-
-  /* Generate signal and find peaks */
-  index_t i_gen = 0; // generations iterator
-  index_t i     = 0; // general iterator
-  data_t *dy_dx = malloc(sizeof(data_t) * conf.n_points); // derivative
-  index_t n_drops = 0; // number of droped generations becouse of to many peaks (more than `peaks_real_number`)
-
-  random_seed();
-  
-  /* Generate reference (calibration) signal */
-  // Peaks peaks_ref;
-  // peaks_ref.peak = malloc(sizeof(Peak) * conf.search.peaks_array_number);
-  // calibrate(&data_ref, &peaks_ref, &conf, 1);
-
-  /* Generate main signal */
-  Peaks peaks;
-  peaks.peak = malloc(sizeof(Peak) * conf.search.peaks_array_number);
-  data_t time = 0.0;
-  // index_t step_n = 0;
-  
-  index_t apply_temp = 1;
-  data_t delta_temp;
-  if (apply_temp) delta_temp = (conf.temp.max - conf.temp.room)/(conf.generation_max/conf.temp.tick);
-  
-  for (i_gen = 0; i_gen <= conf.generation_max; i_gen++)
-  {
-    /* Clean plot for next generation */
-    if ((conf.plot.show_signal || conf.plot.show_smooth) & (win[0] != NULL)) gnuplot_resetplot(win[0]);
-    if (conf.plot.show_derivative & (win[1] != NULL)) gnuplot_resetplot(win[1]);
-    if (conf.plot.show_temperature & (win[2] != NULL)) gnuplot_resetplot(win[2]);
-
-    /* Clear data (set to zero) */
-    clear_data(data.y, conf.n_points);
-
-    /* Generate signal */   
-    data_t pos_ideal[conf.search.peaks_real_number];
-    for (i = 0; i < conf.search.peaks_real_number; i++) pos_ideal[i] = conf.peak[i].position;
-    if ((apply_temp) & (fmod(i_gen + 1, conf.temp.tick) == 0))
-    {
-      printf("\n" GREEN("GENERATOR:") " Temperature changed! New positions [ ");
-      for (i = 0; i < conf.n_peaks; i++)
-      {
-        conf.peak[i].position = conf.peak[i].position + (delta_temp * 0.02);
-        printf(CYAN("%f"), conf.peak[i].position);
-        if (i != conf.n_peaks - 1) printf(", ");
-      }
-      printf(" ]\n");
-    }
-
-    /* Save peaks data from previous generation to calculate temperature change */
-    index_t pos[conf.search.peaks_real_number];
-    for (i = 0; i < conf.search.peaks_real_number; i++) pos[i] = peaks.peak[i].position;
-    
-    signal_generate(&data, conf.n_peaks, conf.peak, conf.noise, conf.n_points);
-    if (conf.plot.show_signal & (win[0] != NULL)) gnuplot_plot_xy(win[0], data.x, data.y, conf.n_points, "Signal");  
-    
-    /* Smooth signal */
-    smooth(data.y, conf.n_points, conf.smooth_width);
-    smooth(data.y, conf.n_points, conf.smooth_width);
-    smooth(data.y, conf.n_points, conf.smooth_width);
-    // smooth(data.y, conf.n_points, conf.smooth_width);
-    // smooth(data.y, conf.n_points, conf.smooth_width);
-    if (conf.plot.show_smooth & (win[0] != NULL)) gnuplot_plot_xy(win[0], data.x, data.y, conf.n_points, "Signal (smooth)");
-
-    /* Find and show derivative */
-    if (conf.plot.show_derivative & (win[1] != NULL))
-    {
-      clear_data(dy_dx, conf.n_points);
-      deriv(conf.n_points, data.y, dy_dx);
-      gnuplot_plot_xy(win[1], data.x, dy_dx, conf.n_points, "dy/dLambda");
-    }
-
-    /* Find peaks */
-    peaks.peak = realloc(peaks.peak, sizeof(Peak) * conf.search.peaks_array_number);
-    time = findpeaks(data.y, &peaks, &conf);
-    if (peaks.total_number == conf.search.peaks_real_number)
-    {
-      printf(MAGENTA("PSEARCHER:")" Found %d peak(s) in %f sec at ", peaks.total_number, time);
-      for (i = 0; i < peaks.total_number; i++)
-      {
-        if (i == 0) printf("[ ");      
-        /* Show value */
-        printf("%f", data.x[(index_t)peaks.peak[i].position]);
-        /* Show difference */
-        // data_t diff = data.x[peaks.peak[i].position] - data_ref.x[peaks_ref.peak[i].position];
-        // printf((diff >= 0) ? " %f" : "%f", diff);
-        /* Show temperature */
-        // data_t diff = (data.x[peaks.peak[i].position] - data_ref.x[peaks_ref.peak[i].position])/0.02;
-        // printf((diff >= 0) ? " %f" : "%f", diff);
-        
-        if (i != peaks.total_number - 1) printf(", "); 
-        if ((i == peaks.total_number - 1) & (conf.search.peaks_real_number == peaks.total_number)) printf(" ]\n");
-        
-        // Plot markers in peak positions
-        if ((conf.plot.show_signal || conf.plot.show_smooth || conf.plot.show_derivative) & conf.plot.show_markers & (win[0] != NULL))
-        {
-          data_t marker_x[2] = { data.x[(index_t)peaks.peak[i].position], data.x[(index_t)peaks.peak[i].position] };
-          data_t marker_y[2] = { conf.plot.y_min, conf.plot.y_max };
-          gnuplot_plot_xy(win[0], marker_x, marker_y, 2, "Peak marker");
-        }
-      }
-    }
-    else
-    {
-      printf(MAGENTA("PSEARCHER:")" Wrong number of peaks. Found %d, should be %d. "RED("Drop!")"\n", peaks.total_number, conf.search.peaks_real_number);
-      ++n_drops;
-    }
-
-    /* Temperature */
-    if ((conf.plot.show_temperature) & (i_gen > 0))
-    {
-      gnuplot_cmd(win[2], "set yrange [%d:%g]", 0, (conf.temp.max + 700));
-      data_temp.x[i_gen] = i_gen;
-      // for (i = 0; i < peaks.total_number; i++)
-      // {
-      //   data_temp.y[i_gen] = ((100 * (i + 1)) + (100 * i)) + (data.x[peaks.peak[i].position] - data_ref.x[peaks_ref.peak[i].position])/0.02;
-      //   gnuplot_plot_xy(win[2], data_temp.x, data_temp.y, i_gen + 1, "Temperature deviation");
-      // }   
-
-      data_temp1.y[i_gen] = data_temp1.y[i_gen - 1] + (data.x[(index_t)peaks.peak[0].position] - data.x[pos[0]])/0.02;
-      data_temp2.y[i_gen] = data_temp2.y[i_gen - 1] + (conf.peak[0].position - pos_ideal[0])/0.02;
-      // data_temp2.y[i_gen] = data_temp1.y[i_gen - 1] + (data.x[peaks.peak[1].position] - data.x[pos[1]])/0.02;
-      // data_temp3.y[i_gen] = data_temp1.y[i_gen - 1] + (data.x[peaks.peak[2].position] - data.x[pos[2]])/0.02;
-      // data_temp4.y[i_gen] = data_temp1.y[i_gen - 1] + (data.x[peaks.peak[3].position] - data.x[pos[3]])/0.02;
-      gnuplot_plot_xy(win[2], data_temp.x, data_temp1.y, i_gen + 1, "T1");
-      gnuplot_plot_xy(win[2], data_temp.x, data_temp2.y, i_gen + 1, "T generator");
-      // gnuplot_plot_xy(win[2], data_temp.x, data_temp3.y, i_gen + 1, "T3 deviation");
-      // gnuplot_plot_xy(win[2], data_temp.x, data_temp4.y, i_gen + 1, "T4 deviation");
-      // printf("GRAPHICUS: Position: old = %f vs new = %f\n", data.x[pos[0]], data.x[(index_t)peaks.peak[0].position]);
-    } 
-    else if (i_gen == 0)
-    {
-      data_temp.x[0] = 0;
-      data_temp1.y[0] = data_temp2.y[0] = data_temp3.y[0] = data_temp4.y[0] = conf.temp.room;
-      gnuplot_plot_xy(win[2], data_temp.x, data_temp1.y, i_gen + 1, "T1");
-      gnuplot_plot_xy(win[2], data_temp.x, data_temp2.y, i_gen + 1, "T generator");
-      // gnuplot_plot_xy(win[2], data_temp.x, data_temp3.y, i_gen + 1, "T3 deviation");
-      // gnuplot_plot_xy(win[2], data_temp.x, data_temp4.y, i_gen + 1, "T4 deviation");
-    }
-    
-    /* Isolate desired segment for curve fitting */
-    // index_t points_segment_size = 100; // number of points
-    // data_t points_segment_center = 300.0; // data center value 
-    // Points data_segment;
-    // data_segment.x = (data_t *)malloc(sizeof(data_t) * points_segment_size);
-    // data_segment.y = (data_t *)malloc(sizeof(data_t) * points_segment_size);
-    // // data_window_get(points, n_points, 200, points_segment_size, segment);
-    // index_t n1 = val2ind(data.x, conf.n_points, points_segment_center - (points_segment_size / 2));
-    // // index_t n2 = val2ind(data.x, n_points, points_segment_center + (points_segment_size / 2));
-    // for (index_t ii = 0; ii < points_segment_size; ii++)
-    // {
-    //   data_segment.x[ii] = data.x[n1];
-    //   data_segment.y[ii] = data.y[n1];
-    //   n1 = n1 + 1;
-    // }
-    // gnuplot_plot_points(win, &data_segment, points_segment_size, "Segment");
-
-    /* Works only without smooth. VERY unstable results. */
-    /* PeakSearch ps; */
-    // ps.sigmas = (data_t)config_getdouble(ini, "search:sigma", -1.0); // 0.15
-    // ps.win_size = (index_t)config_getdouble(ini, "search:window", -1.0); // 40
-    // ps.data_s = conf.n_points; //sizeof(d) / sizeof(data_t);
-    // ps.data_v = (data_t*) malloc(ps.data_s * sizeof(data_t));
-    // index_t *peaks_arr = (index_t*) malloc(sizeof(index_t));
-    // search_data_peaks(&ps, &peaks_arr, data.y, n_points);
-    
-    /* Simulate mesurements frequency */
-    if (conf.generation_max != 1) usleep(1000000/conf.generation_frequency); 
-  }
-
+void
+show_statistics(Signal_Parameters conf, Signal_Statistics stat, Points data_temp0, Points data_temp1, Points data_temp2, Points data_temp3, Points data_temp4)
+{
+  index_t i = 0;
   printf("\n");
-  printf(BLUE("STATISTUS:")" Rise of T[step]: %f\n", delta_temp); 
-  printf(BLUE("STATISTUS:")" Number of drops: %d\n", n_drops);
-  printf(BLUE("STATISTUS:")" Max temperature: %f\n", data_temp1.y[conf.generation_max]);
-
-  /* Do not close window untill we press any key */
-  if (conf.plot.show_signal || conf.plot.show_smooth || conf.plot.show_derivative || conf.plot.show_temperature)
+  printf(BLUE("STATISTUS:")" Generation time:\t%f\n", stat.generation_time); // the last generation time
+  printf(BLUE("STATISTUS:")" Number of drops:\t%d\n", stat.n_drops);
+  if (conf.noise.amplitude > 0)
   {
-    printf("\n");
-    printf("Press ENTER to continue\n"); while (getchar()!='\n'){}
+    if (conf.noise.color == 1) printf(BLUE("STATISTUS:")" Noise color    :\t1 - white\n");
+    if (conf.noise.color == 2) printf(BLUE("STATISTUS:")" Noise color    :\t2 - brown\n");
+    if (conf.noise.color == 3) printf(BLUE("STATISTUS:")" Noise color    :\t3 - violet\n");
+    if (conf.noise.color == 4) printf(BLUE("STATISTUS:")" Noise color    :\t4 - pink\n");
+    if (conf.noise.color == 5) printf(BLUE("STATISTUS:")" Noise color    :\t5 - blue\n");
+  }
+  
+  if(conf.temp.apply) 
+    printf(BLUE("STATISTUS:")" Rise of T[step]:\t%f\n", stat.delta_temp); 
+  else
+    printf(BLUE("STATISTUS:")" Rise of T[step]:\t- (no temperature rise)\n"); 
+  printf(BLUE("STATISTUS:")" Sensor number #:\t%d\n", conf.search.peak_search_number);
+
+  switch (conf.search.peak_search_number)
+  {
+    case 1:
+      printf(BLUE("STATISTUS:")" End temperature:\t%f (generator: %f)\n", data_temp1.y[conf.generation_max], data_temp0.y[conf.generation_max]);
+      break;
+    case 2:
+      printf(BLUE("STATISTUS:")" End temperature:\t%f (generator: %f)\n", data_temp2.y[conf.generation_max], data_temp0.y[conf.generation_max]);
+      break;
+    case 3:
+      printf(BLUE("STATISTUS:")" End temperature:\t%f (generator: %f)\n", data_temp3.y[conf.generation_max], data_temp0.y[conf.generation_max]);
+      break;
+    case 4:
+      printf(BLUE("STATISTUS:")" End temperature:\t%f (generator: %f)\n", data_temp4.y[conf.generation_max], data_temp0.y[conf.generation_max]);
+      break;
   }
 
-  // Cleanup:
+  data_t diff[conf.generation_max];
+  switch (conf.search.peak_search_number)
+  {
+    case 1:
+      for (i = 0; i <= conf.generation_max; i++) diff[i] = data_temp1.y[i] - data_temp0.y[i];
+      break;
+    case 2:
+      for (i = 0; i <= conf.generation_max; i++) diff[i] = data_temp2.y[i] - data_temp0.y[i];
+      break;
+    case 3:
+      for (i = 0; i <= conf.generation_max; i++) diff[i] = data_temp3.y[i] - data_temp0.y[i];
+      break;
+    case 4:
+      for (i = 0; i <= conf.generation_max; i++) diff[i] = data_temp4.y[i] - data_temp0.y[i];
+      break;
+  }
+  printf(BLUE("STATISTUS:")" Max temp deviation:\tpos = %f, neg = %f\n", max(diff, conf.generation_max + 1), min(diff, conf.generation_max + 1));
+  printf(BLUE("STATISTUS:")" Min temp deviation:\t%f\n", min_abs(diff, conf.generation_max + 1));
+}
+
+void
+free_gnuplot(Signal_Parameters conf, gnuplot_ctrl **win)
+{
+    // Cleanup:
   if (conf.plot.show_signal || conf.plot.show_smooth ) gnuplot_close(win[0]);
   if (conf.plot.show_derivative) gnuplot_close(win[1]);
   if (conf.plot.show_temperature)
@@ -496,15 +344,17 @@ test_signal(const char * conf_name)
     gnuplot_close(win[2]);
     // free(data_temp.x); free(data_temp.y);
   }
+}
+
+void
+free_data(Signal_Parameters conf, Points data)
+{
   free(conf.peak);
   free(data.x); free(data.y);
   // free(data_ref.x); free(data_ref.y);
-  config_freedict(ini);
-
-  return 0;
 }
 
-double 
+static double 
 exp_broaden(const index_t size, double * in, double * out, const double t) {
   double start_time = get_run_time();
 
@@ -556,7 +406,7 @@ exp_broaden(const index_t size, double * in, double * out, const double t) {
   // Compress
   // PLOT(in0[ii], 0, size, "Input data");
   index_t ii = 0;
-  for (index_t p = (size/2+2); p <= (n-(size/2)+1); p++)
+  for (index_t p = (n-(size/2)+1); p >= (size/2+2); p--)
   {
     out[ii] = (creal(out3[p])/sum)/n;
     ii = ii + 1;
@@ -566,23 +416,280 @@ exp_broaden(const index_t size, double * in, double * out, const double t) {
   return end_time - start_time;
 }
 
-double
+static double
 exp_gaussian(const index_t size, double * in, double * out, double pos, double wid, double timeconstant)
 {
+#ifdef LOG_TIME 
   double start_time = get_run_time();
+#endif
   // Exponentially-convoluted gaussian(x,pos,wid) = gaussian peak centered on pos, half-width=wid
   // x may be scalar, vector, or matrix, pos and wid both scalar
-  double yy[size];
-  double arg = 0.0;
+  data_t yy[size];
+  data_t arg = 0.0;
   for (index_t i = 0; i < size; i++)
   {
     arg = (in[i] - pos)/(0.60056120439323 * wid);
     yy[i] = exp(-(arg * arg)); 
   }
-  exp_broaden(size, yy, out, timeconstant);
 
+#ifdef LOG_TIME 
+  double t_broden = exp_broaden(size, yy, out, timeconstant);
+  printf("Time exp broadening:\t%f\n", t_broden);
   double end_time = get_run_time();
-  return end_time - start_time;
+  return (end_time - start_time) - t_broden;
+#else
+  exp_broaden(size, yy, out, timeconstant);
+  return 0.f;
+#endif
+}
+
+double
+signal_generate_exp(Points *points, index_t n_peaks, Peak peaks[], Noise noise, index_t n_points)
+{
+    index_t i = 0, j = 0;
+    data_t y[n_points];
+    data_t ampl_coeff = 0.f;
+#ifdef LOG_TIME
+    double time_exp = 0.f;
+#endif
+    double start_time = get_run_time();
+    
+    for (j = 0; j < n_peaks; j++)
+    {
+      for (index_t n = 0; n < n_points; n++) y[n] = 0.0;
+#ifdef LOG_TIME
+      time_exp = exp_gaussian(n_points, (*points).x, y, peaks[j].position, peaks[j].width, peaks->timeshift);
+      printf("Time exp for peak %d:\t%f\n",   j, time_exp);
+      printf("Amplitude of peak %d:\t%f\n",   j, peaks[j].amplitude);
+#else
+      exp_gaussian(n_points, (*points).x, y, peaks[j].position, peaks[j].width, peaks->timeshift);
+#endif
+      ampl_coeff = peaks[0].amplitude / max(y, n_points);
+      for (i = 0; i < n_points; i++)
+      {
+        (*points).y[i] += peaks[j].amplitude * ampl_coeff * y[i];
+        if (noise.amplitude > 0) (*points).y[i] += noise.amplitude * random_pm_one();
+      }
+    }
+    double end_time = get_run_time();
+    return end_time - start_time;
+}
+
+int 
+test_signal(const char * conf_name)
+{
+  /* Parameters setup (config) */
+  dictionary *ini = config_load(conf_name);
+  if (ini == NULL)
+  {
+      fprintf(stderr, "cannot parse file: %s\n", conf_name);
+      return -1;
+  }
+
+  Signal_Parameters conf;
+  config_parameters_set(&conf, ini);
+
+  /* Array for generated data */
+  Points data, data_temp;
+  Points data_temp0, data_temp1, data_temp2, data_temp3, data_temp4;
+  data_arrays_set(conf, &data, &data_temp, &data_temp0, &data_temp1, &data_temp2, &data_temp3, &data_temp4);
+  
+  Signal_Statistics stat;
+
+  /* Setup graphics */
+  gnuplot_ctrl *win[3];
+  win[0] = win[1] = win[2] = NULL;
+  graphics_set(win, conf);
+
+  /* Generate signal and find peaks */
+  index_t i_gen = 0; // generations iterator
+  index_t i     = 0; // general iterator
+  data_t *dy_dx = NULL;
+  stat.n_drops = 0; // number of droped generations because of too many peaks (more than `peaks_real_number`)
+
+  if (conf.plot.show_derivative) dy_dx = malloc(sizeof(data_t) * conf.n_points); // derivative
+
+  init_rnd();
+  
+  /* Generate reference (calibration) signal */
+  // Peaks peaks_ref;
+  // peaks_ref.peak = malloc(sizeof(Peak) * conf.search.peaks_array_number);
+  // calibrate(&data_ref, &peaks_ref, &conf, 1);
+
+  /* Generate main signal */
+  Peaks peaks;
+  peaks.peak = malloc(sizeof(Peak) * conf.search.peaks_array_number);
+  
+  if (conf.temp.apply) stat.delta_temp = (conf.temp.max - conf.temp.room)/(conf.generation_max/conf.temp.tick);
+  index_t n_step = 0;
+  
+  for (i_gen = 0; i_gen <= conf.generation_max; i_gen++)
+  {
+    /* Clean plot for next generation */
+    graphics_reset(win, conf);
+
+    /* Clear data (set to zero) */
+    data_clear(data.y, conf.n_points);
+
+    /* Generate signal */   
+    data_t conf_peak_previous[conf.search.peaks_real_number];
+    for (i = 0; i < conf.search.peaks_real_number; i++) conf_peak_previous[i] = conf.peak[i].position;
+    
+    if ((conf.temp.apply) & (fmod(i_gen, conf.temp.tick) == 0)) // Show newly position
+    {
+      printf("\n" GREEN("GENERATOR:") " Temperature changed! New positions [ ");
+      for (i = 0; i < conf.n_peaks; i++)
+      {
+        conf.peak[i].position = conf_peak_previous[i] + (stat.delta_temp * conf.temp.coefficient);
+        printf(CYAN("%f"), conf.peak[i].position);
+        if (i != conf.n_peaks - 1) printf(", ");
+      }
+      printf(" ]");
+
+      printf("\n" GREEN("GENERATOR:") " Temperature changed! The new value [ ");
+      for (i = 0; i < conf.n_peaks; i++)
+      {
+        printf(CYAN("%f"), conf.temp.room + stat.delta_temp * n_step);
+        if (i != conf.n_peaks - 1) printf(", ");
+      }
+      n_step = n_step + 1;
+      printf(" ]\n");
+    }
+
+    /* Save peaks data from previous generation to calculate temperature change */
+    index_t pos[conf.search.peaks_real_number];
+    for (i = 0; i < conf.search.peaks_real_number; i++) pos[i] = peaks.peak[i].position;
+   
+    stat.generation_time = signal_generate_exp(&data, conf.n_peaks, conf.peak, conf.noise, conf.n_points);
+    if ((i_gen > 0) & conf.plot.show_signal & (win[0] != NULL)) gnuplot_plot_xy(win[0], data.x, data.y, conf.n_points, "Signal");  
+    
+    /* Smooth signal */
+    smooth(data.y, conf.n_points, conf.smooth_width);
+    smooth(data.y, conf.n_points, conf.smooth_width);
+    smooth(data.y, conf.n_points, conf.smooth_width);
+    // smooth(data.y, conf.n_points, conf.smooth_width);
+    // smooth(data.y, conf.n_points, conf.smooth_width);
+    if (conf.plot.show_smooth & (win[0] != NULL)) gnuplot_plot_xy(win[0], data.x, data.y, conf.n_points, "Signal (smooth)");
+
+    /* Find and show derivative */
+    if (conf.plot.show_derivative & (win[1] != NULL))
+    {
+      data_clear(dy_dx, conf.n_points);
+      deriv(conf.n_points, data.y, dy_dx);
+      gnuplot_plot_xy(win[1], data.x, dy_dx, conf.n_points, "dy/dLambda");
+    }
+
+    /* Find peaks */
+    peaks.peak = realloc(peaks.peak, sizeof(Peak) * conf.search.peaks_array_number);
+    stat.peak_search_time = findpeaks(data.y, &peaks, &conf);
+
+    if (i_gen > 0)
+    {
+      data_temp0.y[i_gen] = data_temp0.y[i_gen - 1] + (conf.peak[0].position - conf_peak_previous[0])/conf.temp.coefficient;
+      data_temp1.y[i_gen] = data_temp1.y[i_gen - 1] + (data.x[(index_t)peaks.peak[0].position] - data.x[pos[0]])/conf.temp.coefficient;
+      data_temp2.y[i_gen] = data_temp2.y[i_gen - 1] + (data.x[(index_t)peaks.peak[1].position] - data.x[pos[1]])/conf.temp.coefficient;
+      data_temp3.y[i_gen] = data_temp3.y[i_gen - 1] + (data.x[(index_t)peaks.peak[2].position] - data.x[pos[2]])/conf.temp.coefficient;
+      data_temp4.y[i_gen] = data_temp4.y[i_gen - 1] + (data.x[(index_t)peaks.peak[3].position] - data.x[pos[3]])/conf.temp.coefficient;
+
+      if (peaks.total_number == conf.search.peaks_real_number)
+      {
+        printf(MAGENTA("PSEARCHER:")" Found %d peak(s) in %f sec at ", peaks.total_number, stat.peak_search_time);
+        for (index_t i_sens = 0; i_sens < peaks.total_number; i_sens++)
+        {
+          if (i_sens == 0) printf("[ ");      
+          /* Show value */
+          // printf("%f", data.x[(index_t)peaks.peak[i].position]);
+          
+          /* Show difference */
+          // data_t diff = data.x[peaks.peak[i].position] - data_ref.x[peaks_ref.peak[i].position];
+          // printf((diff >= 0) ? " %f" : "%f", diff);
+          
+          /* Show temperature */
+          // data_t diff = (data.x[(index_t)peaks.peak[i].position] - data.x[pos[i]])/conf.temp.coefficient;
+          data_t temp_on_sensor[peaks.total_number];
+          temp_on_sensor[0] = temp_on_sensor[1] = temp_on_sensor[2] = temp_on_sensor[3] = 0.0;
+          if (i_sens == 0) temp_on_sensor[i_sens] = data_temp1.y[i_gen];
+          if (i_sens == 1) temp_on_sensor[i_sens] = data_temp2.y[i_gen];
+          if (i_sens == 2) temp_on_sensor[i_sens] = data_temp3.y[i_gen];
+          if (i_sens == 3) temp_on_sensor[i_sens] = data_temp4.y[i_gen];       
+          printf("%f", temp_on_sensor[i_sens]);
+          
+          if (i_sens != peaks.total_number - 1) printf(", "); 
+          if ((i_sens == peaks.total_number - 1) & (conf.search.peaks_real_number == peaks.total_number)) printf(" ]\n");
+          
+          // Plot markers in peak positions
+          if ((conf.plot.show_signal || conf.plot.show_smooth || conf.plot.show_derivative) & conf.plot.show_markers & (win[0] != NULL))
+          {
+            data_t marker_x[2] = { data.x[(index_t)peaks.peak[i_sens].position], data.x[(index_t)peaks.peak[i_sens].position] };
+            data_t marker_y[2] = { conf.plot.y_min, conf.plot.y_max };
+            gnuplot_plot_xy(win[0], marker_x, marker_y, 2, "Peak marker");
+          }
+        }
+      }
+      else
+      {
+        printf(MAGENTA("PSEARCHER:")" Wrong number of peaks. Found %d, should be %d. "RED("Drop!")"\n", peaks.total_number, conf.search.peaks_real_number);
+        ++stat.n_drops;
+      }
+    }
+
+    /* Temperature */
+    if (conf.temp.apply)
+    {
+      gnuplot_cmd(win[2], "set yrange [%d:%g]", 0, (conf.temp.max + 700));
+      data_temp.x[i_gen] = i_gen;
+      switch (conf.search.peak_search_number)
+      {
+        case 1:
+          gnuplot_plot_xy(win[2], data_temp.x, data_temp1.y, i_gen + 1, "T (sensor 1)");
+          break;
+        case 2:
+          gnuplot_plot_xy(win[2], data_temp.x, data_temp2.y, i_gen + 1, "T (sensor 2)");
+          break;
+        case 3:
+          gnuplot_plot_xy(win[2], data_temp.x, data_temp3.y, i_gen + 1, "T (sensor 3)");
+          break;
+        case 4:
+          gnuplot_plot_xy(win[2], data_temp.x, data_temp4.y, i_gen + 1, "T (sensor 4)");
+          break;
+      }
+      gnuplot_plot_xy(win[2], data_temp.x, data_temp0.y, i_gen + 1, "T (generator)");
+    }
+    /* Isolate desired segment for curve fitting */
+    // index_t points_segment_size = 100; // number of points
+    // data_t points_segment_center = 300.0; // data center value 
+    // Points data_segment;
+    // data_segment.x = (data_t *)malloc(sizeof(data_t) * points_segment_size);
+    // data_segment.y = (data_t *)malloc(sizeof(data_t) * points_segment_size);
+    // // data_window_get(points, n_points, 200, points_segment_size, segment);
+    // index_t n1 = val2ind(data.x, conf.n_points, points_segment_center - (points_segment_size / 2));
+    // // index_t n2 = val2ind(data.x, n_points, points_segment_center + (points_segment_size / 2));
+    // for (index_t ii = 0; ii < points_segment_size; ii++)
+    // {
+    //   data_segment.x[ii] = data.x[n1];
+    //   data_segment.y[ii] = data.y[n1];
+    //   n1 = n1 + 1;
+    // }
+    // gnuplot_plot_points(win, &data_segment, points_segment_size, "Segment");
+  
+    /* Simulate mesurements frequency */
+    if (conf.generation_max != 1) usleep(1000000/conf.generation_frequency); 
+  }
+
+  /* Statistics */
+  show_statistics(conf, stat, data_temp0, data_temp1, data_temp2, data_temp3, data_temp4);
+
+  /* Do not close window untill we press any key */
+  if (conf.plot.show_signal || conf.plot.show_smooth || conf.plot.show_derivative || conf.plot.show_temperature)
+  {
+    printf("\nPress ENTER to continue\n"); while (getchar()!='\n'){}
+  }
+
+  free_gnuplot(conf, win);
+  free_data(conf, data);
+  config_freedict(ini);
+
+  return 0;
 }
 
 int
@@ -591,306 +698,10 @@ main(int argc __UNUSED__, const char ** argv __UNUSED__)
   clearscreen();
   const char * conf_file_name = "config.ini";
   if (fopen(conf_file_name, "r") == NULL) {
-    create_default_config_file();
+    config_parameters_set_default();
     printf("Cannot find configuration file: %s. Created the new one!\n", conf_file_name);
   } 
-  test_signal("config.ini"); 
-
-  /*
-  index_t size = 100;
-
-  Points data_points;
-  data_points.x = malloc(sizeof(data_t) * size);
-  data_points.y = malloc(sizeof(data_t) * size);
+  test_signal("config.ini");
   
-  // Plot
-  gnuplot_ctrl *win = gnuplot_init();
-  gnuplot_cmd(win, "set grid");
-  gnuplot_setstyle(win, "lines");
-
-  double in[size], out[size];
-
-  // Input data
-  index_t j = 0;
-  for (j = 0; j < size; ++j) {
-    // in[j] = ((j >= 40) & (j <= 60)) ? 1.0 : 0.0;
-    in[j] = j;
-  }
-  // PLOT(in[ii], 0, size, "Input data");
-
-  // double time = exp_broaden(size, in, out, -5);
-  double time = exp_gaussian(size, in, out, 40, 10, 10);
-  PLOT(out[ii], 0, size, "Output data");
-
-  double d[size];
-  deriv(size, out, d);
-  // PLOT(d[ii], 0, size, "Derivative of exp");
-  index_t peak = findpeak(size, out);
-  printf("Peak position: %d\n", peak);
-
-  // Plot markers in peak positions
-  double marker_x[2] = { peak, peak };
-  double marker_y[2] = { 0, 1 };
-  gnuplot_plot_xy(win, marker_x, marker_y, 2, "Peak position");
-
-  printf("Time: %f\n", time);
-  printf("press ENTER to continue\n"); while (getchar()!='\n'){}
-  
-  gnuplot_close(win);
-  free(data_points.x);
-  free(data_points.y);
-  win = NULL;
-  data_points.x = NULL;
-  data_points.y = NULL;
-  */
   return 0;
 }
-
-/* Tests and WIP below*/
-/* 
-int 
-test_signal_peaksearch(void)
-{
-  data_t d[] = {
-    1,1,2,1,2,30,32,8,2,1,
-    1,1,2,1,2, 2, 1,3,1,1,
-    1,1,2,1,2,33,32,8,2,1,
-    1,1,2,1,2, 2, 1,3,1,1};
-
-  PeakSearch ps;
-  ps.sigmas = 1.0;
-  ps.win_size = 5;
-  ps.data_s = sizeof(d) / sizeof(data_t);
-  ps.data_v = (data_t*) malloc(ps.data_s * sizeof(data_t));
-  ps.data_v = d;
-
-  // Result array, initialized to minimum length (will expand automatically)
-  index_t *peaks = (index_t*) malloc(sizeof(index_t));
-
-  // Run the search on ps and put results in peaks
-  index_t count = search_peaks(&ps, &peaks);
-
-  // Printout:
-  printf("Overall st.dev: %f. Found %d peaks\n", ps.stdev, count);
-  index_t i;
-  for (i=0; i<count; i++) {
-    printf("peak %d: point %d, value %f\n", i, peaks[i], ps.data_v[peaks[i]]);
-  }
-  
-  // Cleanup:
-  // free(ps.data_v); // Commented due to error: munmap_chunk(): invalid pointer
-  free(peaks);
-
-  return 0;
-}
-
-double
-test_gsl_fft(void)
-{
-  double start_time = get_run_time();
-  // Data
-  const unsigned int size = 100;
-  const index_t size_double = size * 2;
-  double data[2*(size_double)];
-
-  Points data_points;
-  data_points.x = malloc(sizeof(data_t) * size_double);
-  data_points.y = malloc(sizeof(data_t) * size_double);
-  
-  // Plot
-  gnuplot_ctrl *win = gnuplot_init();
-  gnuplot_cmd(win, "set grid");
-  gnuplot_setstyle(win, "lines");
-
-  index_t i = 0, j = 0, k = 0; // iterators
-  
-  gsl_fft_complex_wavetable *wavetable;
-  gsl_fft_complex_workspace *workspace;
-
-  wavetable = gsl_fft_complex_wavetable_alloc(size_double);
-  workspace = gsl_fft_complex_workspace_alloc(size_double);
-  
-  // Original doubled signal
-  for (i = 0; i < size_double; i++)
-  {
-    REAL(data,i) = ((i >= (40 + size/2)) & (i <= (60 + size/2))) ? 1.0 : 0.0; 
-    IMAG(data,i) = 0.0;
-  }
-  // PLOT(REAL(data, ii), 0, size_double, "Original (doubled) signal");
-
-  // Signal after FFT
-  gsl_fft_complex_forward(data, 1, size_double, wavetable, workspace);
-  // PLOT(REAL(data, ii), 0, size_double, "FFT(data)");
-
-  // Exponential signal
-  double t = -5;
-  double a[size_double];
-  double sum = 0;
-  for (j = 0; j < size_double; j++)
-  {
-    a[j] = exp(-(j+1)/t);
-    sum += a[j];
-  }
-  // PLOT(a[ii], 0, size_double, "a=exp");
-
-  // FFT of exponential signal
-  double data_a[2 * size_double];
-  for (i = 0; i < size_double; i++)
-  {
-    REAL(data_a, i) = a[i]; 
-    IMAG(data_a, i) = 0.0;
-  }
-  gsl_fft_complex_forward(data_a, 1, size_double, wavetable, workspace);
-  // PLOT(REAL(data, ii), 0, size_double, "FFT(a)");
-
-  // Multiplied FFT
-  double fa[2 * size_double];
-  for (k = 0; k < size_double * 2; k++)
-  {
-    fa[k] = data[k] * data_a[k];
-  }
-  PLOT(REAL(fa, ii), 0, size_double, "FFT(data) * FFT(a)");
-
-  // IFFT
-  gsl_fft_complex_inverse(fa, 1, size_double, wavetable, workspace);
-  // PLOT(REAL(fa, ii) / sum, 0, size_double, "IFFT");
-
-  // Compress data
-  // data_points.x = realloc(data_points.x, sizeof(data_t) * size);
-  // data_points.y = realloc(data_points.y, sizeof(data_t) * size);
-
-  // index_t ii = 0;
-  // for (index_t p = (size/2+2); p <= (size_double-(size/2)+1); p++)
-  // {
-  //   data_points.x[ii] = ii;
-  //   data_points.y[ii] = REAL(fa, p)/sum;
-  //   ii = ii + 1;
-  // }
-  // gnuplot_plot_points(win, &data_points, size, "Result");
-
-  double end_time = get_run_time();
-  printf("press ENTER to continue\n"); while (getchar()!='\n'){}
-
-  gsl_fft_complex_wavetable_free(wavetable);
-  gsl_fft_complex_workspace_free(workspace);  
-  gnuplot_close(win);
-  free(data_points.x);
-  free(data_points.y);
-
-  return end_time - start_time;
-}
-
-int
-test_gsl_fft_small(void)
-{
-  index_t max = 5;
-  gsl_fft_complex_wavetable *wavetable;
-  gsl_fft_complex_workspace *workspace;
-
-  wavetable = gsl_fft_complex_wavetable_alloc(max);
-  workspace = gsl_fft_complex_workspace_alloc(max);
-
-  double data[2 * max];
-
-  // Setup input data
-  for (index_t i = 0; i < max; i++)
-  {
-    REAL(data,i) = i + 1; // 1 2 3 4 5
-    IMAG(data,i) = 0.0;
-  }
-
-  // FFT
-  gsl_fft_complex_forward(data, 1, max, wavetable, workspace);
-  for (index_t i = 0; i < max; i++)
-  {
-    printf("%f ", REAL(data,i)); // 15.000000 -2.500000 -2.500000 -2.500000 -2.500000
-  }
-  printf("\n");
-  
-  // IFFT
-  gsl_fft_complex_inverse(data, 1, max, wavetable, workspace);
-  for (index_t i = 0; i < max; i++)
-  {
-    printf("%f ", REAL(data,i)); // 1.000000 2.000000 3.000000 4.000000 5.000000
-  }
-  printf("\n");
-
-  gsl_fft_complex_wavetable_free(wavetable);
-  gsl_fft_complex_workspace_free(workspace); 
-
-  return 0;
-}
-
-int 
-test_signal_random(void)
-{
-  // init
-  random_seed();
-  
-  gnuplot_ctrl *win = gnuplot_init();
-
-  Random_Signal_Parameters rsp;
-  rsp.n_points = 1000;
-  rsp.desired_mean = 25.0;
-  rsp.desired_std_deviation = 10.0;
-  rsp.n_bases = 50;
-  rsp.max_frequency = 10.0;
-  rsp.noise_percentage = 5.0;
-
-  // setup wavelength
-  data_t lambda[rsp.n_points]; 
-  float lambda_begin = 1500;
-  float lambda_end = 1600;
-  
-  index_t i; 
-  for (i = 0; i < rsp.n_points; i++)
-  {
-    lambda[i] = (double)(lambda_begin + ( i * ((lambda_end - lambda_begin)/rsp.n_points))); 
-  }
-
-  index_t gen_max = 1000;
-  index_t gen_frequency = 5; // Hz
-
-  // allocate memory for array of size=n_points with double values   
-  data_t (*s)[] = malloc(sizeof(double) * rsp.n_points);
-
-  index_t j;
-  for (j = 0; j < gen_max; j++)
-  {
-    // generate signal
-    random_signal_generate(rsp, s);
-
-    // plot
-    gnuplot_resetplot(win);
-    gnuplot_cmd(win, "set term qt size 1000, 400");
-    gnuplot_cmd(win, "set grid");
-    gnuplot_setstyle(win, "lines") ;
-    gnuplot_set_xlabel(win, "Wavelength, nm");
-    gnuplot_set_ylabel(win, "Amplitude, a.u.");
-    gnuplot_plot_xy(win, lambda, (*s), rsp.n_points, "Random signal generator");
-    usleep(1000000/gen_frequency); // simulate mesurements frequency
-  }
-
-  // do not close window untill press ENTER
-  printf("press ENTER to continue\n"); while (getchar()!='\n'){} 
-
-  // free
-  gnuplot_close(win);
-  free(s);
-
-  return 0;
-}
-
-int
-peakfit_WIP(void)
-{
-  index_t n_points = 11;
-  data_t x[] = {1.2, 2.2, 4.14, 3.6, 4.11, 9.8, 6.3, 4.4, 5.2, 3.6, 1.5};
-  printf("%f \n", min(x, n_points));
-  printf("%f \n", max(x, n_points));
-  printf("%d \n", val2ind(x, n_points, 4.11));
-  // TODO: unfinished
-
-  return 0; 
-}
- */
