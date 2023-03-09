@@ -1,5 +1,5 @@
 project('ensen', 'c',
-        version       : '0.0.99',
+        version       : '0.1.99',
         meson_version : '>= 0.53.0',
     		default_options: [
           'c_std=c99',
