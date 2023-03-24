@@ -1,6 +1,7 @@
 FEATURES:
 ---------
 [code]   add ninja install
+[conf]   check correct value set in config (ex., > 0)
 
 IMPROVEMENTS
 ------------

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+./rc
+./build/src/bin/ensen

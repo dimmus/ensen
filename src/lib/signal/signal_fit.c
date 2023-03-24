@@ -213,7 +213,7 @@ val2ind(data_t *x, index_t n_points, data_t val)
     
     for (i = 0; i < n_points; i++)
     {
-        if (diff[i]-min_val == 0) index = i;
+        if (fabs(diff[i] - min_val) <= 1.0e-14) index = i; /* solved warning: comparing floating-point with ‘==’ or ‘!=’ is unsafe */
     }
     
     return index;
@@ -317,7 +317,7 @@ data_window_get(Point (*p)[], index_t n_points, data_t center, data_t window_siz
         yy[n] = (*p)[n].y;
     }
     
-    if (center == 0 || window_size == 0)
+    if (fabs(center) <= 1.0e-14 || fabs(window_size) <= 1.0e-14) /* solved warning: comparing floating-point with ‘==’ or ‘!=’ is unsafe */
     {
         window_size = max(xx, n_points) - min(xx, n_points);
         center = window_size/2;
@@ -326,7 +326,7 @@ data_window_get(Point (*p)[], index_t n_points, data_t center, data_t window_siz
     n1 = val2ind(xx, n_points, center - (window_size / 2));
     n2 = val2ind(xx, n_points, center + (window_size / 2));
 
-    if (window_size == 0)
+    if (fabs(window_size) <= 1.0e-14) /* solved warning: comparing floating-point with ‘==’ or ‘!=’ is unsafe */
     {
         n1 = 1; n2 = n_points;
     }

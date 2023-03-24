@@ -10,6 +10,6 @@ ensen_bin = executable('ensen', ensen_bin_src,
             ],
    include_directories  : [ config_dir, '../include' ],
    dependencies         : [ ensen_lib, ensen_deps, deps_nls ],
-   install              : false
+   install              : true
 )
 

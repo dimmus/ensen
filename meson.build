@@ -1,12 +1,12 @@
 project('ensen', 'c',
         version       : '0.1.99',
         meson_version : '>= 0.53.0',
-    		default_options: [
+	default_options: [
           'c_std=c99',
-          'warning_level=1',
-          'buildtype=minsize',
-          'optimization=3',
-          'debug=false'
+          'warning_level=3',
+          'buildtype=minsize', # "plain", "debug", "debugoptimized", "release", "minsize", "custom"
+          'optimization=3',  # "plain", "0", "g", "1", "2", "3", "s"
+          'debug=true'
         ],
 )
 
@@ -21,15 +21,20 @@ host_os = host_machine.system()
 
 ensen_dev_cflags = []
 ensen_cflags_try = [
-  # '-fvisibility=hidden',
+  '-W',
   '-Wshadow',
   '-Wstrict-prototypes',
   '-Wmissing-prototypes',
-  '-Wfloat-compare',
-  '-Wpointer-arith',
   '-Wunused-parameter',
   '-Wsign-compare',
+  '-Wpointer-arith',
   '-Wno-missing-field-initializers',
+  '-Wfloat-equal',
+  '-Wuninitialized',
+  '-Wundef',
+  '-Wcast-align',
+  '-Wformat=2',
+  '-Wno-format-y2k'
 ]
 
 foreach cf: ensen_cflags_try
@@ -40,6 +45,7 @@ endforeach
 add_global_arguments(ensen_dev_cflags, language: 'c')
 
 # deps_os = declare_dependency(link_args : ['-lm'] )
+deps_os = declare_dependency(link_args : ['-lensen'] )
 
 ##### dir locations
 dir_prefix = get_option('prefix')
@@ -127,7 +133,23 @@ if build_nls
 	subdir('po')
 endif
 
-if get_option('examples')
+if get_option('build-tests')
+  check = dependency('check')
+
+  if (check.version() == '0.15.1')
+    error('There is a bug in check@0.15.1 which does not allow us to be compiled with it. Please downgrade / upgrade or disable tests')
+  endif
+
+  test_env = environment()
+
+  if get_option('b_sanitize') == 'address'
+    test_env.set('ASAN_OPTIONS', 'detect_leaks=0:detect_odr_violation=0')
+  endif
+
+  subdir(join_paths('src', 'tests'))
+endif
+
+if get_option('build-examples')
     subdir('examples')
 endif
 

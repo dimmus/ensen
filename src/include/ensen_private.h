@@ -21,11 +21,11 @@
 #define CYAN(string)    "\x1b[36m" string "\x1b[0m"
 
 /* Time */
-#include <unistd.h> // usleep()
-extern int usleep (__useconds_t __useconds); // from <unistd.h>
+#include <unistd.h> /* usleep() */
+extern int usleep (__useconds_t __useconds); /* from <unistd.h> */
 
 /* Show LOG */
-// #define LOG_TIME
+/* #define LOG_TIME */
 
 /* Data */
 typedef double     data_t;
@@ -68,6 +68,13 @@ struct _noise
     index_t color;
 };
 
+typedef struct _smooth Smooth;
+struct _smooth
+{
+    index_t width;
+    index_t level;
+};
+
 typedef struct _plot Plot;
 struct _plot
 {
@@ -80,6 +87,8 @@ struct _plot
     index_t show_derivative;
     index_t show_markers;
     index_t show_temperature;
+    index_t show_vs_smooth;
+    index_t show_vs_noise;
 };
 
 typedef struct _peak_search Peak_Search;
@@ -110,7 +119,7 @@ struct _signal_parameters
     index_t      n_peaks;
     Peak       * peak;
     Noise        noise;
-    index_t      smooth_width;
+    Smooth       smooth;
     index_t      generation_max;
     index_t      generation_frequency;
     Temperature  temp;

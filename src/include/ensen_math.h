@@ -7,6 +7,7 @@
 #include <fftw3.h>
 
 #include "ensen_math_random.h"
+#include "ensen_math_random_noise.h"
 #include "ensen_math_fftw_utils.h"
 
 #define REAL(z,i) ((z)[2*(i)]) // gsl_fft
