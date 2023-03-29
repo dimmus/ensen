@@ -939,11 +939,13 @@ main(int argc __UNUSED__, const char ** argv __UNUSED__)
 
   clearscreen();
   const char * conf_file_name = "config.ini";
-  if (fopen(conf_file_name, "r") == NULL) {
+  FILE *f = fopen(conf_file_name, "r");
+  if (f == NULL) {
     config_parameters_set_default();
     printf("Cannot find configuration file: %s. Created the new one!\n", conf_file_name);
   }
   test_signal("config.ini");
+  fclose(f);
 
 # ifdef MEM_DEBUG_APPLY
   printf("Used %ld kB of memory \n", MEM_get_peak_memory()/1024);
