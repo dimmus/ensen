@@ -1,14 +1,14 @@
-#include "ensen_private.h"
-#include "ensen_ui_gnuplot.h"
-
 #include <stdio.h>
-
 #include <stdlib.h> // mkstemp()
 #include <unistd.h> // close()
-
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
+
+#include "mem/ensen_mem_guarded.h"
+
+#include "ensen_private.h"
+#include "ensen_ui_gnuplot.h"
 
 #ifdef WIN32
 #include <io.h>
@@ -60,7 +60,7 @@ gnuplot_ctrl * gnuplot_init(void)
     /*
      * Structure initialization:
      */
-    handle = (gnuplot_ctrl*)malloc(sizeof(gnuplot_ctrl)) ;
+    handle = (gnuplot_ctrl*)MEM_mallocN(sizeof(gnuplot_ctrl), "gnuplot_init") ;
     handle->nplots = 0 ;
     gnuplot_setstyle(handle, "points") ;
     handle->ntmp = 0 ;
@@ -68,7 +68,7 @@ gnuplot_ctrl * gnuplot_init(void)
     handle->gnucmd = popen("gnuplot", "w") ;
     if (handle->gnucmd == NULL) {
         fprintf(stderr, "error starting gnuplot, is gnuplot or gnuplot.exe in your path?\n") ;
-        free(handle) ;
+        MEM_freeN(handle) ;
         return NULL ;
     }
 
@@ -95,21 +95,19 @@ gnuplot_ctrl * gnuplot_init(void)
 
 void gnuplot_close(gnuplot_ctrl * handle)
 {
-    int     i ;
-
     if (pclose(handle->gnucmd) == -1) {
         fprintf(stderr, "problem closing communication to gnuplot\n") ;
         return ;
     }
     if (handle->ntmp) {
-        for (i=0 ; i<handle->ntmp ; i++) {
+        for (int i=0 ; i<handle->ntmp ; i++) {
             remove(handle->tmp_filename_tbl[i]) ;
-            free(handle->tmp_filename_tbl[i]);
+            MEM_freeN(handle->tmp_filename_tbl[i]);
             handle->tmp_filename_tbl[i] = NULL;
 
         }
     }
-    free(handle) ;
+    MEM_freeN(handle) ;
     return ;
 }
 
@@ -246,7 +244,7 @@ void gnuplot_resetplot(gnuplot_ctrl * h)
     if (h->ntmp) {
         for (i=0 ; i<h->ntmp ; i++) {
             remove(h->tmp_filename_tbl[i]) ;
-            free(h->tmp_filename_tbl[i]);
+            MEM_freeN(h->tmp_filename_tbl[i]);
             h->tmp_filename_tbl[i] = NULL;
 
         }
@@ -671,7 +669,7 @@ char const * gnuplot_tmpfile(gnuplot_ctrl * handle)
         return NULL;
     }
 
-    tmp_filename = (char*) malloc(tmp_filelen + 1);
+    tmp_filename = (char*)MEM_mallocN(tmp_filelen + 1, "gnuplot_tmpfile");
     if (tmp_filename == NULL)
     {
         return NULL;

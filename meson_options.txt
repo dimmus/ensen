@@ -3,19 +3,26 @@ option('man-pages',
     value: 'auto',
     description: 'generate and install man pages (default=false)'
 )
+
 option('nls',
     type: 'boolean',
-    value: false,
+    value: true,
     description: 'enable localization (default=false)'
 )
 
-option('build-tests',
+option('memguard',
     type: 'boolean',
-    value: false,
+    value: true,
+    description: 'use internal guarded memory allocator (default=false)'
+)
+
+option('tests',
+    type: 'boolean',
+    value: true,
     description: 'build tests (default=false)'
 )
 
-option('build-examples',
+option('examples',
     type: 'boolean',
     value: false,
     description: 'build examples (default=false)'

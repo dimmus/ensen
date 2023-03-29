@@ -163,7 +163,7 @@ test_1d_c2r(int n) {
 }
 
 int
-main(int argc __UNUSED__, const char ** argv __UNUSED__)
+main(int argc ENSEN_UNUSED, const char ** argv ENSEN_UNUSED)
 {
   int status = 0;
   status += test_1d_c2r(32);

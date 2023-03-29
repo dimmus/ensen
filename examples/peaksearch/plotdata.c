@@ -223,7 +223,7 @@ static void initgraph(char* fn, char* dev, double rot) {
  * @param[in] cal The calibration fit
  * @return Boolean success indicator
  */
-int finddomain(struct pf_data* d __UNUSED__, struct pf_plot_params* p, struct pf_cal_fit* cal) {
+int finddomain(struct pf_data* d ENSEN_UNUSED, struct pf_plot_params* p, struct pf_cal_fit* cal) {
 	int i;
 
 	if ((p->xstartcal || p->xendcal) && !cal->valid) {

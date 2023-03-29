@@ -80,7 +80,7 @@ static int cal_f(const gsl_vector* x, void *params, gsl_vector * f) {
  * @param[out] J The result of evaluating the Jacobian of the function at the data points
  * @return GSL status code
  */
-static int cal_df(const gsl_vector * x __UNUSED__, void *params, gsl_matrix * J) {
+static int cal_df(const gsl_vector * x ENSEN_UNUSED, void *params, gsl_matrix * J) {
 	int i, n;
 	struct cal_fit_info* data;
 
@@ -438,7 +438,7 @@ static void fitcal(struct cal_fit_info* info, struct pf_cal_fit* fit) {
  * @param[in] p The calibration data
  * @param[in] info Information on matched peaks and calibration points
  */
-static void printmatch(struct pf_data* d __UNUSED__, struct pf_cal_pts* p, struct cal_fit_info* info) {
+static void printmatch(struct pf_data* d ENSEN_UNUSED, struct pf_cal_pts* p, struct cal_fit_info* info) {
 	int i;
 
 	for (i = 0; i < info->npts; ++i) {

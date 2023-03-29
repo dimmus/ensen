@@ -3,10 +3,10 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "ensen_private.h" // for __UNUSED__
+#include "ensen_private.h" // for ENSEN_UNUSED
 #include "ui_gnuplot.h"
 
-int main(int argc __UNUSED__, char * argv[] __UNUSED__)
+int main(int argc ENSEN_UNUSED, char * argv[] ENSEN_UNUSED)
 {
 	gnuplot_ctrl * g = gnuplot_init();
 

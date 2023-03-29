@@ -19,6 +19,8 @@
 
 #include <check.h>
 
+#include "mem/ensen_mem_guarded.h"
+
 # ifdef __GNUC__
 
 #  if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1)
@@ -78,7 +80,7 @@ _dimmus_test_option_disp(int argc, char **argv, const Dimmus_Test_Case *etc)
           }
         else if (strcmp(argv[i], "--valgrind") == 0)
           {
-             const char ** nav = (const char **) alloca(sizeof(char*) * (argc + 3));
+             const char ** nav = (const char **)MEM_allocN_len(sizeof(char*) * (argc + 3));
              int j, k;
 
              nav[0] = "valgrind";
@@ -207,7 +209,7 @@ _dimmus_suite_run_end(SRunner *sr, const char *name)
           }
         snprintf(srunner_xml_buf, sizeof(srunner_xml_buf), "./check-results-%s.xml", n);
         srunner_set_xml(sr, srunner_xml_buf);
-        free(n);
+        MEM_freeN(n);
      }
    else
      srunner_set_xml(sr, "./check-results.xml");

@@ -3,14 +3,60 @@
 
 #ifdef __GNUC__
 # if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1)
-#  define __UNUSED__ __attribute__ ((__unused__))
+#  define ENSEN_UNUSED __attribute__ ((__unused__))
 # else
 #  define __UNUSED__
 # endif
 #endif
 
+/* hint to make sure function result is actually used */
+#ifdef __GNUC__
+#  define ATTR_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+#else
+#  define ATTR_WARN_UNUSED_RESULT
+#endif
+
+/* the function return value points to memory (2 args for 'size * tot') */
+#if defined(__GNUC__) && !defined(__clang__)
+#  define ATTR_ALLOC_SIZE(args...) __attribute__((alloc_size(args)))
+#else
+#  define ATTR_ALLOC_SIZE(...)
+#endif
+
+/* hint to mark function arguments expected to be non-null
+ * if no arguments are given to the macro, all of pointer
+ * arguments would be expected to be non-null
+ */
+#ifdef __GNUC__
+#  define ATTR_NONNULL(args...) __attribute__((nonnull(args)))
+#else
+#  define ATTR_NONNULL(...)
+#endif
+
+/* hint to treat any non-null function return value cannot alias any other pointer */
+#ifdef __GNUC__
+#  define ATTR_MALLOC __attribute__((malloc))
+#else
+#  define ATTR_MALLOC
+#endif
+
+#if (defined(__GNUC__) || defined(__clang__)) && defined(__cplusplus)
+extern "C++" {
+/** Some magic to be sure we don't have reference in the type. */
+template<typename T> static inline T decltype_helper(T x)
+{
+  return x;
+}
+#define typeof(x) decltype(decltype_helper(x))
+}
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h> /* bool */
+#include <stdint.h> /* SIZE_MAX */
+
+typedef unsigned int uint;
 
 /* Color */
 #define RED(string)     "\x1b[31m" string "\x1b[0m"
@@ -38,7 +84,7 @@ struct _point
     data_t y;
 };
 
-typedef struct 
+typedef struct
 {
     data_t * x;
     data_t * y;
@@ -47,7 +93,7 @@ typedef struct
 
 typedef struct _peak Peak;
 struct _peak
-{   
+{
     data_t amplitude;
     data_t position;
     data_t width;
@@ -56,7 +102,7 @@ struct _peak
 
 typedef struct _peaks Peaks;
 struct _peaks
-{   
+{
     Peak   * peak;
     index_t  total_number;
 };

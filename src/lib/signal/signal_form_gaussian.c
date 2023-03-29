@@ -5,7 +5,7 @@
 #include <complex.h>
 
 #include <fftw3.h>
-#include "ensen_math_fftw_utils.h"
+#include "math/random/ensen_math_fftw_utils.h"
 
 #include "ensen_private.h" 
 #include "ensen_signal_form_gaussian.h" 

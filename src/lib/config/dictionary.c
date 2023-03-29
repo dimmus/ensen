@@ -5,6 +5,8 @@
    of string/string associations. This object is useful to store e.g.
    informations retrieved from a configuration file (ini files).
 */
+#include "mem/ensen_mem_guarded.h"
+
 #include "ensen_config_dictionary.h"
 
 #include <stdio.h>
@@ -37,7 +39,7 @@ static char * xstrdup(const char * s)
         return NULL ;
 
     len = strlen(s) + 1 ;
-    t = (char*) malloc(len) ;
+    t = (char*)MEM_mallocN(len, "dictionary: xstrdup");
     if (t) {
         memcpy(t, s, len) ;
     }
@@ -55,17 +57,17 @@ static int dictionary_grow(dictionary * d)
     char        ** new_key ;
     unsigned     * new_hash ;
 
-    new_val  = (char**) calloc(d->size * 2, sizeof *d->val);
-    new_key  = (char**) calloc(d->size * 2, sizeof *d->key);
-    new_hash = (unsigned*) calloc(d->size * 2, sizeof *d->hash);
+    new_val  = (char**)MEM_calloc_arrayN(d->size * 2, sizeof *d->val, "dictionary_grow: new_val");
+    new_key  = (char**)MEM_calloc_arrayN(d->size * 2, sizeof *d->key, "dictionary_grow: new_key");
+    new_hash = (unsigned*)MEM_calloc_arrayN(d->size * 2, sizeof *d->hash, "dictionary_grow: new_hash");
     if (!new_val || !new_key || !new_hash) {
         /* An allocation failed, leave the dictionary unchanged */
         if (new_val)
-            free(new_val);
+            MEM_freeN(new_val);
         if (new_key)
-            free(new_key);
+            MEM_freeN(new_key);
         if (new_hash)
-            free(new_hash);
+            MEM_freeN(new_hash);
         return -1 ;
     }
     /* Initialize the newly allocated space */
@@ -73,9 +75,9 @@ static int dictionary_grow(dictionary * d)
     memcpy(new_key, d->key, d->size * sizeof(char *));
     memcpy(new_hash, d->hash, d->size * sizeof(unsigned));
     /* Delete previous data */
-    free(d->val);
-    free(d->key);
-    free(d->hash);
+    MEM_freeN(d->val);
+    MEM_freeN(d->key);
+    MEM_freeN(d->hash);
     /* Actually update the dictionary */
     d->size *= 2 ;
     d->val = new_val;
@@ -131,13 +133,13 @@ dictionary * dictionary_new(size_t size)
     /* If no size was specified, allocate space for DICTMINSZ */
     if (size<DICTMINSZ) size=DICTMINSZ ;
 
-    d = (dictionary*) calloc(1, sizeof *d) ;
+    d = (dictionary*)MEM_calloc_arrayN(1, sizeof *d, "dictionary_new: d") ;
 
     if (d) {
         d->size = size ;
-        d->val  = (char**) calloc(size, sizeof *d->val);
-        d->key  = (char**) calloc(size, sizeof *d->key);
-        d->hash = (unsigned*) calloc(size, sizeof *d->hash);
+        d->val  = (char**)MEM_calloc_arrayN(size, sizeof *d->val, "dictionary_new: d->val");
+        d->key  = (char**)MEM_calloc_arrayN(size, sizeof *d->key, "dictionary_new: d->key");
+        d->hash = (unsigned*)MEM_calloc_arrayN(size, sizeof *d->hash, "dictionary_new: d->hash");
     }
     return d ;
 }
@@ -156,14 +158,14 @@ void dictionary_del(dictionary * d)
     if (d==NULL) return ;
     for (i=0 ; i<d->size ; i++) {
         if (d->key[i]!=NULL)
-            free(d->key[i]);
+            MEM_freeN(d->key[i]);
         if (d->val[i]!=NULL)
-            free(d->val[i]);
+            MEM_freeN(d->val[i]);
     }
-    free(d->val);
-    free(d->key);
-    free(d->hash);
-    free(d);
+    MEM_freeN(d->val);
+    MEM_freeN(d->key);
+    MEM_freeN(d->hash);
+    MEM_freeN(d);
     return ;
 }
 
@@ -241,7 +243,7 @@ int dictionary_set(dictionary * d, const char * key, const char * val)
                 if (!strcmp(key, d->key[i])) {   /* Same key */
                     /* Found a value: modify and return */
                     if (d->val[i]!=NULL)
-                        free(d->val[i]);
+                        MEM_freeN(d->val[i]);
                     d->val[i] = (val ? xstrdup(val) : NULL);
                     /* Value has been modified: return */
                     return 0 ;
@@ -306,10 +308,10 @@ void dictionary_unset(dictionary * d, const char * key)
         /* Key not found */
         return ;
 
-    free(d->key[i]);
+    MEM_freeN(d->key[i]);
     d->key[i] = NULL ;
     if (d->val[i]!=NULL) {
-        free(d->val[i]);
+        MEM_freeN(d->val[i]);
         d->val[i] = NULL ;
     }
     d->hash[i] = 0 ;
