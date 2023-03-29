@@ -1,6 +1,8 @@
 #ifndef CHECK_COMMON_H
 #define CHECK_COMMON_H
 
+#define _POSIX_C_SOURCE 200809L
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -80,7 +82,7 @@ _dimmus_test_option_disp(int argc, char **argv, const Dimmus_Test_Case *etc)
           }
         else if (strcmp(argv[i], "--valgrind") == 0)
           {
-             const char ** nav = (const char **)MEM_allocN_len(sizeof(char*) * (argc + 3));
+             const char ** nav = (const char **)MEM_allocN_len((const void *)(sizeof(char*) * (argc + 3)));
              int j, k;
 
              nav[0] = "valgrind";

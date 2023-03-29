@@ -279,7 +279,7 @@ void config_dumpsection_ini(const dictionary * d, const char * s, FILE * f)
 
     seclen  = (int)strlen(s);
     fprintf(f, "\n[%s]\n", s);
-    sprintf(keym, "%s:", s);
+    snprintf(keym, sizeof(keym), "%s:", s);
     for (j=0 ; j<d->size ; j++) {
         if (d->key[j]==NULL)
             continue ;
@@ -739,7 +739,7 @@ dictionary * config_load(const char * ininame)
             break ;
 
             case LINE_VALUE:
-            sprintf(tmp, "%s:%s", section, key);
+            snprintf(tmp, sizeof(tmp), "%s:%s", section, key);
             mem_err = dictionary_set(dict, tmp, val);
             break ;
 

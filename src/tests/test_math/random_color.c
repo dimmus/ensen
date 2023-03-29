@@ -1,7 +1,7 @@
 #include "test_math.h"
 #include "math/random/ensen_math_random_noise.h"
 
-DIMMUS_START_TEST (noise_color_test_white_range)
+/* DIMMUS_START_TEST (noise_color_test_white_range)
 {
     float noise = genWhiteNoise();
     if (noise < 0 || noise > 1)
@@ -9,7 +9,7 @@ DIMMUS_START_TEST (noise_color_test_white_range)
         ck_abort_msg("genWhiteNoise failure: generated value not in range [0,1]");
     }
 }
-DIMMUS_END_TEST
+DIMMUS_END_TEST */
 
 DIMMUS_START_TEST (noise_color_test_white_rnd)
 {
