@@ -929,7 +929,7 @@ test_signal(const char * conf_name)
 }
 
 int
-main(int argc ENSEN_UNUSED, const char ** argv ENSEN_UNUSED)
+main(int argc __UNUSED__, const char ** argv __UNUSED__)
 {
 # ifdef MEM_DEBUG_APPLY
   MEM_use_guarded_allocator(); /* SLOW, use only for debugging */
@@ -938,17 +938,12 @@ main(int argc ENSEN_UNUSED, const char ** argv ENSEN_UNUSED)
   MEM_enable_fail_on_memleak();
 
   clearscreen();
-  /* const char * conf_file_name = "config.ini";
+  const char * conf_file_name = "config.ini";
   if (fopen(conf_file_name, "r") == NULL) {
     config_parameters_set_default();
     printf("Cannot find configuration file: %s. Created the new one!\n", conf_file_name);
   }
-  test_signal("config.ini"); */
-  init_rnd();
-  for (size_t i = 0; i < 100; i++)
-  {
-    printf("%f\n", genWhiteNoise());
-  }
+  test_signal("config.ini");
 
 # ifdef MEM_DEBUG_APPLY
   printf("Used %ld kB of memory \n", MEM_get_peak_memory()/1024);

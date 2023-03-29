@@ -105,7 +105,7 @@ float* autoCorr(int depth, float alpha){
   return A;
 }  
 
-float* initPink(int depth, float alpha ENSEN_UNUSED){
+float* initPink(int depth, float alpha __UNUSED__){
   int n;
   float* PN = MEM_malloc_arrayN(depth - 1, sizeof(float), "random_noise: initPink");
   for(n=0;n<(depth-1);n++){PN[n] = genWhiteNoise();}
@@ -139,7 +139,7 @@ float genPinkNoise(float* P, float* A, int depth){
 // Same thing as pink noise, only a violet noise vector is used as a
 // seed vector. Note that the 'pinking' of violet noise produces blue
 // noise (i.e. noise fractioning) 
-float* initBlue(int depth, float alpha ENSEN_UNUSED){
+float* initBlue(int depth, float alpha __UNUSED__){
   int n;
   float* bnoise = MEM_malloc_arrayN(depth - 1, sizeof(float), "random_noise: initBlue");
   for(n=0;n<(depth-1);n++){bnoise[n] = genVioletNoise();}
