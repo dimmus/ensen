@@ -5,8 +5,9 @@
    of string/string associations. This object is useful to store e.g.
    informations retrieved from a configuration file (ini files).
 */
+#include "mem/ensen_mem_guarded.h"
+
 #include "ensen_config_dictionary.h"
-#include "ensen_mem_guarded.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -6,8 +6,8 @@
 #endif
 
 #include "ensen_signal_form_gaussian.h"
-#include "ensen_math_random.h"
-#include "ensen_math_random_noise.h"
+#include "math/random/ensen_math_random.h"
+#include "math/random/ensen_math_random_noise.h"
 
 /**
     @brief Generate signal with multiple strictly defined peaks

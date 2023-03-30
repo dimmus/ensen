@@ -2,13 +2,13 @@
 #define ENSEN_H
 
 #include "ensen_private.h"
-#include "ensen_benchmark.h"
+#include "signal/ensen_benchmark.h"
 
-#include "ensen_signal.h"
-#include "ensen_math.h"
-#include "ensen_config.h"
-#include "ensen_config_dictionary.h"
-#include "ensen_ui.h"
+#include "signal/ensen_signal.h"
+#include "math/ensen_math.h"
+#include "config/ensen_config.h"
+#include "config/ensen_config_dictionary.h"
+#include "ui/ensen_ui.h"
 
 #define PLOT(data, from, to, title)       \
   for (index_t ii = from; ii <= to; ii++) \

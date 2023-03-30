@@ -11,7 +11,7 @@
 #endif
 
 #include "ensen.h"
-#include "ensen_mem_guarded.h"
+#include "mem/ensen_mem_guarded.h"
 
 static int
 clearscreen(void)
@@ -938,12 +938,17 @@ main(int argc ENSEN_UNUSED, const char ** argv ENSEN_UNUSED)
   MEM_enable_fail_on_memleak();
 
   clearscreen();
-  const char * conf_file_name = "config.ini";
+  /* const char * conf_file_name = "config.ini";
   if (fopen(conf_file_name, "r") == NULL) {
     config_parameters_set_default();
     printf("Cannot find configuration file: %s. Created the new one!\n", conf_file_name);
   }
-  test_signal("config.ini");
+  test_signal("config.ini"); */
+  init_rnd();
+  for (size_t i = 0; i < 100; i++)
+  {
+    printf("%f\n", genWhiteNoise());
+  }
 
 # ifdef MEM_DEBUG_APPLY
   printf("Used %ld kB of memory \n", MEM_get_peak_memory()/1024);

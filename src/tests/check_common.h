@@ -19,7 +19,7 @@
 
 #include <check.h>
 
-#include "../../src/include/ensen_mem_guarded.h"
+#include "mem/ensen_mem_guarded.h"
 
 # ifdef __GNUC__
 

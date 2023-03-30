@@ -1,4 +1,4 @@
-if   get_option('ui-backend') == 'gnuplot'
+if get_option('ui-backend') == 'gnuplot'
   subdir('gnuplot')
 elif get_option('ui-backend') == 'sdl'
   # subdir('sdl')

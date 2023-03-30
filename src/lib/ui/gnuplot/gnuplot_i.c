@@ -1,15 +1,14 @@
-#include "ensen_private.h"
-#include "ensen_ui_gnuplot.h"
-#include "ensen_mem_guarded.h"
-
 #include <stdio.h>
-
 #include <stdlib.h> // mkstemp()
 #include <unistd.h> // close()
-
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
+
+#include "mem/ensen_mem_guarded.h"
+
+#include "ensen_private.h"
+#include "ensen_ui_gnuplot.h"
 
 #ifdef WIN32
 #include <io.h>

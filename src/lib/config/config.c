@@ -5,9 +5,10 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "mem/ensen_mem_guarded.h"
+
 #include "ensen_config_dictionary.h"
 #include "ensen_config.h"
-#include "ensen_mem_guarded.h"
 
 #define ASCIILINESZ         (1024)
 #define INI_INVALID_KEY     ((char*)-1)

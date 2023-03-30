@@ -4,7 +4,7 @@
 
 #include "ensen_private.h"
 #include "ensen_signal_form_random.h"
-#include "ensen_math_random.h"
+#include "math/random/ensen_math_random.h"
 
 void
 random_signal_generate(Random_Signal_Parameters rsp, data_t (*signal)[])

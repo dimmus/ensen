@@ -13,5 +13,11 @@ if get_option('nls')
             '--foreign-user'
             ])
   config_h.set('HAVE_GETTEXT', '1')
-  dep_intl = cc.find_library('intl', required : false)
+  config_h.set('ENABLE_NLS', '1')
+  intl = cc.find_library('intl', required : false)
+  if cc.compiles('#include <libintl.h>', dependencies : intl) == false
+    error('libintl.h not found')
+  endif
+else
+  intl = declare_dependency()
 endif

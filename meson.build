@@ -49,6 +49,8 @@ add_global_arguments(ensen_dev_cflags, language: 'c')
 
 deps_os = declare_dependency(link_args : ['-lm'])
 
+m = cc.find_library('m')
+
 ##### dir locations
 dir_prefix = get_option('prefix')
 dir_include = join_paths(dir_prefix, get_option('includedir'))
@@ -129,14 +131,12 @@ if scdoc.found()
 	build_doc = true
 endif
 
+subdir('po')
+
 subdir('src')
 
 if build_doc
 	subdir('doc')
-endif
-
-if build_nls
-	subdir('po')
 endif
 
 if get_option('tests')

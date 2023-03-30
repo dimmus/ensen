@@ -1,5 +1,5 @@
 #include "test_math.h"
-#include "../../include/ensen_math_random_noise.h"
+#include "math/random/ensen_math_random_noise.h"
 
 static const Dimmus_Test_Case etc[] = {
   { "Color", random_color_test },

@@ -6,9 +6,10 @@
 #include <math.h>
 #include <sys/time.h>
 
+#include "mem/ensen_mem_guarded.h"
+
 #include "ensen_private.h"
 #include "ensen_math_random_noise.h"
-#include "ensen_mem_guarded.h"
 
 // Define some constant
 #define RPI 1.7724538509055159
@@ -50,7 +51,7 @@ float NEWTON(float(*PDF)(float), float(*CDF)(float), float V)
 /* //////////////////////// */
 // White Noise Generator
 //
-// The key to it all ! All fucntion utilize genWhiteNoise a
+// The key to it all ! All function utilize genWhiteNoise a
 // a basis for colored noise generation.
 float genWhiteNoise(){return NEWTON(gaussianPDF, gaussianCDF, rnd());}
 
