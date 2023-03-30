@@ -7,6 +7,7 @@
 
 #include "ensen_config_dictionary.h"
 #include "ensen_config.h"
+#include "ensen_mem_guarded.h"
 
 #define ASCIILINESZ         (1024)
 #define INI_INVALID_KEY     ((char*)-1)
@@ -63,7 +64,7 @@ static char * xstrdup(const char * s)
         return NULL ;
 
     len = strlen(s) + 1 ;
-    t = (char*) malloc(len) ;
+    t = (char*)MEM_mallocN(len, "config: xstrdup");
     if (t) {
         memcpy(t, s, len) ;
     }
@@ -644,7 +645,7 @@ static line_status config_line(
         sta = LINE_ERROR ;
     }
 
-    free(line);
+    MEM_freeN(line);
     return sta ;
 }
 

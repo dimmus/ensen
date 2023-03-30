@@ -175,7 +175,7 @@ int pf_printpeak(struct pf_data* d, struct pf_cal_fit* cal, int peak, char* fn) 
 	return 1;
 }
 
-int pf_printcal(struct pf_data* d __UNUSED__, struct pf_cal_fit* f, char* fn) {
+int pf_printcal(struct pf_data* d ENSEN_UNUSED, struct pf_cal_fit* f, char* fn) {
 	FILE* of;
 
 	if (!f->valid) {

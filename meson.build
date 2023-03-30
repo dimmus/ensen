@@ -1,13 +1,14 @@
-project('ensen', 'c',
+project('ensen', ['c','cpp'],
         version       : '0.1.99',
         meson_version : '>= 0.53.0',
-	default_options: [
-          'c_std=c99',
-          'warning_level=3',
-          'buildtype=minsize', # "plain", "debug", "debugoptimized", "release", "minsize", "custom"
-          'optimization=3',  # "plain", "0", "g", "1", "2", "3", "s"
-          'debug=true'
-        ],
+        default_options: [
+                'c_std=c99',
+                'cpp_std=c++20', # use in guarded memory allocator
+                'warning_level=2',
+                'buildtype=debug', # "plain", "debug", "debugoptimized", "release", "minsize", "custom"
+                'optimization=0',  # "plain", "0", "g", "1", "2", "3", "s"
+                'debug=true'
+              ],
 )
 
 v_array = meson.project_version().split('.')
@@ -34,7 +35,9 @@ ensen_cflags_try = [
   '-Wundef',
   '-Wcast-align',
   '-Wformat=2',
-  '-Wno-format-y2k'
+  '-Wno-format-y2k',
+  '-Wno-variadic-macros', # no warning: ISO C does not permit named variadic macros (for C++ use warning_level=2)
+  '-Wno-strict-aliasing' # no warning: dereferencing type-punned pointer will break strict-aliasing rules
 ]
 
 foreach cf: ensen_cflags_try
@@ -44,8 +47,7 @@ foreach cf: ensen_cflags_try
 endforeach
 add_global_arguments(ensen_dev_cflags, language: 'c')
 
-# deps_os = declare_dependency(link_args : ['-lm'] )
-deps_os = declare_dependency(link_args : ['-lensen'] )
+deps_os = declare_dependency(link_args : ['-lm'])
 
 ##### dir locations
 dir_prefix = get_option('prefix')
@@ -90,11 +92,15 @@ elif get_option('ui-backend') == 'efl'
   ensen_deps += [dependency('efl', version : efl_req)]
 endif
 
+if get_option('memguard')
+  config_h.set('MEM_DEBUG_APPLY', '1')
+endif
+
 cpu_sse3 = true
 config_h.set10('BUILD_MMX', true)
 config_h.set10('BUILD_SSE3', true)
-native_arch_opt_c_args = [ 
-                            '-msse3' 
+native_arch_opt_c_args = [
+                            '-msse3'
                          ]
 
 pkgconfig = import('pkgconfig')
@@ -133,7 +139,7 @@ if build_nls
 	subdir('po')
 endif
 
-if get_option('build-tests')
+if get_option('tests')
   check = dependency('check')
 
   if (check.version() == '0.15.1')
@@ -149,7 +155,7 @@ if get_option('build-tests')
   subdir(join_paths('src', 'tests'))
 endif
 
-if get_option('build-examples')
+if get_option('examples')
     subdir('examples')
 endif
 

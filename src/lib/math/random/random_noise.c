@@ -8,6 +8,7 @@
 
 #include "ensen_private.h"
 #include "ensen_math_random_noise.h"
+#include "ensen_mem_guarded.h"
 
 // Define some constant
 #define RPI 1.7724538509055159
@@ -41,19 +42,19 @@ float NEWTON(float(*PDF)(float), float(*CDF)(float), float V)
   }
 }
 
-////////////////////////////////////////////////
-//            NOISE GENERATORS                //
-////////////////////////////////////////////////
+/* //////////////////////////////////////////////// */
+/* //            NOISE GENERATORS                // */
+/* //////////////////////////////////////////////// */
 
 
-////////////////////////
+/* //////////////////////// */
 // White Noise Generator
 //
 // The key to it all ! All fucntion utilize genWhiteNoise a
 // a basis for colored noise generation.
 float genWhiteNoise(){return NEWTON(gaussianPDF, gaussianCDF, rnd());}
 
-////////////////////////
+/* //////////////////////// */
 // Brown Noise Generator
 //
 // For Brown noise audio, it is necessary to prevent the noise
@@ -75,7 +76,7 @@ float genBrownNoisePure(){
   return BN;
 }
 
-/////////////////////////
+/* ///////////////////////// */
 // Violet Noise Generator
 //
 // Generate white noise and take discrete derivative
@@ -95,7 +96,7 @@ float genVioletNoise(){
 // is then invoked for all subsequent noise values.
 float* autoCorr(int depth, float alpha){
   int n;
-  float* A  = malloc(depth *  sizeof(float));
+  float* A  = MEM_malloc_arrayN(depth, sizeof(float), "random_noise: autoCorr");
   for(n=0;n<depth;n++){
     if (n==0){A[n] = 1.0;}
     else{A[n] =((float)n - 1.0 - alpha/2)*A[n-1]/(float)n;}
@@ -103,9 +104,9 @@ float* autoCorr(int depth, float alpha){
   return A;
 }  
 
-float* initPink(int depth, float alpha __UNUSED__){
+float* initPink(int depth, float alpha ENSEN_UNUSED){
   int n;
-  float* PN = malloc((depth-1)*sizeof(float));
+  float* PN = MEM_malloc_arrayN(depth - 1, sizeof(float), "random_noise: initPink");
   for(n=0;n<(depth-1);n++){PN[n] = genWhiteNoise();}
   return PN;
 }
@@ -113,7 +114,7 @@ float* initPink(int depth, float alpha __UNUSED__){
 float genPinkNoise(float* P, float* A, int depth){
   int n; 
   // Create the V matrix
-  float* V = malloc((depth)*sizeof(float));
+  float* V = MEM_malloc_arrayN(depth, sizeof(float), "random_noise: genPinkNoise");
   for (n=0;n<depth;n++){
     if (n==depth-1){V[n]=genWhiteNoise();}
     else{V[n] = -1*P[n];}
@@ -124,7 +125,7 @@ float genPinkNoise(float* P, float* A, int depth){
   }
   float dot=0.0;
   for (n=0;n<depth;n++){dot+=V[n]*A[depth-1-n];}
-  free(V);
+  MEM_freeN(V);
   
   // Assign the dot product to the last value of PN
   P[depth-2] = dot;
@@ -137,9 +138,9 @@ float genPinkNoise(float* P, float* A, int depth){
 // Same thing as pink noise, only a violet noise vector is used as a
 // seed vector. Note that the 'pinking' of violet noise produces blue
 // noise (i.e. noise fractioning) 
-float* initBlue(int depth, float alpha __UNUSED__){
+float* initBlue(int depth, float alpha ENSEN_UNUSED){
   int n;
-  float* bnoise = malloc((depth-1)*sizeof(float));
+  float* bnoise = MEM_malloc_arrayN(depth - 1, sizeof(float), "random_noise: initBlue");
   for(n=0;n<(depth-1);n++){bnoise[n] = genVioletNoise();}
   return bnoise;
 }
@@ -147,7 +148,7 @@ float* initBlue(int depth, float alpha __UNUSED__){
 float genBlueNoise(float* B, float* A, int depth){
   int n; 
   // Create the V matrix
-  float* V = malloc((depth)*sizeof(float));
+  float* V = MEM_malloc_arrayN(depth, sizeof(float), "random_noise: genBlueNoise");
   for (n=0;n<depth;n++){
     if (n==depth-1){V[n]=genVioletNoise();}
     else{V[n] = -1*B[n];}
@@ -158,7 +159,7 @@ float genBlueNoise(float* B, float* A, int depth){
   }
   float dot=0.0;
   for (n=0;n<depth;n++){dot+=V[n]*A[depth-1-n];}
-  free(V);
+  MEM_freeN(V);
 
   // Assign the dot product to the last value of PN
   B[depth-2] = dot;

@@ -8,9 +8,6 @@ test_math_bin = executable('test_math',
   test_math_src,
   dependencies: [ensen_deps, check],
   c_args : [
-    '-lensen',
-    '-I'+meson.current_source_dir()+'/include',
-    '-lm',
     '-DTESTS_BUILD_DIR="'+meson.current_build_dir()+'"',
     '-DTESTS_SRC_DIR="'+meson.current_source_dir()+'"']
 )

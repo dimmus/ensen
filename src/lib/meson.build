@@ -4,6 +4,9 @@ subdir('config')
 subdir('math')
 subdir('signal')
 subdir('ui')
+if get_option('memguard')
+    subdir('mem')
+endif
 
 libensen = library('ensen', ensen_lib_src,
   c_args : [ ensen_cargs,
@@ -16,7 +19,7 @@ libensen = library('ensen', ensen_lib_src,
 )
 
 ensen_lib = declare_dependency(
-  include_directories : [ include_directories('.')],
+  include_directories : [ include_directories('../include')],
   link_with : libensen,
   dependencies : ensen_deps
 )

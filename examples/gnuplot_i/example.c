@@ -3,13 +3,13 @@
 #include <stdlib.h>
 #include <unistd.h> 
 
-#include "ensen_private.h" // for __UNUSED__
+#include "ensen_private.h" // for ENSEN_UNUSED
 #include "ui_gnuplot.h"
 
 #define SLEEP_LGTH  2
 #define NPOINTS     50
 
-int main(int argc __UNUSED__, char *argv[] __UNUSED__) 
+int main(int argc ENSEN_UNUSED, char *argv[] ENSEN_UNUSED) 
 {
     gnuplot_ctrl    *   h1,
                     *   h2,

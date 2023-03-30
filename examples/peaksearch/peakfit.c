@@ -66,7 +66,7 @@ static double polyb(double a, double b, double c, double d, double x) {
  * @param[in] x The value at which to evalutate the function
  * @return The value of the function
  */
-static double polyb_da(double a __UNUSED__, double b __UNUSED__, double c __UNUSED__, double d __UNUSED__, double x) {
+static double polyb_da(double a ENSEN_UNUSED, double b ENSEN_UNUSED, double c ENSEN_UNUSED, double d ENSEN_UNUSED, double x) {
 	return x*x*x;
 }
 
@@ -79,7 +79,7 @@ static double polyb_da(double a __UNUSED__, double b __UNUSED__, double c __UNUS
  * @param[in] x The value at which to evalutate the function
  * @return The value of the function
  */
-static double polyb_db(double a __UNUSED__, double b __UNUSED__, double c __UNUSED__, double d __UNUSED__, double x) {
+static double polyb_db(double a ENSEN_UNUSED, double b ENSEN_UNUSED, double c ENSEN_UNUSED, double d ENSEN_UNUSED, double x) {
 	return x*x;
 }
 
@@ -92,7 +92,7 @@ static double polyb_db(double a __UNUSED__, double b __UNUSED__, double c __UNUS
  * @param[in] x The value at which to evalutate the function
  * @return The value of the function
  */
-static double polyb_dc(double a __UNUSED__, double b __UNUSED__, double c __UNUSED__, double d __UNUSED__, double x) {
+static double polyb_dc(double a ENSEN_UNUSED, double b ENSEN_UNUSED, double c ENSEN_UNUSED, double d ENSEN_UNUSED, double x) {
 	return x;
 }
 
@@ -105,7 +105,7 @@ static double polyb_dc(double a __UNUSED__, double b __UNUSED__, double c __UNUS
  * @param[in] x The value at which to evalutate the function
  * @return The value of the function
  */
-static double polyb_dd(double a __UNUSED__, double b __UNUSED__, double c __UNUSED__, double d __UNUSED__, double x __UNUSED__) {
+static double polyb_dd(double a ENSEN_UNUSED, double b ENSEN_UNUSED, double c ENSEN_UNUSED, double d ENSEN_UNUSED, double x ENSEN_UNUSED) {
 	return 1;
 }
 
@@ -116,7 +116,7 @@ static double polyb_dd(double a __UNUSED__, double b __UNUSED__, double c __UNUS
  * @param[in] m The parameter m
  * @return The FWHM of the function
  */
-static double pearson7_fwhm(double a __UNUSED__, double k, double m) {
+static double pearson7_fwhm(double a ENSEN_UNUSED, double k, double m) {
 	return 2.0*sqrt((m/(k*k))*(pow(2.0, 1.0/m) - 1.0));
 }
 
@@ -127,7 +127,7 @@ static double pearson7_fwhm(double a __UNUSED__, double k, double m) {
  * @param[in] w The desired FWHM
  * @return The k parameter of the function
  */
-static double pearson7_k_from_fwhm(double a __UNUSED__, double m, double w) {
+static double pearson7_k_from_fwhm(double a ENSEN_UNUSED, double m, double w) {
 	return 2.0*sqrt((m/(0.25*w*w))*(pow(2.0, 1.0/m) - 1.0));
 }
 
@@ -140,7 +140,7 @@ static double pearson7_k_from_fwhm(double a __UNUSED__, double m, double w) {
  * @param[in] x The value at which to evalutate the function
  * @return The value of the function
  */
-static double pearson7(double a __UNUSED__, double k, double x0, double m, double x) {
+static double pearson7(double a ENSEN_UNUSED, double k, double x0, double m, double x) {
 	double x1;
 
 	x1 = x - x0;
@@ -156,7 +156,7 @@ static double pearson7(double a __UNUSED__, double k, double x0, double m, doubl
  * @param[in] x The value at which to evalutate the function
  * @return The value of the function
  */
-static double pearson7_da(double a __UNUSED__, double k, double x0, double m, double x) {
+static double pearson7_da(double a ENSEN_UNUSED, double k, double x0, double m, double x) {
 	double x1;
 
 	x1 = x - x0;
@@ -426,7 +426,7 @@ static int pearson7_fdf(const gsl_vector * x, void *params, gsl_vector * f, gsl_
  * @param[out] ic The fit linear term
  * @param[out] id The fit constant term
  */
-static void prepbgfit(struct pf_data* d, int peak __UNUSED__, struct bg_poly_data* pd, double* ic, double* id) {
+static void prepbgfit(struct pf_data* d, int peak ENSEN_UNUSED, struct bg_poly_data* pd, double* ic, double* id) {
 	int i;
 	double c0, c1, cov00, cov01, cov11, sumsq;
 	double chn[NCHAN], chd[NCHAN];
