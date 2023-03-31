@@ -69,8 +69,12 @@ ensen_deps = [
   # dependency('eina', version : efl_req),
   dependency('gsl'),
   dependency('fftw3'),
-  dependency('lcov'),
 ]
+
+cov = find_program('lcov')
+if (cov.found())
+  #
+endif
 
 # configuration
 config_dir = [include_directories('.')]
