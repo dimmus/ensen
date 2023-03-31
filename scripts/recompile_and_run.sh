@@ -1,4 +1,5 @@
 #!/bin/bash
 
-./rc
+source ./scripts/recompile.sh
+
 ./build/src/bin/ensen

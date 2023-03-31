@@ -1,1 +1,1 @@
-scripts/timestamp
+scripts/timestamp.sh
