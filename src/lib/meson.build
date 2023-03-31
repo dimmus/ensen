@@ -6,6 +6,7 @@ ensen_lib_src = []
 ensen_ext_deps = [deps_nls, m]
 
 subdir('mem')
+subdir('mem_s')
 subdir('config')
 subdir('math')
 subdir('signal')

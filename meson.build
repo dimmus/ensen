@@ -5,9 +5,9 @@ project('ensen', ['c','cpp'],
                 'c_std=c99',
                 'cpp_std=c++20', # use in guarded memory allocator
                 'warning_level=2',
-                'buildtype=debug', # "plain", "debug", "debugoptimized", "release", "minsize", "custom"
-                'optimization=0',  # "plain", "0", "g", "1", "2", "3", "s"
-                'debug=true'
+                'buildtype=minsize', # "plain", "debug", "debugoptimized", "release", "minsize", "custom"
+                'optimization=s',  # "plain", "0", "g", "1", "2", "3", "s"
+                'debug=false'
               ],
 )
 
@@ -38,7 +38,8 @@ ensen_cflags_try = [
   '-Wno-format-y2k',
   '-Wno-variadic-macros', # no warning: ISO C does not permit named variadic macros (for C++ use warning_level=2)
   '-Wno-strict-aliasing', # no warning: dereferencing type-punned pointer will break strict-aliasing rules
-  '-Wno-format-nonliteral' # no warning: format not a string literal, argument types not checked (lib/strsafe: snprintf_s)
+  '-Wno-format-nonliteral', # no warning: format not a string literal, argument types not checked (lib/strsafe: snprintf_s)
+  '-Wno-implicit-fallthrough', # switch off warnings in lib/mem_s/mem_primitives_lib.c
 ]
 
 foreach cf: ensen_cflags_try
