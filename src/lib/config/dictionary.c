@@ -6,6 +6,7 @@
    informations retrieved from a configuration file (ini files).
 */
 #include "mem/ensen_mem_guarded.h"
+#include "str/safe_lib.h"
 
 #include "ensen_config_dictionary.h"
 
@@ -38,7 +39,7 @@ static char * xstrdup(const char * s)
     if (!s)
         return NULL ;
 
-    len = strlen(s) + 1 ;
+    len = strnlen_s(s, LEN) + 1 ;
     t = (char*)MEM_mallocN(len, "dictionary: xstrdup");
     if (t) {
         memcpy(t, s, len) ;
@@ -105,7 +106,7 @@ unsigned dictionary_hash(const char * key)
     if (!key)
         return 0 ;
 
-    len = strlen(key);
+    len = strnlen_s(key, LEN);
     for (hash=0, i=0 ; i<len ; i++) {
         hash += (unsigned)key[i] ;
         hash += (hash<<10);

@@ -3,13 +3,14 @@ ensen_lib_header_src = [
 ]
 ensen_lib_src = []
 
-ensen_ext_deps = [intl, m]
+ensen_ext_deps = [deps_nls, m]
 
 subdir('mem')
 subdir('config')
 subdir('math')
 subdir('signal')
 subdir('ui')
+subdir('str')
 
 
 libensen = library('ensen', ensen_lib_src,

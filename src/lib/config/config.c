@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "mem/ensen_mem_guarded.h"
+#include "str/safe_lib.h"
 
 #include "ensen_config_dictionary.h"
 #include "ensen_config.h"
@@ -64,7 +65,7 @@ static char * xstrdup(const char * s)
     if (!s)
         return NULL ;
 
-    len = strlen(s) + 1 ;
+    len = strnlen_s(s, LEN) + 1 ;
     t = (char*)MEM_mallocN(len, "config: xstrdup");
     if (t) {
         memcpy(t, s, len) ;
@@ -84,7 +85,7 @@ static unsigned strstrip(char * s)
 
     if (s==NULL) return 0;
 
-    last = s + strlen(s);
+    last = s + strnlen_s(s, LEN);
     while (isspace((int)*s) && *s) s++;
     while (last > s) {
         if (!isspace((int)*(last-1)))
@@ -277,7 +278,7 @@ void config_dumpsection_ini(const dictionary * d, const char * s, FILE * f)
     if (d==NULL || f==NULL) return ;
     if (! config_find_entry(d, s)) return ;
 
-    seclen  = (int)strlen(s);
+    seclen  = (int)strnlen_s(s, LEN);
     fprintf(f, "\n[%s]\n", s);
     snprintf(keym, sizeof(keym), "%s:", s);
     for (j=0 ; j<d->size ; j++) {
@@ -311,7 +312,7 @@ int config_getsecnkeys(const dictionary * d, const char * s)
     if (d==NULL) return nkeys;
     if (! config_find_entry(d, s)) return nkeys;
 
-    seclen  = (int)strlen(s);
+    seclen  = (int)strnlen_s(s, LEN);
     strlwc(s, keym, sizeof(keym));
     keym[seclen] = ':';
 
@@ -348,7 +349,7 @@ const char ** config_getseckeys(const dictionary * d, const char * s, const char
     if (d==NULL || keys==NULL) return NULL;
     if (! config_find_entry(d, s)) return NULL;
 
-    seclen  = (int)strlen(s);
+    seclen  = (int)strnlen_s(s, LEN);
     strlwc(s, keym, sizeof(keym));
     keym[seclen] = ':';
 
@@ -699,7 +700,7 @@ dictionary * config_load(const char * ininame)
 
     while (fgets(line+last, ASCIILINESZ-last, in)!=NULL) {
         lineno++ ;
-        len = (int)strlen(line)-1;
+        len = (int)strnlen_s(line, LEN)-1;
         if (len<=0)
             continue;
         /* Safety check against buffer overflows */

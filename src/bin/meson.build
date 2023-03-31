@@ -5,6 +5,12 @@ ensen_lib_header_src += [
 ensen_bin_src = []
 
 ensen_bin_src += files([
+   'ensen_conf.c',
+   'ensen_data.c',
+   'ensen_show.c',
+   'ensen_plot.c',
+   'ensen_utils.c',
+   'ensen_exp.c',
    'main.c',
 ])
 

@@ -37,7 +37,8 @@ ensen_cflags_try = [
   '-Wformat=2',
   '-Wno-format-y2k',
   '-Wno-variadic-macros', # no warning: ISO C does not permit named variadic macros (for C++ use warning_level=2)
-  '-Wno-strict-aliasing' # no warning: dereferencing type-punned pointer will break strict-aliasing rules
+  '-Wno-strict-aliasing', # no warning: dereferencing type-punned pointer will break strict-aliasing rules
+  '-Wno-format-nonliteral' # no warning: format not a string literal, argument types not checked (lib/strsafe: snprintf_s)
 ]
 
 foreach cf: ensen_cflags_try
@@ -73,6 +74,7 @@ ensen_deps = [
 config_dir = [include_directories('.')]
 config_h = configuration_data()
 config_h.set_quoted('PACKAGE_NAME', meson.project_name())
+config_h.set('HAVE_CONFIG_H', '1')
 
 if get_option('ui-backend') == 'gnuplot'
   config_h.set('UI_GNUPLOT', '1')
@@ -96,6 +98,10 @@ endif
 
 if get_option('memguard')
   config_h.set('MEM_DEBUG_APPLY', '1')
+endif
+
+if get_option('debug-conf')
+  config_h.set('DEBUG_CONF', '1')
 endif
 
 cpu_sse3 = true
@@ -131,7 +137,9 @@ if scdoc.found()
 	build_doc = true
 endif
 
-subdir('po')
+if build_nls
+  subdir('po')
+endif
 
 subdir('src')
 

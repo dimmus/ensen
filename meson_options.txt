@@ -6,7 +6,7 @@ option('man-pages',
 
 option('nls',
     type: 'boolean',
-    value: true,
+    value: false,
     description: 'enable localization (default=false)'
 )
 
@@ -14,6 +14,12 @@ option('memguard',
     type: 'boolean',
     value: true,
     description: 'use internal guarded memory allocator (default=false)'
+)
+
+option('debug-conf',
+    type: 'boolean',
+    value: false,
+    description: 'show configuration setup debug info (default=false)'
 )
 
 option('tests',

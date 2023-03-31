@@ -17,6 +17,7 @@
 #include <pthread.h>
 
 #include "ensen_mem_guarded.h"
+#include "str/safe_lib.h"
 
 /* to ensure strict conversions */
 // #include "../../source/blender/blenlib/BLI_strict_flags.h"
@@ -261,7 +262,7 @@ void *MEM_guarded_dupallocN(const void *vmemh)
 #else
     {
       MemHead *nmemh;
-      char *name = malloc(strlen(memh->name) + 24);
+      char *name = malloc(strnlen_s(memh->name, LEN) + 24);
 
       if (LIKELY(memh->alignment == 0)) {
         sprintf(name, "%s %s", "dupli_alloc", memh->name);

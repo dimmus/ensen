@@ -392,24 +392,18 @@ findpeaks(data_t * y, Peaks * p, Signal_Parameters * conf)
     data_t dy[(*conf).n_points];
 
     deriv((*conf).n_points, y, dy);
-    // smooth(dy, size, 4);
     
     index_t num_of_peaks = 0;
     data_t diff = 0.f;
     (*p).total_number = 0;
-    // printf("=====================\n");
     for (index_t i = 0; i < ((*conf).n_points - 1); i++)
     {
         if ((dy[i] >= 0) & (dy[i + 1] < 0) & (dy[i] <= 1)) // Detects zero-crossing of derivative
         {
-            // printf("_Detected zero-crossing at [%d] with values [%f - %f]\n", i, dy[i], dy[i + 1]);
             if (y[i] > (*conf).search.threshold_amp) // Try to find peak above certain value of amplitude
             {
-                // printf("___Detected peak at [%d] with amp [%f] (threshold: [%f]) \n", i, y[i], amp_threshold);
-                // printf("___slope at [%d] with value [%f] (threshold: [%f])\n", i, dy[i] - dy[i + 1], slope_threshold);                    
                 if ((dy[i] - dy[i + 1]) > (*conf).search.threshold_slope) // Try to find real peak (not fluctuations)
                 {
-                    // printf("______Detected slope at [%d] with value [%f] (threshold: [%f])\n", i, dy[i] - dy[i + 1], slope_threshold);
                     if (num_of_peaks >= (*conf).search.peaks_array_number) // out of peaks array size
                     {
                         printf("Warning: Found too many peaks. Out of array size. \n");

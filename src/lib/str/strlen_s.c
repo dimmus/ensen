@@ -1,4 +1,7 @@
-#include <stdint.h>
+#include "safeclib_private.h"
+#include "safe_str_constraint.h"
+#include "safe_str_lib.h"
+
 #include <string.h>
 
 /**
@@ -14,7 +17,8 @@
  * \return \p maxsize if null terminator not found.
  * \return length of null terminated string if null terminator found.
  */
-size_t safe_strlen(const char *s, size_t maxsize)
+rsize_t 
+strlen_s(const char *s, size_t maxsize)
 {
     size_t length = 0;
     if (s)

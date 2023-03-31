@@ -1,9 +1,9 @@
 #ifndef ENSEN_UI_H
 #define ENSEN_UI_H
 
-#ifdef UI_GNUPLOT
+// # ifdef UI_GNUPLOT
   #include "ui/gnuplot/ensen_ui_gnuplot.h"
-#endif
+// # endif
 
 #ifdef UI_NUKLEAR
   #define NK_IMPLEMENTATION

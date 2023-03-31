@@ -6,6 +6,7 @@
 #include <assert.h>
 
 #include "mem/ensen_mem_guarded.h"
+#include "str/safe_lib.h"
 
 #include "ensen_private.h"
 #include "ensen_ui_gnuplot.h"
@@ -175,21 +176,41 @@ void gnuplot_cmd(gnuplot_ctrl *  handle, char const *  cmd, ...)
 
 void gnuplot_setstyle(gnuplot_ctrl * h, char * plot_style)
 {
-    if (strcmp(plot_style, "lines") &&
-        strcmp(plot_style, "points") &&
-        strcmp(plot_style, "linespoints") &&
-        strcmp(plot_style, "impulses") &&
-        strcmp(plot_style, "dots") &&
-        strcmp(plot_style, "steps") &&
-        strcmp(plot_style, "errorbars") &&
-        strcmp(plot_style, "boxes") &&
-        strcmp(plot_style, "boxerrorbars")) {
-        fprintf(stderr, "warning: unknown requested style: using points\n") ;
-        strcpy(h->pstyle, "points") ;
+    errno_t rc;
+    int ind;
+    rsize_t max_len = 32;
+    if (strcmp_s(plot_style, max_len, "lines", &ind) &&
+        strcmp_s(plot_style, max_len, "points", &ind) &&
+        strcmp_s(plot_style, max_len, "linespoints", &ind) &&
+        strcmp_s(plot_style, max_len, "impulses", &ind) &&
+        strcmp_s(plot_style, max_len, "dots", &ind) &&
+        strcmp_s(plot_style, max_len, "steps", &ind) &&
+        strcmp_s(plot_style, max_len, "errorbars", &ind) &&
+        strcmp_s(plot_style, max_len, "boxes", &ind) &&
+        strcmp_s(plot_style, max_len, "boxerrorbars", &ind)) {
+        fprintf(stderr, "warning: unknown requested style: using points\n");
+        rc = strcpy_s(h->pstyle, max_len, "points");
     } else {
-        strcpy(h->pstyle, plot_style) ;
+        rc = strcpy_s(h->pstyle, max_len, plot_style);
     }
-    return ;
+
+    // debug
+    if (rc != ESNULLP || 
+        rc != ESZEROL || 
+        rc != ESLEMAX || 
+        rc != EOK     || 
+        rc != ESOVRLP)
+    {
+        debug_printf("%s %u  Error in strcpy: rc=%u \n",
+                     __FUNCTION__, __LINE__,  rc );
+    }
+
+    if (ind != 0) {
+        printf("%s %u  Error  ind=%d rc=%d \n",
+                     __FUNCTION__, __LINE__, ind, rc);
+    }
+
+    return;
 }
 
 
@@ -651,9 +672,10 @@ int gnuplot_write_multi_csv(
 
 char const * gnuplot_tmpfile(gnuplot_ctrl * handle)
 {
+    errno_t rc;
     static char const * tmp_filename_template = "gnuplot_tmpdatafile_XXXXXX";
     char *              tmp_filename = NULL;
-    int                 tmp_filelen = strlen(tmp_filename_template);
+    int                 tmp_filelen = strnlen_s(tmp_filename_template, 36);
 
 #ifndef WIN32
     int                 unx_fd;
@@ -674,7 +696,16 @@ char const * gnuplot_tmpfile(gnuplot_ctrl * handle)
     {
         return NULL;
     }
-    strcpy(tmp_filename, tmp_filename_template);
+    rc = strcpy_s(tmp_filename, 128, tmp_filename_template);
+    if (rc != ESNULLP || 
+        rc != ESZEROL || 
+        rc != ESLEMAX || 
+        rc != EOK     || 
+        rc != ESOVRLP)
+    {
+        debug_printf("%s %u  Error in strcpy: rc=%u \n",
+                     __FUNCTION__, __LINE__,  rc );
+    }
 
 #ifdef WIN32
     if (_mktemp(tmp_filename) == NULL)

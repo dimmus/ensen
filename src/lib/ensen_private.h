@@ -51,6 +51,16 @@ template<typename T> static inline T decltype_helper(T x)
 }
 #endif
 
+#ifdef DEBUG
+#  ifdef __KERNEL__
+#    define debug_printf(...)  printk(KERN_DEBUG __VA_ARGS__)
+#  else
+#    define debug_printf printf
+#  endif
+#else
+#define debug_printf(...)
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h> /* bool */

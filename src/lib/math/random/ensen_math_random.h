@@ -1,9 +1,7 @@
 #ifndef ENSEN_MATH_RANDOM_H
 #define ENSEN_MATH_RANDOM_H
 
-#ifndef ENSEN_PRIVATE_H
-    #include "ensen_private.h"
-#endif
+#include "ensen_private.h"
 
 void random_seed(void);
 
