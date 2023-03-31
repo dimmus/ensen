@@ -68,7 +68,8 @@ efl_req = '>= 1.26.3'
 ensen_deps = [
   # dependency('eina', version : efl_req),
   dependency('gsl'),
-  dependency('fftw3')
+  dependency('fftw3'),
+  dependency('lcov'),
 ]
 
 # configuration
