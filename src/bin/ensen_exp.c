@@ -11,19 +11,16 @@ exp_broaden(const index_t size, double * in, double * out, const double t)
   double real = 0.f, imag = 0.f;
   index_t i = 0;
 
-  // PLOT(in[ii], 0, size, "Input data");
-
   // Plan 1:  rearange input signal (double)
   fftw_plan p1 = fftw_plan_dft_1d(n, in1, out1, FFTW_FORWARD, FFTW_ESTIMATE);
   index_t hfl = round(size/2);
   for (i = 0; i < n; ++i) {
-    real = ((i < hfl) || (i > (hfl + size))) ? in[1] * 1.0 : in[i - hfl + 1]; // asume symmetrical tails of signal
+    real = ((i < hfl) || (i > (n - hfl - 1))) ? in[0] * 1.0 : in[i - hfl]; // assume symmetrical tails of signal
     imag = 0.f;
     in1[i] = real + I * imag;
   }
-  // PLOT(creal(in1[ii]), 0, n, "Streatched input data");
+
   fftw_execute(p1);
-  // PLOT(creal(out1[ii]), 0, n, "FFTW(data)");
   fftw_destroy_plan(p1);
 
   // Plan 2: create exponential signal
@@ -35,9 +32,7 @@ exp_broaden(const index_t size, double * in, double * out, const double t)
       in2[i] = real + I * imag;
       sum += real;
   }
-  // PLOT(creal(in2[ii]), 0, n, "a=exp");
   fftw_execute(p2);
-  // PLOT(creal(out2[ii]), 0, n, "FFTW(a)");
   fftw_destroy_plan(p2);
 
   // Plan 3: Multiply to FFT signals and find inverse
@@ -46,13 +41,10 @@ exp_broaden(const index_t size, double * in, double * out, const double t)
   {
     in3[i] = out1[i] * out2[i];
   }
-  // PLOT(creal(in3[ii]), 0, n, "FFT(data) * FFT(a)");
   fftw_execute(p3);
-  // PLOT((creal(out3[ii])/sum)/n, 0, n, "IFFT");
   fftw_destroy_plan(p3);
 
   // Compress
-  // PLOT(in0[ii], 0, size, "Input data");
   index_t ii = 0;
   for (index_t p = (n-(size/2)+1); p >= (size/2+2); p--)
   {
