@@ -192,4 +192,15 @@ struct _signal_statistics
     data_t delta_temp;
 };
 
+typedef struct {
+    Points *data;
+    Points *data_temp;
+    Points *temp_gen;
+    Points *temp_sens_1;
+    Points *temp_sens_2;
+    Points *temp_sens_3;
+    Points *temp_sens_4;
+} PointsArray;
+
+
 #endif
