@@ -1,6 +1,6 @@
-#include "ensen_conf.h"
-
 #include "mem/ensen_mem_guarded.h"
+
+#include "ensen_conf.h"
 
 int
 config_parameters_set(Signal_Parameters * param, dictionary *ini)
