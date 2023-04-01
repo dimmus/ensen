@@ -130,10 +130,8 @@ signal_fit(Point (*p)[], index_t n_points, index_t n_poly)
 }
 
 void
-smooth(data_t *y, index_t n_points, index_t smoothwidth)
+smooth(data_t *y, index_t n_points, index_t w)
 {
-    index_t w = smoothwidth;
-    
     data_t SumPoints = 0.0;
     for (index_t i = 0; i < w; i++)
     {
@@ -142,6 +140,11 @@ smooth(data_t *y, index_t n_points, index_t smoothwidth)
     }
     
     data_t *s = MEM_malloc_arrayN(n_points, sizeof(data_t), "signal_fit: smooth");
+    for (index_t i = 0; i < n_points; i++)
+    {
+       s[i] = 0; // avoid garbage values
+    }
+
     index_t halfw = round(w/2);
     for (index_t k = 0; k <= (n_points-w); k++)
     {
