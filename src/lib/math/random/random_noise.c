@@ -24,7 +24,75 @@ void init_rnd(){
   gettimeofday(&tv,NULL);
   srand(tv.tv_usec);
 }
-float rnd(){return (float)rand()/(float)RAND_MAX;}
+
+#define MT_N 624
+#define MT_M 397
+
+static unsigned long mt[MT_N];
+static int mti = MT_N + 1;
+
+void mt_init(unsigned long seed);
+unsigned long mt_rand(void);
+
+/* 
+  Initializes the Mersenne Twister algorithm with a seed value.
+  To use: 
+    srand(time(NULL));
+    mt_init(rand());
+ */
+void 
+mt_init(unsigned long seed) 
+{
+    mt[0] = seed;
+    for (mti = 1; mti < MT_N; mti++) {
+        mt[mti] = 1812433253UL * (mt[mti - 1] ^ (mt[mti - 1] >> 30)) + mti;
+    }
+}
+
+/* 
+  Generates a random number using the Mersenne Twister algorithm
+ */
+unsigned long 
+mt_rand() 
+{
+    unsigned long y;
+    static unsigned long mag01[2] = {0x0UL, 0x9908b0dfUL};
+    if (mti >= MT_N) {
+        int kk;
+        if (mti == MT_N + 1) {
+            mt_init(5489UL);
+        }
+        for (kk = 0; kk < MT_N - MT_M; kk++) {
+            y = (mt[kk] & 0x80000000UL) | (mt[kk + 1] & 0x7fffffffUL);
+            mt[kk] = mt[kk + MT_M] ^ (y >> 1) ^ mag01[y & 0x1UL];
+        }
+        for (; kk < MT_N - 1; kk++) {
+            y = (mt[kk] & 0x80000000UL) | (mt[kk + 1] & 0x7fffffffUL);
+            mt[kk] = mt[kk + (MT_M - MT_N)] ^ (y >> 1) ^ mag01[y & 0x1UL];
+        }
+        y = (mt[MT_N - 1] & 0x80000000UL) | (mt[0] & 0x7fffffffUL);
+        mt[MT_N - 1] = mt[MT_M - 1] ^ (y >> 1) ^ mag01[y & 0x1UL];
+        mti = 0;
+    }
+    y = mt[mti++];
+    y ^= (y >> 11);
+    y ^= (y << 7) & 0x9d2c5680UL;
+    y ^= (y << 15) & 0xefc60000UL;
+    y ^= (y >> 18);
+    return y;
+}
+
+float rnd()
+{
+  float r = 0.f;
+# ifdef RANDOM_STD
+  r = (float)rand()/(float)RAND_MAX;
+# endif
+# ifdef RANDOM_MT
+  r = (float)mt_rand()/(float)_SC_ULONG_MAX;
+# endif
+  return r;
+}
 
 // Define Gaussian PDF and CDF
 float gaussianPDF(float x){return ((1.0)/(R2*RPI*SIG))*exp(-(x*x)/(2*SIG*SIG));}

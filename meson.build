@@ -105,6 +105,12 @@ if get_option('debug-conf')
   config_h.set('DEBUG_CONF', '1')
 endif
 
+if get_option('random') == 'std'
+  config_h.set('RANDOM_STD', '1')
+elif get_option('random') == 'mt'
+  config_h.set('RANDOM_MT', '1')
+endif
+
 cpu_sse3 = true
 config_h.set10('BUILD_MMX', true)
 config_h.set10('BUILD_SSE3', true)

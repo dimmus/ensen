@@ -40,3 +40,10 @@ option('ui-backend',
   value : 'gnuplot',
   description : 'Graphical output backend'
 )
+
+option('random',
+  type : 'combo',
+  choices : ['std', 'mt'],
+  value : 'std',
+  description : 'Choose method to generate random numbers (default=std)'
+)
