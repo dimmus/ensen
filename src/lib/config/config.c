@@ -7,6 +7,7 @@
 
 #include "mem/ensen_mem_guarded.h"
 #include "str/safe_lib.h"
+#include "mem_s/safe_lib.h"
 
 #include "ensen_config_dictionary.h"
 #include "ensen_config.h"
@@ -60,6 +61,7 @@ static const char * strlwc(const char * in, char *out, unsigned len)
  */
 static char * xstrdup(const char * s)
 {
+    errno_t rc = 0;
     char * t ;
     size_t len ;
     if (!s)
@@ -68,7 +70,11 @@ static char * xstrdup(const char * s)
     len = strnlen_s(s, LEN) + 1 ;
     t = (char*)MEM_mallocN(len, "config: xstrdup");
     if (t) {
-        memcpy(t, s, len) ;
+        rc = memcpy_s(t, len, s, len) ;
+    }
+    if (rc == (ESNULLP || ESZEROL || ESLEMAX || ESOVRLP)) {
+        printf("%s %u  Error: rc=%u \n",
+                __FUNCTION__, __LINE__,  rc);
     }
     return t ;
 }
@@ -665,6 +671,7 @@ static line_status config_line(
  */
 dictionary * config_load(const char * ininame)
 {
+    errno_t rc1, rc2, rc3, rc4, rc5;
     FILE * in ;
 
     char line    [ASCIILINESZ+1] ;
@@ -692,11 +699,29 @@ dictionary * config_load(const char * ininame)
         return NULL ;
     }
 
-    memset(line,    0, ASCIILINESZ);
-    memset(section, 0, ASCIILINESZ);
-    memset(key,     0, ASCIILINESZ);
-    memset(val,     0, ASCIILINESZ);
+    rc1 = memset_s(line,    ASCIILINESZ, 0);
+    rc2 = memset_s(section, ASCIILINESZ, 0);
+    rc3 = memset_s(key,     ASCIILINESZ, 0);
+    rc4 = memset_s(val,     ASCIILINESZ, 0);
     last=0 ;
+
+    // debug
+    if (rc1 != (EOK & ESNULLP & ESZEROL & ESLEMAX)) {
+        printf("%s %u  Error: rc=%u \n",
+                __FUNCTION__, __LINE__,  rc1);
+    }
+    if (rc2 != (EOK & ESNULLP & ESZEROL & ESLEMAX)) {
+        printf("%s %u  Error: rc=%u \n",
+                __FUNCTION__, __LINE__,  rc2);
+    }
+    if (rc3 != (EOK & ESNULLP & ESZEROL & ESLEMAX)) {
+        printf("%s %u  Error: rc=%u \n",
+                __FUNCTION__, __LINE__,  rc3);
+    }
+    if (rc4 != (EOK & ESNULLP & ESZEROL & ESLEMAX)) {
+        printf("%s %u  Error: rc=%u \n",
+                __FUNCTION__, __LINE__,  rc4);
+    }
 
     while (fgets(line+last, ASCIILINESZ-last, in)!=NULL) {
         lineno++ ;
@@ -756,8 +781,13 @@ dictionary * config_load(const char * ininame)
             default:
             break ;
         }
-        memset(line, 0, ASCIILINESZ);
+        rc5 = memset_s(line, ASCIILINESZ, 0);
         last=0;
+        // debug
+        if (rc5 != (EOK & ESNULLP & ESZEROL & ESLEMAX)) {
+            printf("%s %u  Error: rc=%u \n",
+                    __FUNCTION__, __LINE__,  rc5);
+        }
         if (mem_err<0) {
             config_error_callback("iniparser: memory allocation failure\n");
             break ;

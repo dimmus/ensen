@@ -18,6 +18,7 @@
 
 #include "ensen_mem_guarded.h"
 #include "str/safe_lib.h"
+#include "mem_s/safe_lib.h"
 
 /* to ensure strict conversions */
 // #include "../../source/blender/blenlib/BLI_strict_flags.h"
@@ -242,6 +243,7 @@ size_t MEM_guarded_allocN_len(const void *vmemh)
 
 void *MEM_guarded_dupallocN(const void *vmemh)
 {
+  errno_t rc;
   void *newp = NULL;
 
   if (vmemh) {
@@ -283,7 +285,11 @@ void *MEM_guarded_dupallocN(const void *vmemh)
     }
 #endif
 
-    memcpy(newp, vmemh, memh->len);
+    rc = memcpy_s(newp, memh->len, vmemh, memh->len);
+    if (rc != (ESNULLP & ESZEROL & ESLEMAX & EOK & ESOVRLP)) {
+        printf("%s %u  Error: rc=%u \n",
+                     __FUNCTION__, __LINE__,  rc);
+    }
   }
 
   return newp;
@@ -291,6 +297,7 @@ void *MEM_guarded_dupallocN(const void *vmemh)
 
 void *MEM_guarded_reallocN_id(void *vmemh, size_t len, const char *str)
 {
+  errno_t rc = 0;
   void *newp = NULL;
 
   if (vmemh) {
@@ -307,12 +314,17 @@ void *MEM_guarded_reallocN_id(void *vmemh, size_t len, const char *str)
     if (newp) {
       if (len < memh->len) {
         /* shrink */
-        memcpy(newp, vmemh, len);
+        rc = memcpy_s(newp, len, vmemh, len);
       }
       else {
         /* grow (or remain same size) */
-        memcpy(newp, vmemh, memh->len);
+        rc = memcpy_s(newp, memh->len, vmemh, memh->len);
       }
+    }
+
+    if (rc != (ESNULLP & ESZEROL & ESLEMAX & EOK & ESOVRLP)) {
+        printf("%s %u  Error: rc=%u \n",
+                     __FUNCTION__, __LINE__,  rc);
     }
 
     MEM_guarded_freeN(vmemh);
@@ -326,6 +338,8 @@ void *MEM_guarded_reallocN_id(void *vmemh, size_t len, const char *str)
 
 void *MEM_guarded_recallocN_id(void *vmemh, size_t len, const char *str)
 {
+  errno_t rc_cpy = 0;
+  errno_t rc_set = 0;
   void *newp = NULL;
 
   if (vmemh) {
@@ -342,17 +356,27 @@ void *MEM_guarded_recallocN_id(void *vmemh, size_t len, const char *str)
     if (newp) {
       if (len < memh->len) {
         /* shrink */
-        memcpy(newp, vmemh, len);
+        rc_cpy = memcpy_s(newp, len, vmemh, len);
       }
       else {
-        memcpy(newp, vmemh, memh->len);
+        rc_cpy = memcpy_s(newp, memh->len, vmemh, memh->len);
 
         if (len > memh->len) {
           /* grow */
           /* zero new bytes */
-          memset(((char *)newp) + memh->len, 0, len - memh->len);
+          rc_set = memset_s(((char *)newp) + memh->len, len - memh->len, 0);
         }
       }
+    }
+
+    // debug
+    if (rc_cpy != (ESNULLP & ESZEROL & ESLEMAX & EOK & ESOVRLP)) {
+        printf("%s %u  Error: rc=%u \n",
+                     __FUNCTION__, __LINE__,  rc_cpy);
+    }
+    if (rc_set != (EOK & ESNULLP & ESZEROL & ESLEMAX)) {
+        printf("%s %u  Error: rc=%u \n",
+                __FUNCTION__, __LINE__,  rc_set);
     }
 
     MEM_guarded_freeN(vmemh);
@@ -433,6 +457,7 @@ static void make_memhead_header(MemHead *memh, size_t len, const char *str)
 
 void *MEM_guarded_mallocN(size_t len, const char *str)
 {
+  errno_t rc;
   MemHead *memh;
 
   len = SIZET_ALIGN_4(len);
@@ -442,7 +467,11 @@ void *MEM_guarded_mallocN(size_t len, const char *str)
   if (LIKELY(memh)) {
     make_memhead_header(memh, len, str);
     if (UNLIKELY(malloc_debug_memset && len)) {
-      memset(memh + 1, 255, len);
+      rc = memset_s(memh + 1, len, 255);
+      if (rc != (EOK & ESNULLP & ESZEROL & ESLEMAX)) {
+        printf("%s %u  Error: rc=%u \n",
+                __FUNCTION__, __LINE__,  rc);
+      }
     }
 
 #ifdef DEBUG_MEMCOUNTER
@@ -480,6 +509,8 @@ void *MEM_guarded_malloc_arrayN(size_t len, size_t size, const char *str)
 
 void *MEM_guarded_mallocN_aligned(size_t len, size_t alignment, const char *str)
 {
+  errno_t rc;
+
   /* We only support alignment to a power of two. */
   assert(IS_POW2(alignment));
 
@@ -516,7 +547,11 @@ void *MEM_guarded_mallocN_aligned(size_t len, size_t alignment, const char *str)
     make_memhead_header(memh, len, str);
     memh->alignment = (short)alignment;
     if (UNLIKELY(malloc_debug_memset && len)) {
-      memset(memh + 1, 255, len);
+      rc = memset_s(memh + 1, len, 255);
+      if (rc != (EOK & ESNULLP & ESZEROL & ESLEMAX)) {
+        printf("%s %u  Error: rc=%u \n",
+                __FUNCTION__, __LINE__,  rc);
+      }
     }
 
 #ifdef DEBUG_MEMCOUNTER
@@ -609,6 +644,7 @@ static int compare_len(const void *p1, const void *p2)
 
 void MEM_guarded_printmemlist_stats(void)
 {
+  errno_t rc;
   MemHead *membl;
   MemPrintBlock *pb, *printblock;
   uint totpb, a, b;
@@ -676,7 +712,11 @@ void MEM_guarded_printmemlist_stats(void)
     }
     else {
       b++;
-      memcpy(&printblock[b], &printblock[a], sizeof(MemPrintBlock));
+      rc = memcpy_s(&printblock[b], sizeof(MemPrintBlock), &printblock[a], sizeof(MemPrintBlock));
+      if (rc != (ESNULLP & ESZEROL & ESLEMAX & EOK & ESOVRLP)) {
+        printf("%s %u  Error: rc=%u \n",
+                    __FUNCTION__, __LINE__,  rc);
+      }
     }
   }
   totpb = b + 1;
@@ -987,6 +1027,7 @@ static void remlink(volatile localListBase *listbase, void *vlink)
 
 static void rem_memblock(MemHead *memh)
 {
+  errno_t rc;
   mem_lock_thread();
   remlink(membase, &memh->next);
   if (memh->prev) {
@@ -1008,7 +1049,11 @@ static void rem_memblock(MemHead *memh)
 #endif
 
   if (UNLIKELY(malloc_debug_memset && memh->len)) {
-    memset(memh + 1, 255, memh->len);
+    rc = memset_s(memh + 1, memh->len, 255);
+    if (rc != (EOK & ESNULLP & ESZEROL & ESLEMAX)) {
+        printf("%s %u  Error: rc=%u \n",
+                __FUNCTION__, __LINE__,  rc);
+    }
   }
   if (LIKELY(memh->alignment == 0)) {
     free(memh);

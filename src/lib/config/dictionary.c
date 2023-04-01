@@ -7,6 +7,7 @@
 */
 #include "mem/ensen_mem_guarded.h"
 #include "str/safe_lib.h"
+#include "mem_s/safe_lib.h"
 
 #include "ensen_config_dictionary.h"
 
@@ -34,6 +35,7 @@
  */
 static char * xstrdup(const char * s)
 {
+    errno_t rc = 0;
     char * t ;
     size_t len ;
     if (!s)
@@ -42,7 +44,11 @@ static char * xstrdup(const char * s)
     len = strnlen_s(s, LEN) + 1 ;
     t = (char*)MEM_mallocN(len, "dictionary: xstrdup");
     if (t) {
-        memcpy(t, s, len) ;
+        rc = memcpy_s(t, len, s, len) ;
+    }
+    if (rc == (ESNULLP || ESZEROL || ESLEMAX || ESOVRLP)) {
+        printf("%s %u  Error: rc=%u \n",
+                __FUNCTION__, __LINE__,  rc);
     }
     return t ;
 }
@@ -54,6 +60,7 @@ static char * xstrdup(const char * s)
  */
 static int dictionary_grow(dictionary * d)
 {
+    errno_t rc1, rc2, rc3;
     char        ** new_val ;
     char        ** new_key ;
     unsigned     * new_hash ;
@@ -72,9 +79,9 @@ static int dictionary_grow(dictionary * d)
         return -1 ;
     }
     /* Initialize the newly allocated space */
-    memcpy(new_val, d->val, d->size * sizeof(char *));
-    memcpy(new_key, d->key, d->size * sizeof(char *));
-    memcpy(new_hash, d->hash, d->size * sizeof(unsigned));
+    rc1 = memcpy_s(new_val, d->size * sizeof(char *), d->val, d->size * sizeof(char *));
+    rc2 = memcpy_s(new_key, d->size * sizeof(char *), d->key, d->size * sizeof(char *));
+    rc3 = memcpy_s(new_hash, d->size * sizeof(unsigned), d->hash, d->size * sizeof(unsigned));
     /* Delete previous data */
     MEM_freeN(d->val);
     MEM_freeN(d->key);
@@ -84,6 +91,22 @@ static int dictionary_grow(dictionary * d)
     d->val = new_val;
     d->key = new_key;
     d->hash = new_hash;
+
+    if (rc1 != (ESNULLP & ESZEROL & ESLEMAX & EOK & ESOVRLP)) {
+        printf("%s %u  Error: rc=%u \n",
+                __FUNCTION__, __LINE__,  rc1);
+    }
+
+    if (rc2 != (ESNULLP & ESZEROL & ESLEMAX & EOK & ESOVRLP)) {
+        printf("%s %u  Error: rc=%u \n",
+                __FUNCTION__, __LINE__,  rc2);
+    }
+
+    if (rc3 != (ESNULLP & ESZEROL & ESLEMAX & EOK & ESOVRLP)) {
+        printf("%s %u  Error: rc=%u \n",
+                __FUNCTION__, __LINE__,  rc3);
+    }
+
     return 0 ;
 }
 
