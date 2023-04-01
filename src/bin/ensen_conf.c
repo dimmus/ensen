@@ -10,66 +10,66 @@ config_parameters_set(Signal_Parameters * param, dictionary *ini)
 # endif
 
   /* Peaks setup */
-  (*param).n_points             = (index_t)config_getint(ini, "points:number", -1);
-  (*param).n_peaks              = (index_t)config_getint(ini, "peaks:number", -1);
+  (*param).n_points             = config_getint(ini, "points:number", -1);
+  (*param).n_peaks              = config_getint(ini, "peaks:number", -1);
 
   (*param).peak = MEM_malloc_arrayN(4, sizeof(Peak), "config_parameters_set: peak[4]");
-  (*param).peak->timeshift      = (index_t)config_getint(ini, "peaks:timeshift", -1);
+  (*param).peak->timeshift      = config_getint(ini, "peaks:timeshift", -1);
 
-  (*param).peak[0].amplitude    = (data_t)config_getdouble(ini, "peaks:[0].amplitude", -1.0);
-  (*param).peak[0].position     = (data_t)config_getdouble(ini, "peaks:[0].position", -1.0);
-  (*param).peak[0].width        = (data_t)config_getdouble(ini, "peaks:[0].width", -1.0);
+  (*param).peak[0].amplitude    = config_getdouble(ini, "peaks:[0].amplitude", -1.0);
+  (*param).peak[0].position     = config_getdouble(ini, "peaks:[0].position", -1.0);
+  (*param).peak[0].width        = config_getdouble(ini, "peaks:[0].width", -1.0);
 
-  (*param).peak[1].amplitude    = (data_t)config_getdouble(ini, "peaks:[1].amplitude", -1.0);
-  (*param).peak[1].position     = (data_t)config_getdouble(ini, "peaks:[1].position", -1.0);
-  (*param).peak[1].width        = (data_t)config_getdouble(ini, "peaks:[1].width", -1.0);
+  (*param).peak[1].amplitude    = config_getdouble(ini, "peaks:[1].amplitude", -1.0);
+  (*param).peak[1].position     = config_getdouble(ini, "peaks:[1].position", -1.0);
+  (*param).peak[1].width        = config_getdouble(ini, "peaks:[1].width", -1.0);
 
-  (*param).peak[2].amplitude    = (data_t)config_getdouble(ini, "peaks:[2].amplitude", -1.0);
-  (*param).peak[2].position     = (data_t)config_getdouble(ini, "peaks:[2].position", -1.0);
-  (*param).peak[2].width        = (data_t)config_getdouble(ini, "peaks:[2].width", -1.0);
+  (*param).peak[2].amplitude    = config_getdouble(ini, "peaks:[2].amplitude", -1.0);
+  (*param).peak[2].position     = config_getdouble(ini, "peaks:[2].position", -1.0);
+  (*param).peak[2].width        = config_getdouble(ini, "peaks:[2].width", -1.0);
 
-  (*param).peak[3].amplitude    = (data_t)config_getdouble(ini, "peaks:[3].amplitude", -1.0);
-  (*param).peak[3].position     = (data_t)config_getdouble(ini, "peaks:[3].position", -1.0);
-  (*param).peak[3].width        = (data_t)config_getdouble(ini, "peaks:[3].width", -1.0);
+  (*param).peak[3].amplitude    = config_getdouble(ini, "peaks:[3].amplitude", -1.0);
+  (*param).peak[3].position     = config_getdouble(ini, "peaks:[3].position", -1.0);
+  (*param).peak[3].width        = config_getdouble(ini, "peaks:[3].width", -1.0);
 
   /* Noise setup */
-  (*param).noise.amplitude      = (data_t)config_getdouble(ini, "noise:amplitude", -1.0);
-  (*param).noise.color          = (index_t)config_getint(ini, "noise:color", -1);
+  (*param).noise.amplitude      = config_getdouble(ini, "noise:amplitude", -1.0);
+  (*param).noise.color          = config_getint(ini, "noise:color", -1);
 
   /* Smooth setup */
-  (*param).smooth.width         = (index_t)config_getint(ini, "smooth:width", -1);
-  (*param).smooth.level         = (index_t)config_getint(ini, "smooth:level", -1);
+  (*param).smooth.width         = config_getint(ini, "smooth:width", -1);
+  (*param).smooth.level         = config_getint(ini, "smooth:level", -1);
 
   /* Generation setup */
-  (*param).generation_max       = (index_t)config_getint(ini, "generation:number", -1.0);
-  (*param).generation_frequency = (index_t)config_getint(ini, "generation:frequency", -1.0); // Hz
+  (*param).generation_max       = config_getint(ini, "generation:number", -1.0);
+  (*param).generation_frequency = config_getint(ini, "generation:frequency", -1.0); // Hz
 
   /* Temperature setup */
-  (*param).temp.apply           = (index_t)config_getint(ini, "temperature:apply", -1.0);
-  (*param).temp.tick            = (index_t)config_getint(ini, "temperature:tick", -1.0);
-  (*param).temp.room            = (data_t)config_getdouble(ini, "temperature:room", -1.0);
-  (*param).temp.max             = (data_t)config_getdouble(ini, "temperature:max", -1.0);
-  (*param).temp.coefficient     = (data_t)config_getdouble(ini, "temperature:coefficient", -1.0);
+  (*param).temp.apply           = config_getint(ini, "temperature:apply", -1.0);
+  (*param).temp.tick            = config_getint(ini, "temperature:tick", -1.0);
+  (*param).temp.room            = config_getdouble(ini, "temperature:room", -1.0);
+  (*param).temp.max             = config_getdouble(ini, "temperature:max", -1.0);
+  (*param).temp.coefficient     = config_getdouble(ini, "temperature:coefficient", -1.0);
 
   /* Search setup */
-  (*param).search.threshold_slope     = (data_t)config_getdouble(ini, "search:threshold_slope", -1.0);
-  (*param).search.threshold_amp       = (data_t)config_getdouble(ini, "search:threshold_amp", -1.0);
-  (*param).search.peaks_real_number   = (index_t)config_getint(ini, "search:peaks.num.real", -1.0);
-  (*param).search.peaks_array_number  = (index_t)config_getint(ini, "search:peaks.num.arr", -1.0);
-  (*param).search.peak_search_number  = (index_t)config_getint(ini, "search:peaks.num", -1.0);
+  (*param).search.threshold_slope     = config_getdouble(ini, "search:threshold_slope", -1.0);
+  (*param).search.threshold_amp       = config_getdouble(ini, "search:threshold_amp", -1.0);
+  (*param).search.peaks_real_number   = config_getint(ini, "search:peaks.num.real", -1.0);
+  (*param).search.peaks_array_number  = config_getint(ini, "search:peaks.num.arr", -1.0);
+  (*param).search.peak_search_number  = config_getint(ini, "search:peaks.num", -1.0);
 
   /* Plot setup */
-  (*param).plot.x_min             = (data_t)config_getdouble(ini, "plot:x.min", -1.0);
-  (*param).plot.x_max             = (data_t)config_getdouble(ini, "plot:x.max", -1.0);
-  (*param).plot.y_min             = (data_t)config_getdouble(ini, "plot:y.min", -1.0);
-  (*param).plot.y_max             = (data_t)config_getdouble(ini, "plot:y.max", -1.0);
-  (*param).plot.show_signal       = (index_t)config_getint(ini, "plot:show.signal", -1.0);
-  (*param).plot.show_smooth       = (index_t)config_getint(ini, "plot:show.signal.smooth", -1.0);
-  (*param).plot.show_derivative   = (index_t)config_getint(ini, "plot:show.signal.derivative", -1.0);
+  (*param).plot.x_min             = config_getdouble(ini, "plot:x.min", -1.0);
+  (*param).plot.x_max             = config_getdouble(ini, "plot:x.max", -1.0);
+  (*param).plot.y_min             = config_getdouble(ini, "plot:y.min", -1.0);
+  (*param).plot.y_max             = config_getdouble(ini, "plot:y.max", -1.0);
+  (*param).plot.show_signal       = config_getint(ini, "plot:show.signal", -1.0);
+  (*param).plot.show_smooth       = config_getint(ini, "plot:show.signal.smooth", -1.0);
+  (*param).plot.show_derivative   = config_getint(ini, "plot:show.signal.derivative", -1.0);
   (*param).plot.show_markers      = 0; /* deprecated */
-  (*param).plot.show_temperature  = (index_t)config_getint(ini, "plot:show.experiment.temperature", -1.0);
-  (*param).plot.show_vs_smooth    = (index_t)config_getint(ini, "plot:show.experiment.smooth", -1.0);
-  (*param).plot.show_vs_noise     = (index_t)config_getint(ini, "plot:show.experiment.noise", -1.0);
+  (*param).plot.show_temperature  = config_getint(ini, "plot:show.experiment.temperature", -1.0);
+  (*param).plot.show_vs_smooth    = config_getint(ini, "plot:show.experiment.smooth", -1.0);
+  (*param).plot.show_vs_noise     = config_getint(ini, "plot:show.experiment.noise", -1.0);
 
   return 0;
 }
