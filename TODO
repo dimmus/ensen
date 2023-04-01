@@ -5,9 +5,8 @@ FEATURES:
 
 IMPROVEMENTS
 ------------
-[clean]  fix too large size of ensen binary (1.3M)
 [doc]    add code and usage documentation
-[tests]  add tests
+[tests]  add all tests
 [ui]     add SDL engine
 [ui]     add EFL engine
 

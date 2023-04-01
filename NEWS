@@ -10,17 +10,20 @@ Additions:
    * signal: add smooth algorithm
    * plot: add support for gnuplot engine.
    * math: add random number generation utils.
+   * math: add Mersenne Twister algorithm for random number generation
    * signal: add gaussian form of signal.
+   * signal: add exponential gaussian form of signal.
    * signal: add signal generator with multiple determined peaks and noise.
    * signal: add colored noise option to signal generator
 
 Improvements:
    * add colored output to terminal
-   * add safe memory allocation (guarded)
-   * add safe strings manipulation methods (like strcpy or strlen)
-   * add safe memory manipulation methods (like memcpy or memset)
+   * add guarded memory allocation
+   * add safe strings manipulation methods (like strcpy and strlen)
+   * add safe memory manipulation methods (like memcpy and memset)
 
 Fixes:
    * code cleanup
    * applied speed optimization (3x speed boost)
    * applied size optimization (was 1.3 MB, now is 34 kB)
+   * solved numerous sonarcloud warnings (static analisys)
