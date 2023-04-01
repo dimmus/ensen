@@ -37,7 +37,15 @@ test_signal(const char * conf_name)
   Signal_Statistics stat;
   
   config_parameters_set(&conf, ini);
-  PointsArray data_arrays = { &data, &data_temp, &temp_gen, &temp_sens_1, &temp_sens_2, &temp_sens_3, &temp_sens_4 };
+  PointsArray data_arrays = { 
+                              &data,
+                              &data_temp, 
+                              &temp_gen, 
+                              &temp_sens_1, 
+                              &temp_sens_2, 
+                              &temp_sens_3, 
+                              &temp_sens_4 
+  };
   data_arrays_set_new(conf, data_arrays);
 
   /* Setup graphics */
