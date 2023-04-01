@@ -450,7 +450,8 @@ void *MEM_guarded_mallocN(size_t len, const char *str)
       memcount_raise(__func__);
     memh->_count = _mallocn_count++;
 #endif
-    return (++memh);
+    ++memh;
+    return (memh);
   }
   print_error("Malloc returns null: len=" SIZET_FORMAT " in %s, total %u\n",
               SIZET_ARG(len),
@@ -523,7 +524,8 @@ void *MEM_guarded_mallocN_aligned(size_t len, size_t alignment, const char *str)
       memcount_raise(__func__);
     memh->_count = _mallocn_count++;
 #endif
-    return (++memh);
+    ++memh;
+    return (memh);
   }
   print_error("aligned_malloc returns null: len=" SIZET_FORMAT " in %s, total %u\n",
               SIZET_ARG(len),
@@ -547,7 +549,8 @@ void *MEM_guarded_callocN(size_t len, const char *str)
       memcount_raise(__func__);
     memh->_count = _mallocn_count++;
 #endif
-    return (++memh);
+    ++memh;
+    return (memh);
   }
   print_error("Calloc returns null: len=" SIZET_FORMAT " in %s, total %u\n",
               SIZET_ARG(len),
@@ -688,12 +691,18 @@ void MEM_guarded_printmemlist_stats(void)
   printf("slop memory len: %.3f MB\n", (double)mem_in_use_slop / (double)(1024 * 1024));
   printf(" ITEMS TOTAL-MiB AVERAGE-KiB TYPE\n");
   for (a = 0, pb = printblock; a < totpb; a++, pb++) {
-    printf("%6d (%8.3f  %8.3f) %s\n",
-           pb->items,
-           (double)pb->len / (double)(1024 * 1024),
-           (double)pb->len / 1024.0 / (double)pb->items,
-           pb->name);
+    if (pb && pb->items) {
+      pb->len = 0;
+      printf("%6d (%8.3f  %8.3f) %s\n",
+              pb->items,
+              (double)pb->len / (double)(1024 * 1024),
+              (double)pb->len / 1024.0 / (double)pb->items,
+              pb->name);
+    } else {
+        printf("Invalid printblock at index %d\n", a);
+    }
   }
+
 
   if (printblock != NULL) {
     free(printblock);
