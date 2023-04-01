@@ -21,7 +21,7 @@ data_convert_to_lambda(data_t * lambda, const data_t lambda_begin, const data_t 
 }
 
 void
-data_arrays_set_new(const Signal_Parameters conf, PointsArray points)
+data_arrays_set(const Signal_Parameters conf, PointsArrays points)
 {
   points.data->x = points.data->y = NULL;
   points.data->x = MEM_malloc_arrayN(conf.n_points + 1, sizeof(data_t), "data_arrays_set: data.x");

@@ -37,7 +37,7 @@ test_signal(const char * conf_name)
   Signal_Statistics stat;
   
   config_parameters_set(&conf, ini);
-  PointsArray data_arrays = { 
+  PointsArrays data_arrays = { 
                               &data,
                               &data_temp, 
                               &temp_gen, 
@@ -46,7 +46,7 @@ test_signal(const char * conf_name)
                               &temp_sens_3, 
                               &temp_sens_4 
   };
-  data_arrays_set_new(conf, data_arrays);
+  data_arrays_set(conf, data_arrays);
 
   /* Setup graphics */
   index_t max_number_of_plots = 5;

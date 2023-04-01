@@ -200,7 +200,7 @@ typedef struct {
     Points *temp_sens_2;
     Points *temp_sens_3;
     Points *temp_sens_4;
-} PointsArray;
+} PointsArrays;
 
 
 #endif
