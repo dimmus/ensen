@@ -16,5 +16,6 @@ ensen_lib_src += files([
   'strnlen_s.c',
   'snprintf_support.c',
   'strcmp_s.c',
+  'printf_s.c'
 ])
 

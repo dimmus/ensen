@@ -14,6 +14,7 @@
 #include "ensen_exp.h"
 
 #include "mem/ensen_mem_guarded.h"
+#include "str/safe_lib.h"
 
 #include "ensen.h"
 

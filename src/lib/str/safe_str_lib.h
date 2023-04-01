@@ -43,4 +43,7 @@ extern errno_t
 strcmp_s(const char *dest, rsize_t dmax,
          const char *src, int *indicator);
 
+int 
+printf_s(const char *format, ...);
+
 #endif   /* __SAFE_STR_LIB_H__ */
