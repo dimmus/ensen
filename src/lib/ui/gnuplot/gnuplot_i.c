@@ -178,6 +178,7 @@ void gnuplot_setstyle(gnuplot_ctrl * h, char * plot_style)
 {
     errno_t rc;
     int ind;
+    
     rsize_t max_len = 32;
     if (strcmp_s(plot_style, max_len, "lines", &ind) &&
         strcmp_s(plot_style, max_len, "points", &ind) &&
@@ -187,7 +188,8 @@ void gnuplot_setstyle(gnuplot_ctrl * h, char * plot_style)
         strcmp_s(plot_style, max_len, "steps", &ind) &&
         strcmp_s(plot_style, max_len, "errorbars", &ind) &&
         strcmp_s(plot_style, max_len, "boxes", &ind) &&
-        strcmp_s(plot_style, max_len, "boxerrorbars", &ind)) {
+        strcmp_s(plot_style, max_len, "boxerrorbars", &ind)) 
+    {
         fprintf(stderr, "warning: unknown requested style: using points\n");
         rc = strcpy_s(h->pstyle, max_len, "points");
     } else {
@@ -195,19 +197,10 @@ void gnuplot_setstyle(gnuplot_ctrl * h, char * plot_style)
     }
 
     // debug
-    if (rc != ESNULLP || 
-        rc != ESZEROL || 
-        rc != ESLEMAX || 
-        rc != EOK     || 
-        rc != ESOVRLP)
+    if (rc == (ESNULLP || ESZEROL || ESLEMAX || ESOVRLP))
     {
-        debug_printf("%s %u  Error in strcpy: rc=%u \n",
+        printf("%s:%u  Error in strcpy: rc=%u \n",
                      __FUNCTION__, __LINE__,  rc );
-    }
-
-    if (ind != 0) {
-        printf("%s %u  Error  ind=%d rc=%d \n",
-                     __FUNCTION__, __LINE__, ind, rc);
     }
 
     return;
@@ -697,13 +690,9 @@ char const * gnuplot_tmpfile(gnuplot_ctrl * handle)
         return NULL;
     }
     rc = strcpy_s(tmp_filename, 128, tmp_filename_template);
-    if (rc != ESNULLP || 
-        rc != ESZEROL || 
-        rc != ESLEMAX || 
-        rc != EOK     || 
-        rc != ESOVRLP)
+    if (rc == (ESNULLP || ESZEROL || ESLEMAX || ESOVRLP))
     {
-        debug_printf("%s %u  Error in strcpy: rc=%u \n",
+        printf("%s %u  Error in strcpy: rc=%u \n",
                      __FUNCTION__, __LINE__,  rc );
     }
 
