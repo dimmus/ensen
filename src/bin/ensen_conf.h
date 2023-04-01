@@ -5,7 +5,7 @@
 #include "config/ensen_config.h"
 #include "config/ensen_config_dictionary.h"
 
-int config_parameters_set(Signal_Parameters * param, dictionary *ini);
+int config_parameters_set(Signal_Parameters * param, const dictionary *ini);
 void config_parameters_set_default(void);
 
 #endif

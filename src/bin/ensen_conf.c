@@ -3,7 +3,7 @@
 #include "ensen_conf.h"
 
 int
-config_parameters_set(Signal_Parameters * param, dictionary *ini)
+config_parameters_set(Signal_Parameters * param, const dictionary *ini)
 {
 # ifdef DEBUG_CONF
   config_dump(ini, stderr);
