@@ -4,6 +4,7 @@
 #include "ensen_private.h"
 #include "ensen_benchmark.h"
 #include "ensen_signal_fit.h"
+#include "mem/ensen_mem_guarded.h"
 
 /**
     Function that performs Gauss-Elimination and returns the Upper triangular matrix and solution of equations:
@@ -128,43 +129,6 @@ signal_fit(Point (*p)[], index_t n_points, index_t n_poly)
   }
 }
 
-/**
-    @brief Fast smooth Y with defined smooth width
-    @param p Pointer to the array of points (x and y)
-    @param n_points Total number of points
-    @param smoothwidth Width of the smooth window (number of points)
-**/
-// void
-// fsmooth(Point (*p)[], index_t n_points, float smoothwidth)
-// {
-//     index_t w = round(smoothwidth);
-    
-//     data_t SumPoints = 0.0;
-//     for (index_t i = 0; i < w; i++)
-//     {
-//         SumPoints += (*p)[i].y;
-//     }
-    
-//     data_t s[n_points];
-//     index_t halfw = round(w/2);
-//     for (index_t k = 0; k <= (n_points-w); k++)
-//     {
-//         s[k + halfw - 1] = SumPoints;
-//         SumPoints -= (*p)[k].y;
-//         SumPoints += (*p)[k + w].y;
-//     }
-
-//     for (index_t n = n_points - w + 1; n <= n_points; n++)
-//     {
-//         s[n_points - w + halfw] += (*p)[n].y;
-//     }
-
-//     for (index_t i = 0; i < n_points; i++)
-//     {
-//         (*p)[i].y = s[i]/w;
-//     }
-// }
-
 void
 smooth(data_t *y, index_t n_points, index_t smoothwidth)
 {
@@ -177,7 +141,7 @@ smooth(data_t *y, index_t n_points, index_t smoothwidth)
         if(y[i] >= 0 || y[i] < 0) SumPoints += y[i];
     }
     
-    data_t s[n_points];
+    data_t *s = MEM_malloc_arrayN(n_points, sizeof(data_t), "signal_fit: smooth");
     index_t halfw = round(w/2);
     for (index_t k = 0; k <= (n_points-w); k++)
     {
@@ -195,7 +159,10 @@ smooth(data_t *y, index_t n_points, index_t smoothwidth)
     {
         y[i] = s[i]/w;
     }
+    
+    MEM_freeN(s);
 }
+
 
 index_t
 val2ind(data_t *x, index_t n_points, data_t val)
