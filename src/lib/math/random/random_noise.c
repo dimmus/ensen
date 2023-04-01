@@ -31,9 +31,6 @@ void init_rnd(){
 static unsigned long mt[MT_N];
 static int mti = MT_N + 1;
 
-void mt_init(unsigned long seed);
-unsigned long mt_rand(void);
-
 /* 
   Initializes the Mersenne Twister algorithm with a seed value.
   To use: 
@@ -82,28 +79,28 @@ mt_rand()
     return y;
 }
 
-float rnd()
-{
-  float r = 0.f;
-# ifdef RANDOM_STD
-  r = (float)rand()/(float)RAND_MAX;
-# endif
 # ifdef RANDOM_MT
-  r = (float)mt_rand()/(float)_SC_ULONG_MAX;
-# endif
-  return r;
+data_t rnd()
+{
+  return (data_t)mt_rand()/(data_t)_SC_ULONG_MAX;
 }
+# else
+data_t rnd()
+{
+  return (data_t)rand()/(data_t)RAND_MAX;
+}
+# endif
 
 // Define Gaussian PDF and CDF
-float gaussianPDF(float x){return ((1.0)/(R2*RPI*SIG))*exp(-(x*x)/(2*SIG*SIG));}
-float gaussianCDF(float x){return 0.5*(1+erf(x/ (R2*SIG)));}
+data_t gaussianPDF(data_t x){return ((1.0)/(R2*RPI*SIG))*exp(-(x*x)/(2*SIG*SIG));}
+data_t gaussianCDF(data_t x){return 0.5*(1+erf(x/ (R2*SIG)));}
 
 // Newtons method to reconstruct noise value from
 // random number thrown on [0,1).
-float NEWTON(float(*PDF)(float), float(*CDF)(float), float V)
+data_t NEWTON(data_t(*PDF)(data_t), data_t(*CDF)(data_t), data_t V)
 {
-  float DELTA;
-  float G = 0.0;
+  data_t DELTA;
+  data_t G = 0.0;
   while(1){
     DELTA = (CDF(G) - V);
     if (fabs(DELTA) < COV){return G;}
@@ -121,7 +118,7 @@ float NEWTON(float(*PDF)(float), float(*CDF)(float), float V)
 //
 // The key to it all ! All function utilize genWhiteNoise a
 // a basis for colored noise generation.
-float genWhiteNoise(){return NEWTON(gaussianPDF, gaussianCDF, rnd());}
+data_t genWhiteNoise(){return NEWTON(gaussianPDF, gaussianCDF, rnd());}
 
 /* //////////////////////// */
 // Brown Noise Generator
@@ -130,17 +127,17 @@ float genWhiteNoise(){return NEWTON(gaussianPDF, gaussianCDF, rnd());}
 // generator random walking too far from zero. So we need two
 // bounding functions for nice clean brown noise.
 //
-float fixBrownNoiseU(float x){return NEWTON(gaussianPDF, gaussianCDF, x*rnd());}
-float fixBrownNoiseL(float x){return NEWTON(gaussianPDF, gaussianCDF, (1- x*rnd()));}
+data_t fixBrownNoiseU(data_t x){return NEWTON(gaussianPDF, gaussianCDF, x*rnd());}
+data_t fixBrownNoiseL(data_t x){return NEWTON(gaussianPDF, gaussianCDF, (1- x*rnd()));}
 
-float BN = 0;
-float genBrownNoiseCorr(){
+data_t BN = 0;
+data_t genBrownNoiseCorr(){
   if (BN> 600) {BN += fixBrownNoiseU(0.7);}
   else if (BN<-600) {BN += fixBrownNoiseL(0.3);}
   else {BN+=genWhiteNoise();}
   return BN;
 }
-float genBrownNoisePure(){
+data_t genBrownNoisePure(){
   BN+=genWhiteNoise();
   return BN;
 }
@@ -149,9 +146,9 @@ float genBrownNoisePure(){
 // Violet Noise Generator
 //
 // Generate white noise and take discrete derivative
-float VN = 0;
-float genVioletNoise(){
-  float TMP = VN;
+data_t VN = 0;
+data_t genVioletNoise(){
+  data_t TMP = VN;
   VN = genWhiteNoise();
   return TMP-VN;
 }
@@ -163,27 +160,27 @@ float genVioletNoise(){
 // Complicated. Instead of generating a value, a seed vector of
 // white noise is generated. The autocorrelation for 1/f noise
 // is then invoked for all subsequent noise values.
-float* autoCorr(int depth, float alpha){
+data_t* autoCorr(int depth, data_t alpha){
   int n;
-  float* A  = MEM_malloc_arrayN(depth, sizeof(float), "random_noise: autoCorr");
+  data_t* A  = MEM_malloc_arrayN(depth, sizeof(data_t), "random_noise: autoCorr");
   for(n=0;n<depth;n++){
     if (n==0){A[n] = 1.0;}
-    else{A[n] =((float)n - 1.0 - alpha/2)*A[n-1]/(float)n;}
+    else{A[n] =((data_t)n - 1.0 - alpha/2)*A[n-1]/(data_t)n;}
   }
   return A;
 }  
 
-float* initPink(int depth, float alpha __UNUSED__){
+data_t* initPink(int depth, data_t alpha __UNUSED__){
   int n;
-  float* PN = MEM_malloc_arrayN(depth - 1, sizeof(float), "random_noise: initPink");
+  data_t* PN = MEM_malloc_arrayN(depth - 1, sizeof(data_t), "random_noise: initPink");
   for(n=0;n<(depth-1);n++){PN[n] = genWhiteNoise();}
   return PN;
 }
 
-float genPinkNoise(float* P, float* A, int depth){
+data_t genPinkNoise(data_t* P, data_t* A, int depth){
   int n; 
   // Create the V matrix
-  float* V = MEM_malloc_arrayN(depth, sizeof(float), "random_noise: genPinkNoise");
+  data_t* V = MEM_malloc_arrayN(depth, sizeof(data_t), "random_noise: genPinkNoise");
   for (n=0;n<depth;n++){
     if (n==depth-1){V[n]=genWhiteNoise();}
     else{V[n] = -1*P[n];}
@@ -192,7 +189,7 @@ float genPinkNoise(float* P, float* A, int depth){
     if (n==depth-2){P[n]=0.0;}
     else {P[n]=P[n+1];}
   }
-  float dot=0.0;
+  data_t dot=0.0;
   for (n=0;n<depth;n++){dot+=V[n]*A[depth-1-n];}
   MEM_freeN(V);
   
@@ -207,17 +204,17 @@ float genPinkNoise(float* P, float* A, int depth){
 // Same thing as pink noise, only a violet noise vector is used as a
 // seed vector. Note that the 'pinking' of violet noise produces blue
 // noise (i.e. noise fractioning) 
-float* initBlue(int depth, float alpha __UNUSED__){
+data_t* initBlue(int depth, data_t alpha __UNUSED__){
   int n;
-  float* bnoise = MEM_malloc_arrayN(depth - 1, sizeof(float), "random_noise: initBlue");
+  data_t* bnoise = MEM_malloc_arrayN(depth - 1, sizeof(data_t), "random_noise: initBlue");
   for(n=0;n<(depth-1);n++){bnoise[n] = genVioletNoise();}
   return bnoise;
 }
 
-float genBlueNoise(float* B, float* A, int depth){
+data_t genBlueNoise(data_t* B, data_t* A, int depth){
   int n; 
   // Create the V matrix
-  float* V = MEM_malloc_arrayN(depth, sizeof(float), "random_noise: genBlueNoise");
+  data_t* V = MEM_malloc_arrayN(depth, sizeof(data_t), "random_noise: genBlueNoise");
   for (n=0;n<depth;n++){
     if (n==depth-1){V[n]=genVioletNoise();}
     else{V[n] = -1*B[n];}
@@ -226,7 +223,7 @@ float genBlueNoise(float* B, float* A, int depth){
     if (n==depth-2){B[n]=0.0;}
     else {B[n]=B[n+1];}
   }
-  float dot=0.0;
+  data_t dot=0.0;
   for (n=0;n<depth;n++){dot+=V[n]*A[depth-1-n];}
   MEM_freeN(V);
 

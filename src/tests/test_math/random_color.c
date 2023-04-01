@@ -13,9 +13,10 @@ DIMMUS_END_TEST */
 
 DIMMUS_START_TEST (noise_color_test_white_rnd)
 {
-    float noise_val1 = genWhiteNoise();
-    float noise_val2 = genWhiteNoise();
-    if (noise_val1 - noise_val2 <= 1.0e-14) /* solved warning: comparing floating-point with ‘==’ or ‘!=’ is unsafe */
+    init_rnd();
+    data_t wn1 = genWhiteNoise();
+    data_t wn2 = genWhiteNoise();
+    if (wn1 - wn2 <= 1.0e-14) /* solved warning: comparing floating-point with ‘==’ or ‘!=’ is unsafe */
     {
         ck_abort_msg("genWhiteNoise failure: generated two equal values (not a random)");
     }

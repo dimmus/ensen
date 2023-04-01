@@ -3,5 +3,6 @@
 #endif
 
 #include "../check_common.h"
+#include "ensen_private.h"
 
 void random_color_test(TCase *tc);

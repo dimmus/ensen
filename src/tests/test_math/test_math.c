@@ -8,6 +8,7 @@ static const Dimmus_Test_Case etc[] = {
 
 SUITE_INIT(ensen) {
     init_rnd();
+    mt_init(rand());
 }
 
 SUITE_SHUTDOWN(ensen) {
