@@ -21,6 +21,8 @@ Improvements:
    * add guarded memory allocation
    * add safe strings manipulation methods (like strcpy and strlen)
    * add safe memory manipulation methods (like memcpy and memset)
+   * add documentation infrastructure based on doxygen
+   * add localization
 
 Fixes:
    * code cleanup

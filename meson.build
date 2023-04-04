@@ -1,5 +1,5 @@
 project('ensen', ['c','cpp'],
-        version       : '0.1.99',
+        version       : '0.1.103',
         meson_version : '>= 0.53.0',
         default_options: [
                 'c_std=c99',
@@ -100,6 +100,10 @@ config_dir = [include_directories('.')]
 config_h.set_quoted('PACKAGE_NAME', meson.project_name())
 config_h.set('HAVE_CONFIG_H', '1')
 
+config_h.set_quoted('PACKAGE', meson.project_name())
+config_h.set_quoted('PACKAGE_VERSION', meson.project_version())
+config_h.set_quoted('VERSION', meson.project_version())
+
 if get_option('ui-backend') == 'gnuplot'
   config_h.set('UI_GNUPLOT', '1')
   find_program('gnuplot', native: true)
@@ -160,19 +164,22 @@ ensen_cargs = [
 ]
 
 ##### documentation
-build_doc = false
-scdoc = dependency('scdoc', native: true, required: get_option('man-pages'), version: '>=1.9.0')
-if scdoc.found()
-	build_doc = true
+# build_doc = false
+# scdoc = dependency('scdoc', native: true, required: get_option('man-pages'), version: '>=1.9.0')
+# if scdoc.found()
+# 	build_doc = true
+# endif
+# if build_doc
+# 	subdir('doc')
+# endif
+doxygen = find_program('doxygen', required : false)
+
+if doxygen.found()
+  subdir('doc')
 endif
 
 subdir('po')
-
 subdir('src')
-
-if build_doc
-	subdir('doc')
-endif
 
 if get_option('tests')
   check = dependency('check')
