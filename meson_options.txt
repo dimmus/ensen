@@ -6,7 +6,7 @@ option('man-pages',
 
 option('nls',
     type: 'boolean',
-    value: false,
+    value: true,
     description: 'enable localization (default=false)'
 )
 

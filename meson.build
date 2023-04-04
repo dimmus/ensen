@@ -1,5 +1,5 @@
 project('ensen', ['c','cpp'],
-        version       : '0.1.102',
+        version       : '0.1.99',
         meson_version : '>= 0.53.0',
         default_options: [
                 'c_std=c99',
@@ -11,10 +11,29 @@ project('ensen', ['c','cpp'],
               ],
 )
 
-v_array = meson.project_version().split('.')
-v_maj = v_array[0]
-v_min = v_array[1]
-v_mic = v_array[2]
+proj     = meson.project_name()
+ver      = meson.project_version()
+
+ensen_version = ver.split('.')
+
+config_h = configuration_data()
+
+if ensen_version[2] == '99'
+  git_version = '0'
+  git         = find_program('git', required: false)
+  if git.found() == true
+    git_cmd = run_command(git.path(), 'rev-list', '--count', 'HEAD')
+    if git_cmd.returncode() == 0
+      git_version = git_cmd.stdout().strip()
+    endif
+  endif
+  ensen_version_rev = '.'.join([ver, git_version])
+  release = 'dev-@0@.@1@.@2@'.format(ensen_version[0], ensen_version[1], ensen_version[2])
+else
+  ensen_version_rev = ver
+  release = '@0@.@1@.@2@'.format(ensen_version[0], ensen_version[1], ensen_version[2])
+  config_h.set('ENSEN_RELEASE_BUILD', '1')
+endif
 
 ##### binaries
 cc = meson.get_compiler('c')
@@ -78,7 +97,6 @@ endif
 
 # configuration
 config_dir = [include_directories('.')]
-config_h = configuration_data()
 config_h.set_quoted('PACKAGE_NAME', meson.project_name())
 config_h.set('HAVE_CONFIG_H', '1')
 
@@ -123,24 +141,23 @@ native_arch_opt_c_args = [
                             '-msse3'
                          ]
 
+host_os = host_machine.system()
+if host_os == 'linux'
+   config_h.set('_GNU_SOURCE', 1)
+   config_h.set('__EXTENSIONS__', 1)
+   config_h.set('_POSIX_PTHREAD_SEMANTICS', 1)
+   config_h.set('_TANDEM_SOURCE', 1)
+   config_h.set('_ALL_SOURCE', 1)
+   config_h.set('_POSIX_SOURCE', 1)
+   config_h.set('_POSIX_1_SOURCE', 1)
+endif
+
 pkgconfig = import('pkgconfig')
 
 ensen_cargs = [
   '-D_POSIX_C_SOURCE=200809L',
   '-D_XOPEN_SOURCE=500',
 ]
-
-##### translation
-build_nls = false
-deps_nls = []
-if get_option('nls')
-  intl_dep = cc.find_library('intl', required: false)
-  if intl_dep.found() and cc.has_header('libintl.h')
-    deps_nls += cc.find_library('intl', required: true)
-    ensen_cargs += '-DENABLE_NLS'
-    build_nls = true
-  endif
-endif
 
 ##### documentation
 build_doc = false
@@ -149,9 +166,7 @@ if scdoc.found()
 	build_doc = true
 endif
 
-if build_nls
-  subdir('po')
-endif
+subdir('po')
 
 subdir('src')
 
@@ -180,11 +195,37 @@ if get_option('examples')
 endif
 
 # Use config_h after all subdirs have set values
-configure_file(output: 'config.h', configuration: config_h)
+configure_file(output       : 'config.h',
+               configuration: config_h,
+               install_dir  : dir_include)
+
+dir_pkgconfig = join_paths(dir_lib, 'pkgconfig')
+pkgconfig.generate(name             : proj,
+                   description      : 'Multimode FBG-based temperature sensing ',
+                   filebase         : proj,
+                   subdirs          : proj,
+                  #  requires         : requires_e,
+                   version          : ensen_version_rev,
+                   libraries_private: '-lm',
+                   install_dir      : dir_pkgconfig,
+                   variables        : [ 'exec_prefix=${prefix}',
+                                        'datarootdir=@0@'.format(dir_data),
+                                        'datadir=${datarootdir}',
+                                        # 'modules=@0@/enlightenment/modules'.format(dir_lib),
+                                        'pkgdatadir=${datarootdir}/' + proj + '/data',
+                                        # 'themes=${pkgdatadir}/themes',
+                                        # 'module_arch=@0@'.format(module_arch),
+                                        # 'backgrounds=${pkgdatadir}/backgrounds',
+                                        'release=@0@'.format(release),
+                                        # 'wayland=@0@'.format(wayland)
+                                      ]
+                  )
 
 # Output
-summary({'OS': host_machine.system(),
-         'NLS': build_nls ? 'yes' : 'no'
+summary({'OS': host_os,
+         'Release:': release,
+         'Version:': ensen_version_rev,
+        #  'NLS': build_nls ? 'yes' : 'no'
         }, section: 'Configuration Options Summary:')
 
 summary({'prefix': dir_prefix,

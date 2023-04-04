@@ -1,0 +1,99 @@
+# SOME DESCRIPTIVE TITLE.
+# This file is put in the public domain.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ensen\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-04-04 14:28+0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/bin/main.c:34
+#, c-format
+msgid "cannot parse file: %s\n"
+msgstr ""
+
+#: src/bin/main.c:143
+#, c-format
+msgid " Noise amplitude changed to %f\n"
+msgstr ""
+
+#: src/bin/main.c:158
+msgid "dT vs Noise amplitude"
+msgstr ""
+
+#: src/bin/main.c:169
+msgid "Signal"
+msgstr ""
+
+#: src/bin/main.c:188
+#, c-format
+msgid " Smooth order changed to %d\n"
+msgstr ""
+
+#: src/bin/main.c:206
+msgid "dT vs Smooth order"
+msgstr ""
+
+#: src/bin/main.c:213
+#, c-format
+msgid " Smooth width changed to %d\n"
+msgstr ""
+
+#: src/bin/main.c:244
+msgid "Signal (smooth)"
+msgstr ""
+
+#: src/bin/main.c:273
+#, c-format
+msgid " Found %d peak(s) in %f sec at "
+msgstr ""
+
+#: src/bin/main.c:283
+msgid "Peak marker"
+msgstr ""
+
+#: src/bin/main.c:296
+msgid "T (sensor 1)"
+msgstr ""
+
+#: src/bin/main.c:299
+msgid "T (sensor 2)"
+msgstr ""
+
+#: src/bin/main.c:302
+msgid "T (sensor 3)"
+msgstr ""
+
+#: src/bin/main.c:305
+msgid "T (sensor 4)"
+msgstr ""
+
+#: src/bin/main.c:308
+msgid "T (generator)"
+msgstr ""
+
+#: src/bin/main.c:339
+#, c-format
+msgid ""
+"\n"
+"Press ENTER to continue\n"
+msgstr ""
+
+#: src/bin/main.c:390
+#, c-format
+msgid "Cannot find configuration file: %s. Created the new one!\n"
+msgstr ""
+
+#: src/bin/main.c:401
+#, c-format
+msgid "Used %ld kB of memory \n"
+msgstr ""

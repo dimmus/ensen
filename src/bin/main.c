@@ -2,9 +2,13 @@
   #include "config.h"
 #endif
 
-#ifdef ENABLE_NLS
-# include <libintl.h>
+#if HAVE_GETTEXT
+#include <libintl.h>
+#define _(string) gettext (string)
+#else
+#define _(string) (string)
 #endif
+#define gettext_noop(String) String
 
 #include "ensen_utils.h"
 #include "ensen_conf.h"
@@ -27,7 +31,7 @@ test_signal(const char * conf_name)
   dictionary *ini = config_load(conf_name);
   if (ini == NULL)
   {
-      fprintf(stderr, "cannot parse file: %s\n", conf_name);
+      fprintf(stderr, _("cannot parse file: %s\n"), conf_name);
       return -1;
   }
 
@@ -136,7 +140,7 @@ test_signal(const char * conf_name)
       if (fmod(i_gen, noise_tick) <= 1.0e-14)
       {
         noise_amplitude += noise_step;
-        printf(MAGENTA("PSEARCHER:")" Noise amplitude changed to %f\n", noise_amplitude);
+        printf(_(MAGENTA("PSEARCHER:")" Noise amplitude changed to %f\n"), noise_amplitude);
       }
       conf.noise.amplitude = noise_amplitude;
 
@@ -151,7 +155,7 @@ test_signal(const char * conf_name)
 
       gnuplot_cmd(win[4], "set xrange [%g:%g]", 0.0, 0.5);
       gnuplot_cmd(win[4], "set yrange [%g:%g]", -20.0, 20.0);
-      gnuplot_plot_xy(win[4], x, y, i_gen + 1, "dT vs Noise amplitude");
+      gnuplot_plot_xy(win[4], x, y, i_gen + 1, _("dT vs Noise amplitude"));
     }
     else if (conf.plot.show_vs_noise == 2) // change noise color
     {
@@ -162,7 +166,7 @@ test_signal(const char * conf_name)
     stat.generation_time = signal_generate_exp(&data, conf.n_peaks, conf.peak, conf.noise, conf.n_points);
     if ((i_gen > 0) & conf.plot.show_signal & (win[0] != NULL))
     {
-      gnuplot_plot_xy(win[0], data.x, data.y, conf.n_points, "Signal");
+      gnuplot_plot_xy(win[0], data.x, data.y, conf.n_points, _("Signal"));
     }
 
     /*
@@ -181,7 +185,7 @@ test_signal(const char * conf_name)
       if (fmod(i_gen, smooth_tick) <= 1.0e-14)
       {
         ++smooth_level;
-        printf(MAGENTA("PSEARCHER:")" Smooth order changed to %d\n", smooth_level);
+        printf(_(MAGENTA("PSEARCHER:")" Smooth order changed to %d\n"), smooth_level);
       }
       for (i = 0; i < smooth_level; i++)
       {
@@ -199,14 +203,14 @@ test_signal(const char * conf_name)
 
       gnuplot_cmd(win[3], "set xrange [%d:%d]", 0, 8);
       gnuplot_cmd(win[3], "set yrange [%g:%g]", -20.0, 20.0);
-      gnuplot_plot_xy(win[3], x, y, i_gen + 1, "dT vs Smooth order");
+      gnuplot_plot_xy(win[3], x, y, i_gen + 1, _("dT vs Smooth order"));
     }
     else if ((i_gen > 0) & (conf.plot.show_vs_smooth == 2)) // change smooth width
     {
       if (fmod(i_gen, smooth_tick) <= 1.0e-14)
       {
         conf.smooth.width += 25;
-        printf(MAGENTA("PSEARCHER:")" Smooth width changed to %d\n", conf.smooth.width);
+        printf(_(MAGENTA("PSEARCHER:")" Smooth width changed to %d\n"), conf.smooth.width);
       }
       for (i = 0; i < conf.smooth.level; i++)
       {
@@ -237,7 +241,7 @@ test_signal(const char * conf_name)
     /* Show plot of smoothed signal */
     if (conf.plot.show_smooth & (win[0] != NULL))
     {
-      gnuplot_plot_xy(win[0], data.x, data.y, conf.n_points, "Signal (smooth)");
+      gnuplot_plot_xy(win[0], data.x, data.y, conf.n_points, _("Signal (smooth)"));
     }
 
     /* Find and show derivative */
@@ -266,7 +270,7 @@ test_signal(const char * conf_name)
       temp_sens_3.y[i_gen] = temp_sens_3.y[i_gen - 1] + (data.x[(index_t)peaks.peak[2].position] - data.x[peak_position_found[2]])/conf.temp.coefficient;
       temp_sens_4.y[i_gen] = temp_sens_4.y[i_gen - 1] + (data.x[(index_t)peaks.peak[3].position] - data.x[peak_position_found[3]])/conf.temp.coefficient;
 
-      printf(MAGENTA("PSEARCHER:")" Found %d peak(s) in %f sec at ", peaks.total_number, stat.peak_search_time);
+      printf(_(MAGENTA("PSEARCHER:")" Found %d peak(s) in %f sec at "), peaks.total_number, stat.peak_search_time);
       for (index_t i_sens = 0; i_sens < conf.search.peaks_real_number; i_sens++)
       {
         show_psearch_info(conf, i_gen, i_sens, peaks.total_number, temp_sens_1, temp_sens_2, temp_sens_3, temp_sens_4);
@@ -276,7 +280,7 @@ test_signal(const char * conf_name)
         {
           data_t marker_x[2] = { data.x[(index_t)peaks.peak[i_sens].position], data.x[(index_t)peaks.peak[i_sens].position] };
           data_t marker_y[2] = { conf.plot.y_min, conf.plot.y_max };
-          gnuplot_plot_xy(win[0], marker_x, marker_y, 2, "Peak marker");
+          gnuplot_plot_xy(win[0], marker_x, marker_y, 2, _("Peak marker"));
         }
       }
     }
@@ -289,19 +293,19 @@ test_signal(const char * conf_name)
       switch (conf.search.peak_search_number)
       {
         case 1:
-          gnuplot_plot_xy(win[2], data_temp.x, temp_sens_1.y, i_gen + 1, "T (sensor 1)");
+          gnuplot_plot_xy(win[2], data_temp.x, temp_sens_1.y, i_gen + 1, _("T (sensor 1)"));
           break;
         case 2:
-          gnuplot_plot_xy(win[2], data_temp.x, temp_sens_2.y, i_gen + 1, "T (sensor 2)");
+          gnuplot_plot_xy(win[2], data_temp.x, temp_sens_2.y, i_gen + 1, _("T (sensor 2)"));
           break;
         case 3:
-          gnuplot_plot_xy(win[2], data_temp.x, temp_sens_3.y, i_gen + 1, "T (sensor 3)");
+          gnuplot_plot_xy(win[2], data_temp.x, temp_sens_3.y, i_gen + 1, _("T (sensor 3)"));
           break;
         case 4:
-          gnuplot_plot_xy(win[2], data_temp.x, temp_sens_4.y, i_gen + 1, "T (sensor 4)");
+          gnuplot_plot_xy(win[2], data_temp.x, temp_sens_4.y, i_gen + 1, _("T (sensor 4)"));
           break;
       }
-      gnuplot_plot_xy(win[2], data_temp.x, temp_gen.y, i_gen + 1, "T (generator)");
+      gnuplot_plot_xy(win[2], data_temp.x, temp_gen.y, i_gen + 1, _("T (generator)"));
     }
     /* Isolate desired segment for curve fitting */
     // index_t points_segment_size = 100; // number of points
@@ -332,7 +336,7 @@ test_signal(const char * conf_name)
   /* Do not close window untill we press any key */
   if (conf.plot.show_signal || conf.plot.show_smooth || conf.plot.show_derivative || conf.plot.show_temperature)
   {
-    printf("\nPress ENTER to continue\n"); while (getchar()!='\n'){}
+    printf(_("\nPress ENTER to continue\n")); while (getchar()!='\n'){}
   }
 
   /*
@@ -383,7 +387,7 @@ main(int argc __UNUSED__, const char ** argv __UNUSED__)
   FILE *f = fopen(conf_file_name, "r");
   if (f == NULL) {
     config_parameters_set_default();
-    printf("Cannot find configuration file: %s. Created the new one!\n", conf_file_name);
+    printf(_("Cannot find configuration file: %s. Created the new one!\n"), conf_file_name);
   }
 
   test_signal("config.ini");
@@ -394,7 +398,7 @@ main(int argc __UNUSED__, const char ** argv __UNUSED__)
   }
 
 # ifdef MEM_DEBUG_APPLY
-  printf("Used %ld kB of memory \n", MEM_get_peak_memory()/1024);
+  printf(_("Used %ld kB of memory \n"), MEM_get_peak_memory()/1024);
 # endif
 
   return 0;

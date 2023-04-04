@@ -19,7 +19,7 @@ ensen_bin = executable('ensen', ensen_bin_src,
              '-DHAVE_CONFIG_H',
             ],
    include_directories  : [ config_dir, '../lib/' ],
-   dependencies         : [ ensen_lib, ensen_deps, deps_nls ],
+   dependencies         : [ ensen_lib, ensen_deps, dep_intl],
    install              : true
 )
 

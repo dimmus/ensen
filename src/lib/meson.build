@@ -3,7 +3,7 @@ ensen_lib_header_src = [
 ]
 ensen_lib_src = []
 
-ensen_ext_deps = [deps_nls, m]
+ensen_ext_deps = [dep_intl, m]
 
 subdir('mem')
 subdir('mem_s')
