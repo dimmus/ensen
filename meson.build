@@ -1,6 +1,6 @@
 project('ensen', ['c','cpp'],
-        version       : '0.1.103',
-        meson_version : '>= 0.53.0',
+        version       : '0.1.119',
+        meson_version : '>= 0.59.0',
         default_options: [
                 'c_std=c99',
                 'cpp_std=c++20', # use in guarded memory allocator
@@ -52,8 +52,18 @@ ensen_cflags_try = [
   '-Wfloat-equal',
   '-Wuninitialized',
   '-Wundef',
+  '-Wendif-labels',
   '-Wcast-align',
   '-Wformat=2',
+  '-Wimplicit-fallthrough=2',
+  '-Winit-self',
+  '-Wlogical-op',
+  '-Wmissing-include-dirs',
+  '-Wold-style-definition',
+  '-Woverflow',
+  '-Wstrict-aliasing=2',
+  '-Wstrict-prototypes',
+  '-fstrict-aliasing',
   '-Wno-format-y2k',
   '-Wno-variadic-macros', # no warning: ISO C does not permit named variadic macros (for C++ use warning_level=2)
   '-Wno-strict-aliasing', # no warning: dereferencing type-punned pointer will break strict-aliasing rules
@@ -165,7 +175,7 @@ ensen_cargs = [
 
 ##### documentation
 # build_doc = false
-# scdoc = dependency('scdoc', native: true, required: get_option('man-pages'), version: '>=1.9.0')
+# scdoc = dependency('scdoc', native: true, required: get_option('docs'), version: '>=1.9.0')
 # if scdoc.found()
 # 	build_doc = true
 # endif
