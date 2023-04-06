@@ -1,7 +1,13 @@
-option('man-pages',
+option('docs',
     type: 'feature',
     value: 'auto',
     description: 'generate and install man pages (default=false)'
+)
+
+option('website',
+    type: 'boolean',
+    value: false,
+    description: 'build website, requires docs to be enabled',
 )
 
 option('nls',
