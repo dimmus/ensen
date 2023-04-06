@@ -3,10 +3,10 @@
 #endif
 
 #if HAVE_GETTEXT
-#include <libintl.h>
-#define _(string) gettext (string)
+  #include <libintl.h>
+  #define _(string) gettext (string)
 #else
-#define _(string) (string)
+  #define _(string) (string)
 #endif
 #define gettext_noop(String) String
 

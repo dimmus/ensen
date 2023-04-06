@@ -1,7 +1,7 @@
 test_math_src = [
   'test_math.c',
   'test_math.h',
-  'random_color.c',
+  'random_noise.c',
 ]
 
 test_math_bin = executable('test_math',

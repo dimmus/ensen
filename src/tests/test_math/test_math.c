@@ -1,8 +1,9 @@
 #include "test_math.h"
+#include "math/random/ensen_math_random.h"
 #include "math/random/ensen_math_random_noise.h"
 
 static const Dimmus_Test_Case etc[] = {
-  { "Color", random_color_test },
+  { "Noise color", random_noise_test },
   { NULL, NULL }
 };
 

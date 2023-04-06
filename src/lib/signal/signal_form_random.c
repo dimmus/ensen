@@ -27,11 +27,11 @@ random_signal_generate(Random_Signal_Parameters rsp, data_t (*signal)[])
         // Create new basis.
         Basis new_basis;
         // Get random frequency from 0 to max_frequency.
-        new_basis.frequency = random_zero_one() * rsp.max_frequency;
+        new_basis.frequency = random_range_zero_one() * rsp.max_frequency;
         // Get random phase offset from 0 to 2*PI.
-        new_basis.phase_offset = random_zero_one() * 2.0 * M_PI;
+        new_basis.phase_offset = random_range_zero_one() * 2.0 * M_PI;
         // Get random amplitude from 0 to 1/frequency.  This gives more power to lower frequencies.
-        new_basis.amplitude = random_zero_one() / new_basis.frequency;
+        new_basis.amplitude = random_range_zero_one() / new_basis.frequency;
         // Add basis to bases.
         // bases.push_back(new_basis);
         bases[b] = new_basis;
@@ -75,7 +75,7 @@ random_signal_generate(Random_Signal_Parameters rsp, data_t (*signal)[])
         // Add noise to the point if specified noise percentage is not zero.
         if(rsp.noise_percentage > 0)
         {
-            (*signal)[n] += random_pm_one() * rsp.noise_percentage * rsp.desired_std_deviation;
+            (*signal)[n] += random_range_pm_one() * rsp.noise_percentage * rsp.desired_std_deviation;
         }
     }
 }

@@ -108,7 +108,7 @@ signal_generate_exp(Points *points, index_t n_peaks, Peak peaks[], Noise noise, 
       for (i = 0; i < n_points; i++)
       {
         (*points).y[i] += peaks[j].amplitude * ampl_coeff * y[i];
-        if (noise.amplitude > 0) (*points).y[i] += noise.amplitude * random_pm_one();
+        if (noise.amplitude > 0) (*points).y[i] += noise.amplitude * random_range_pm_one();
       }
     }
     double end_time = get_run_time();

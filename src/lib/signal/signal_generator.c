@@ -19,7 +19,7 @@ signal_generate(Points *points,
             (*points).y[i] += peaks[j].amplitude * gaussian((*points).x[i], peaks[j].position, peaks[j].width);
             if (noise.amplitude > 0)
             {
-              if (noise.color == 0) (*points).y[i] += noise.amplitude * random_pm_one();  
+              if (noise.color == 0) (*points).y[i] += noise.amplitude * random_range_pm_one();  
               if (noise.color == 1) (*points).y[i] += noise.amplitude * genWhiteNoise();
               if (noise.color == 2) (*points).y[i] += noise.amplitude * genBrownNoiseCorr();
               if (noise.color == 3) (*points).y[i] += noise.amplitude * genVioletNoise();
